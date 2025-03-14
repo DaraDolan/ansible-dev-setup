@@ -1,0 +1,8 @@
+---
+software_packages:
+  - git
+  - curl
+  - wget
+  - zsh
+  - python
+  - node
