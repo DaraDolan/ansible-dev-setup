@@ -1,0 +1,48 @@
+- name: Install Zsh
+  apt:
+    name: zsh
+    state: present
+  become: true
+
+- name: Set Zsh as default shell for current user
+  user:
+    name: "{{ lookup('env', 'USER') }}"
+    shell: /usr/bin/zsh
+  become: true
+
+- name: Install Oh-My-Zsh
+  git:
+    repo: 'https://github.com/ohmyzsh/ohmyzsh.git'
+    dest: "/home/{{ lookup('env', 'USER') }}/.oh-my-zsh"
+    depth: 1
+  become: false
+
+- name: Install zoxide (modern replacement for z)
+  shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/zoxide"
+  become: false
+
+- name: Install Zinit plugin manager
+  shell: curl -fsSL https://git.io/zinit-install | zsh
+  args:
+    creates: "/home/{{ lookup('env', 'USER') }}/.local/share/zinit"
+  become: false
+
+- name: Copy .zinitrc configuration file
+  copy:
+    src: "{{ role_path }}/files/zinit.zsh"
+    dest: "/home/{{ lookup('env', 'USER') }}/.zinitrc"
+  become: false
+
+- name: Copy Zsh configuration file
+  copy:
+    src: "{{ role_path }}/files/zshrc"
+    dest: "/home/{{ lookup('env', 'USER') }}/.zshrc"
+  become: false
+
+- name: Copy Powerlevel10k config file
+  copy:
+    src: "{{ role_path }}/files/p10k.zsh"
+    dest: "/home/{{ lookup('env', 'USER') }}/.p10k.zsh"
+  become: false
