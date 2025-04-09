@@ -1,0 +1,46 @@
+{
+  "Visual Strikethrough": {
+    "prefix": ["vstrike"],
+    "body": "~~${1:$TM_SELECTED_TEXT}~~",
+    "description": "Apply strikethrough formatting to selected text"
+  },
+  "Bold": {
+    "prefix": ["bold", "b"],
+    "body": "**${1:$TM_SELECTED_TEXT}**",
+    "description": "Bold text"
+  },
+  "Italic": {
+    "prefix": ["italic", "i"],
+    "body": "*${1:$TM_SELECTED_TEXT}*",
+    "description": "Italic text"
+  },
+  "Code Block": {
+    "prefix": ["codeblock", "cb"],
+    "body": [
+      "```${1:language}",
+      "${2:$TM_SELECTED_TEXT}",
+      "```"
+    ],
+    "description": "Code block with language syntax"
+  },
+  "Link": {
+    "prefix": ["link", "url"],
+    "body": "[${1:text}](${2:url})",
+    "description": "Hyperlink"
+  },
+  "Image": {
+    "prefix": ["image", "img"],
+    "body": "![${1:alt text}](${2:image_url})",
+    "description": "Image with alt text"
+  },
+  "Table": {
+    "prefix": ["table"],
+    "body": [
+      "| ${1:Column1} | ${2:Column2} | ${3:Column3} |",
+      "| ------------ | ------------ | ------------ |",
+      "| ${4:Row1Col1} | ${5:Row1Col2} | ${6:Row1Col3} |",
+      "| ${7:Row2Col1} | ${8:Row2Col2} | ${9:Row2Col3} |"
+    ],
+    "description": "Create a markdown table with 3 columns"
+  }
+}

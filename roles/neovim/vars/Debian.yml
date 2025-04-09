@@ -1,0 +1,11 @@
+---
+neovim_packages:
+  - neovim
+  - git
+  - curl
+  - ripgrep
+  - fd-find
+  - python3-pip
+  - nodejs
+  - npm
+  - unzip

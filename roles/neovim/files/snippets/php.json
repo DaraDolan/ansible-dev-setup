@@ -1,0 +1,54 @@
+{
+  "PHP Tag": {
+    "prefix": "php",
+    "body": [
+      "<?php",
+      "",
+      "$0",
+      ""
+    ],
+    "description": "Open PHP tag"
+  },
+  "Define class": {
+    "prefix": "class",
+    "body": [
+      "<?php",
+      "",
+      "namespace $1;",
+      "",
+      "class ${2:Name}",
+      "{",
+      "    ${0://}",
+      "}"
+    ],
+    "description": "Define a PHP class"
+  },
+  "Define method": {
+    "prefix": "method",
+    "body": [
+      "${1:public} function ${2:name}($3)",
+      "{",
+      "    ${0://}",
+      "}"
+    ],
+    "description": "Define a class method"
+  },
+  "This shortcut": {
+    "prefix": "$",
+    "body": [
+      "$this->$0"
+    ],
+    "description": "Quick $this-> shortcut"
+  },
+  "Define a test method": {
+    "prefix": "test",
+    "body": [
+      "/** @test */",
+      "public function ${1:itCanDoSomething}()",
+      "{",
+      "    ${0:// code...}",
+      "}"
+    ],
+    "description": "Creates a test method"
+  }
+}

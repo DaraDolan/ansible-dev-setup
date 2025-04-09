@@ -1,0 +1,98 @@
+---
+- name: Include platform-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+# Install Neovim and dependencies
+- name: Install Neovim and dependencies (Debian/Ubuntu)
+  apt:
+    name: "{{ neovim_packages }}"
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  become: true
+
+- name: Install Neovim and dependencies (macOS)
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ neovim_packages }}"
+  when: ansible_os_family == "Darwin"
+
+# Install Python and Node.js providers for Neovim
+- name: Install Python provider for Neovim
+  pip:
+    name: pynvim
+    extra_args: --user
+
+- name: Install Node.js provider for Neovim
+  npm:
+    name: neovim
+    global: yes
+  become: "{{ ansible_os_family == 'Debian' }}"
+
+# Create config directories
+- name: Create Neovim configuration directories
+  file:
+    path: "{{ ansible_env.HOME }}/.config/nvim/{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - ""
+    - "lua"
+    - "lua/core"
+    - "lua/plugins"
+    - "snippets"
+
+# Copy configuration files
+- name: Copy Neovim main configuration
+  copy:
+    src: "init.lua"
+    dest: "{{ ansible_env.HOME }}/.config/nvim/init.lua"
+
+- name: Copy Neovim core configuration files
+  copy:
+    src: "lua/core/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.config/nvim/lua/core/{{ item }}"
+  with_items:
+    - "init.lua"
+    - "options.lua"
+    - "keymaps.lua"
+    - "autocmds.lua"
+
+- name: Copy Neovim plugin configuration files
+  copy:
+    src: "lua/plugins/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.config/nvim/lua/plugins/{{ item }}"
+  with_items:
+    - "init.lua"
+
+- name: Copy Neovim snippet files
+  copy:
+    src: "snippets/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.config/nvim/snippets/{{ item }}"
+  with_items:
+    - "php.json"
+    - "markdown.json"
+
+# Create data directories
+- name: Create Neovim data directories
+  file:
+    path: "{{ ansible_env.HOME }}/.local/share/nvim/{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "site"
+    - "undo"
+
+# Install Nerd Fonts
+- name: Install Nerd Font (macOS)
+  homebrew:
+    name: font-hack-nerd-font
+    state: present
+    cask: yes
+  when: ansible_os_family == "Darwin"
+
+- name: Inform about manual font installation (Linux)
+  debug:
+    msg: "For the best experience, please install a Nerd Font manually: https://www.nerdfonts.com/font-downloads"
+  when: ansible_os_family == "Debian"

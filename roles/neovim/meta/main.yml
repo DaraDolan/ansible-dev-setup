@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  author: Your Name
+  description: Set up Neovim with modern Lua configuration
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: MacOSX
+      versions:
+        - all
+  galaxy_tags:
+    - neovim
+    - development
+    - editor
+
+dependencies: []
