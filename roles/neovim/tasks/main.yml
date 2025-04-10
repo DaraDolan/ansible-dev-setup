@@ -50,6 +50,7 @@
 - name: Install Python provider for Neovim
   pip:
     name: pynvim
+    state: latest
     extra_args: --user
   become: false
 
@@ -57,7 +58,15 @@
   npm:
     name: neovim
     global: yes
+    state: latest
   become: "{{ ansible_os_family == 'Debian' }}"
+
+- name: Create neovim node directory if needed
+  file:
+    path: "{{ ansible_env.HOME }}/.local/lib/node_modules/neovim/bin"
+    state: directory
+    mode: 0755
+  when: ansible_os_family == 'Debian'
 
 - name: Install Node.js and npm (for markdown-preview plugin)
   apt:
@@ -91,6 +100,59 @@
     creates: /usr/local/bin/composer
   when: ansible_os_family == "Debian"
   become: true
+
+- name: Install luarocks (for Hererocks support)
+  apt:
+    name: luarocks
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Perl provider dependencies
+  apt:
+    name:
+      - perl
+      - cpanminus
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Perl Neovim provider
+  command: cpanm -n Neovim::Ext
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Ruby and gem
+  apt:
+    name:
+      - ruby
+      - ruby-dev
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Ruby Neovim provider
+  gem:
+    name: neovim
+    state: latest
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install FZF for Telescope
+  apt:
+    name: fzf
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Build Telescope FZF native extension
+  shell: cd ~/.local/share/nvim/lazy/telescope-fzf-native.nvim && make
+  args:
+    creates: "~/.local/share/nvim/lazy/telescope-fzf-native.nvim/build"
+  register: fzf_build
+  failed_when: false
+  become: false
+  when: ansible_os_family == "Debian"
 
 # Create config directories
 - name: Create base config directory
@@ -177,3 +239,15 @@
   debug:
     msg: "For the best experience, please install a Nerd Font manually: https://www.nerdfonts.com/font-downloads"
   when: ansible_os_family == "Debian"
+
+  # Add these verification tasks at the end of the file
+- name: Verify Neovim setup with healthcheck
+  shell: nvim --headless -c "checkhealth" -c "q" > /tmp/nvim_health_check.log 2>&1
+  args:
+    creates: "/tmp/nvim_health_check.log"
+  changed_when: false
+  register: health_check
+
+- name: Display healthcheck results location
+  debug:
+    msg: "Neovim health check log available at /tmp/nvim_health_check.log"

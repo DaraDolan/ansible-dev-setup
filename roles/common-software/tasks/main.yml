@@ -15,3 +15,64 @@
     state: present
     update_homebrew: yes
   when: ansible_os_family == "Darwin"
+
+- name: Fix duplicate repository entries
+  shell: |
+    rm -f /etc/apt/sources.list.d/ppa_neovim_ppa_unstable_jammy.list
+  become: true
+  when: ansible_os_family == "Debian"
+  ignore_errors: true
+
+- name: Install apt-utils
+  apt:
+    name: apt-utils
+    state: present
+    update_cache: yes
+  become: true
+  when: ansible_os_family == "Debian"
+  ignore_errors: true
+
+- name: Install libc-bin
+  apt:
+    name: libc-bin
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+  ignore_errors: true
+
+- name: Install locales
+  apt:
+    name: locales
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+  ignore_errors: true
+
+- name: Ensure en_US.UTF-8 locale is available
+  lineinfile:
+    path: /etc/locale.gen
+    regexp: '^# en_US.UTF-8 UTF-8'
+    line: 'en_US.UTF-8 UTF-8'
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+  register: locale_gen_file
+  ignore_errors: true
+
+- name: Generate locales
+  command: locale-gen
+  become: true
+  when: ansible_os_family == "Debian" and locale_gen_file is success and locale_gen_file.changed
+  ignore_errors: true
+
+- name: Set environment variables for UTF-8 support
+  blockinfile:
+    path: /etc/profile.d/locale.sh
+    create: yes
+    block: |
+      export LANG=en_US.UTF-8
+      export LANGUAGE=en_US:en
+      export LC_ALL=en_US.UTF-8
+  become: true
+  when: ansible_os_family == "Debian"
+  ignore_errors: true

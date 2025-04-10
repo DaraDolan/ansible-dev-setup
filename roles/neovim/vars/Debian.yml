@@ -9,3 +9,4 @@ neovim_packages:
   - nodejs
   - npm
   - unzip
+  - xclip
