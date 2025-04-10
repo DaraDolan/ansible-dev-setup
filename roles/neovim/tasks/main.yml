@@ -2,6 +2,34 @@
 - name: Include platform-specific variables
   include_vars: "{{ ansible_os_family }}.yml"
 
+# Get the correct user info
+- name: Get current username
+  command: whoami
+  register: username_result
+  changed_when: false
+  become: false
+
+- name: Get user's home directory
+  shell: 'echo $HOME'
+  register: user_home
+  changed_when: false
+  become: false
+
+# Install Neovim repository and dependencies
+- name: Install software-properties-common (for add-apt-repository)
+  apt:
+    name: software-properties-common
+    state: present
+  when: ansible_os_family == "Debian"
+  become: true
+
+- name: Add Neovim unstable PPA
+  apt_repository:
+    repo: ppa:neovim-ppa/unstable
+    state: present
+  when: ansible_os_family == "Debian"
+  become: true
+
 # Install Neovim and dependencies
 - name: Install Neovim and dependencies (Debian/Ubuntu)
   apt:
@@ -23,6 +51,7 @@
   pip:
     name: pynvim
     extra_args: --user
+  become: false
 
 - name: Install Node.js provider for Neovim
   npm:
@@ -30,59 +59,111 @@
     global: yes
   become: "{{ ansible_os_family == 'Debian' }}"
 
+- name: Install Node.js and npm (for markdown-preview plugin)
+  apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  become: true
+
+- name: Install PHP and Composer (for phpactor plugin)
+  apt:
+    name:
+      - php-cli
+      - unzip
+    state: present
+  when: ansible_os_family == "Debian"
+  become: true
+
+- name: Download Composer installer
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-setup.php
+    mode: 0755
+  when: ansible_os_family == "Debian"
+
+- name: Install Composer globally
+  command: php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+  args:
+    creates: /usr/local/bin/composer
+  when: ansible_os_family == "Debian"
+  become: true
+
 # Create config directories
-- name: Create Neovim configuration directories
+- name: Create base config directory
   file:
-    path: "{{ ansible_env.HOME }}/.config/nvim/{{ item }}"
+    path: "{{ user_home.stdout }}/.config"
     state: directory
     mode: 0755
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
+  become: false
+
+- name: Create Neovim configuration directories
+  file:
+    path: "{{ user_home.stdout }}/.config/nvim/{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
   with_items:
     - ""
     - "lua"
     - "lua/core"
     - "lua/plugins"
     - "snippets"
+  become: false
 
 # Copy configuration files
 - name: Copy Neovim main configuration
   copy:
     src: "init.lua"
-    dest: "{{ ansible_env.HOME }}/.config/nvim/init.lua"
+    dest: "{{ user_home.stdout }}/.config/nvim/init.lua"
+  become: false
 
 - name: Copy Neovim core configuration files
   copy:
     src: "lua/core/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/.config/nvim/lua/core/{{ item }}"
+    dest: "{{ user_home.stdout }}/.config/nvim/lua/core/{{ item }}"
   with_items:
     - "init.lua"
     - "options.lua"
     - "keymaps.lua"
     - "autocmds.lua"
+  become: false
 
 - name: Copy Neovim plugin configuration files
   copy:
     src: "lua/plugins/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/.config/nvim/lua/plugins/{{ item }}"
+    dest: "{{ user_home.stdout }}/.config/nvim/lua/plugins/{{ item }}"
   with_items:
     - "init.lua"
+  become: false
 
 - name: Copy Neovim snippet files
   copy:
     src: "snippets/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/.config/nvim/snippets/{{ item }}"
+    dest: "{{ user_home.stdout }}/.config/nvim/snippets/{{ item }}"
   with_items:
     - "php.json"
     - "markdown.json"
+  become: false
 
 # Create data directories
 - name: Create Neovim data directories
   file:
-    path: "{{ ansible_env.HOME }}/.local/share/nvim/{{ item }}"
+    path: "{{ user_home.stdout }}/.local/share/nvim/{{ item }}"
     state: directory
     mode: 0755
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
   with_items:
     - "site"
     - "undo"
+  become: false
 
 # Install Nerd Fonts
 - name: Install Nerd Font (macOS)
