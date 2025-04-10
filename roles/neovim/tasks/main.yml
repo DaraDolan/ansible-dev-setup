@@ -46,6 +46,27 @@
   with_items: "{{ neovim_packages }}"
   when: ansible_os_family == "Darwin"
 
+- name: Create Python virtual environment for Neovim
+  shell: python3 -m venv "{{ user_home.stdout }}/.config/nvim/env"
+  args:
+    creates: "{{ user_home.stdout }}/.config/nvim/env/bin/python"
+  become: false
+
+- name: Install pynvim in the virtual environment
+  shell: "{{ user_home.stdout }}/.config/nvim/env/bin/pip install pynvim"
+  args:
+    creates: "{{ user_home.stdout }}/.config/nvim/env/lib/python*/site-packages/pynvim"
+  become: false
+
+- name: Configure Neovim to use pynvim from virtual environment
+  blockinfile:
+    path: "{{ user_home.stdout }}/.config/nvim/lua/core/init.lua"
+    block: |
+      -- Set Python provider path
+      vim.g.python3_host_prog = "{{ user_home.stdout }}/.config/nvim/env/bin/python"
+    insertafter: "-- Core configuration loader"
+  become: false
+
 # Install Python and Node.js providers for Neovim
 - name: Install Python provider for Neovim
   pip:
