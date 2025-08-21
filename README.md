@@ -23,6 +23,28 @@ The setup is designed to work on both Debian-based Linux distributions (Ubuntu, 
 
 ## Installation
 
+### Option 1: Quick Setup Script (Recommended)
+
+For convenience with enhanced error handling and auto-installation of Ansible:
+
+```bash
+git clone <your-repo-url>
+cd <repo-directory>
+./scripts/dev-setup.sh
+```
+
+This script is a convenience wrapper that:
+- Automatically installs Ansible if missing
+- Provides enhanced error handling with colored output
+- Runs the complete Ansible playbook
+- Shows helpful next steps after completion
+
+**Note**: The script will prompt for your sudo password when needed.
+
+### Option 2: Direct Ansible Playbook
+
+For a minimal installation without Laravel-specific aliases and functions:
+
 1. Clone this repository:
 
 ```bash
@@ -30,7 +52,22 @@ git clone <your-repo-url>
 cd <repo-directory>
 ```
 
-2. Review and modify the inventory file `inventory/hosts.yml` if needed:
+2. Run the playbook directly:
+
+```bash
+ansible-playbook -i inventory/hosts.yml playbook.yml -K
+```
+
+**What you get:**
+- Complete development environment (Neovim, Zsh, packages)
+- Laravel-specific aliases and functions
+- Tool configurations and dotfiles
+- Project directory structure
+- Cross-platform compatibility
+
+**Note:** Both options now provide the same functionality - the script is just a convenience wrapper with better error handling.
+
+3. Optional: Review and modify the inventory file `inventory/hosts.yml` if needed:
 
 ```yaml
 all:
@@ -43,22 +80,14 @@ all:
     #   ansible_user: yourusername
 ```
 
-3. Run the playbook:
+**Running on specific hosts:**
 
 ```bash
-ansible-playbook playbook.yml
-```
+# Specific host
+ansible-playbook -i inventory/hosts.yml playbook.yml -l hostname -K
 
-To run on a specific host:
-
-```bash
-ansible-playbook playbook.yml -l hostname
-```
-
-For localhost only:
-
-```bash
-ansible-playbook playbook.yml -l localhost
+# Remote host with SSH
+ansible-playbook -i inventory/hosts.yml playbook.yml -l remote-host -K
 ```
 
 ## Features
@@ -151,22 +180,34 @@ If you want to customize the Powerlevel10k theme:
 
 ### Common Issues
 
+#### Quick Setup Script Issues
+- **"sudo: a terminal is required"**: Run the script with `sudo ./scripts/dev-setup.sh` instead of `./scripts/dev-setup.sh`
+- **Script fails on package installation**: Ensure you have sudo privileges and internet connection
+- **Ansible not found**: Script will automatically install Ansible if missing
+
+#### General Issues
 - **Shell not changing to Zsh**: Log out and log back in after the playbook completes
 - **Plugins not loading**: Run `source ~/.zshrc` or restart your terminal
 - **Font issues with Powerlevel10k**: Install a [Nerd Font](https://www.nerdfonts.com/) and configure your terminal to use it
+
+#### Alternative Approaches
+If the quick setup script fails:
+1. Try the Ansible-only approach: `ansible-playbook -i inventory/hosts.yml playbook.yml -K`
+2. Install packages manually and re-run the script
+3. Configure passwordless sudo temporarily (see script error message for instructions)
 
 ### Debugging
 
 If you encounter issues, run the playbook with increased verbosity:
 
 ```bash
-ansible-playbook playbook.yml -v
+ansible-playbook -i inventory/hosts.yml playbook.yml -K -v
 ```
 
 For more detailed output:
 
 ```bash
-ansible-playbook playbook.yml -vvv
+ansible-playbook -i inventory/hosts.yml playbook.yml -K -vvv
 ```
 
 ## License

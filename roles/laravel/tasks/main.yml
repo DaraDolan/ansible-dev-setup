@@ -1,0 +1,41 @@
+---
+- name: Get current username
+  command: whoami
+  register: username_result
+  changed_when: false
+  become: false
+
+- name: Get user's home directory
+  shell: 'echo $HOME'
+  register: user_home
+  changed_when: false
+  become: false
+
+- name: Create development directory structure
+  file:
+    path: "{{ user_home.stdout }}/development/projects"
+    state: directory
+    mode: 0755
+  become: false
+
+- name: Copy Laravel development aliases and functions
+  copy:
+    src: laravel-aliases.sh
+    dest: "{{ user_home.stdout }}/.laravel-aliases.sh"
+    mode: 0644
+  become: false
+
+- name: Add Laravel aliases to zshrc
+  lineinfile:
+    path: "{{ user_home.stdout }}/.zshrc"
+    line: "# Laravel development aliases and functions"
+    state: present
+  become: false
+
+- name: Source Laravel aliases in zshrc
+  lineinfile:
+    path: "{{ user_home.stdout }}/.zshrc"
+    line: "source ~/.laravel-aliases.sh"
+    state: present
+    insertafter: "# Laravel development aliases and functions"
+  become: false

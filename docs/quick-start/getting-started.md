@@ -2,10 +2,12 @@
 
 Get up and running with your development environment in minutes!
 
-## ⚡ Instant Setup
+## ⚡ Setup Options
+
+### Option 1: Full Setup with Laravel Tools (Recommended)
 
 ```bash
-# 1. Run the setup script
+# 1. Run the setup script (includes Laravel aliases & functions)
 cd /home/dara/development/ansible-dev-setup
 ./scripts/dev-setup.sh
 
@@ -19,6 +21,26 @@ laravel-new my-awesome-project react
 cd ~/development/projects/my-awesome-project
 dev-start  # Starts Laravel + Vite servers
 ```
+
+### Option 2: Direct Playbook
+
+```bash
+# 1. Run the Ansible playbook directly
+cd /home/dara/development/ansible-dev-setup
+ansible-playbook -i inventory/hosts.yml playbook.yml -K
+
+# 2. Reload your shell
+source ~/.zshrc
+
+# 3. Create your first project
+laravel-new my-awesome-project react
+
+# 4. Start developing
+cd ~/development/projects/my-awesome-project
+dev-start  # Starts Laravel + Vite servers
+```
+
+**Note:** Same functionality as the script, just without the convenience wrapper and enhanced error messages.
 
 ## 🎯 First Project Checklist
 

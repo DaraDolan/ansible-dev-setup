@@ -58,29 +58,17 @@
     creates: "{{ user_home.stdout }}/.config/nvim/env/lib/python*/site-packages/pynvim"
   become: false
 
-- name: Configure Neovim to use pynvim from virtual environment
-  blockinfile:
-    path: "{{ user_home.stdout }}/.config/nvim/lua/core/init.lua"
-    block: |
-      -- Set Python provider path
-      vim.g.python3_host_prog = "{{ user_home.stdout }}/.config/nvim/env/bin/python"
-    insertafter: "-- Core configuration loader"
-  become: false
 
 # Install Python and Node.js providers for Neovim
-- name: Install Python provider for Neovim
-  pip:
-    name: pynvim
-    state: latest
-    extra_args: --user
-  become: false
 
 - name: Install Node.js provider for Neovim
   npm:
     name: neovim
     global: yes
     state: latest
-  become: "{{ ansible_os_family == 'Debian' }}"
+  become: false
+  environment:
+    npm_config_prefix: "{{ user_home.stdout }}/.local"
 
 - name: Create neovim node directory if needed
   file:
@@ -89,14 +77,6 @@
     mode: 0755
   when: ansible_os_family == 'Debian'
 
-- name: Install Node.js and npm (for markdown-preview plugin)
-  apt:
-    name:
-      - nodejs
-      - npm
-    state: present
-    update_cache: yes
-  when: ansible_os_family == "Debian"
   become: true
 
 - name: Install PHP and Composer (for phpactor plugin)
@@ -233,6 +213,15 @@
   with_items:
     - "php.json"
     - "markdown.json"
+  become: false
+
+- name: Configure Neovim to use pynvim from virtual environment
+  blockinfile:
+    path: "{{ user_home.stdout }}/.config/nvim/lua/core/init.lua"
+    block: |
+      -- Set Python provider path
+      vim.g.python3_host_prog = "{{ user_home.stdout }}/.config/nvim/env/bin/python"
+    insertafter: "-- Core configuration loader"
   become: false
 
 # Create data directories
