@@ -141,12 +141,49 @@ laravel-project/
    - Switch to Neovim for rapid editing
    - Use `claude edit` for file-specific changes
 
+## GitHub SSH Setup
+
+### Initial Setup (Per Development Machine)
+```bash
+# Generate Ed25519 SSH key
+ssh-keygen -t ed25519 -C "your-email@example.com" -f ~/.ssh/id_ed25519 -N ""
+
+# Start SSH agent and add key
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+# Create SSH config
+cat > ~/.ssh/config << EOF
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+EOF
+
+chmod 600 ~/.ssh/config
+
+# Configure Git identity
+git config user.name "Your Name"
+git config user.email "your-email@example.com"
+
+# Display public key to add to GitHub
+cat ~/.ssh/id_ed25519.pub
+```
+
+### Add to GitHub
+1. Go to GitHub → Settings → SSH and GPG keys → New SSH key
+2. Paste the public key content
+3. Test connection: `ssh -T git@github.com`
+4. Switch repo to SSH: `git remote set-url origin git@github.com:username/repo.git`
+
 ## Troubleshooting
 
 ### Common Issues
 - **LSP not working**: Restart LSP with `:LspRestart`
 - **Tailwind not updating**: Clear cache with `npm run build`
 - **PHP errors**: Check `storage/logs/laravel.log`
+- **SSH Permission denied**: Ensure public key is added to GitHub and SSH agent is running
 
 ### Performance Tips
 - Use `:Telescope find_files` for large projects
