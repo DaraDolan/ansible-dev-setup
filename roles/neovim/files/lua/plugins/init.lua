@@ -215,9 +215,10 @@ return {
       require("nvim-treesitter.configs").setup({
         ensure_installed = {
           "lua", "vim", "vimdoc", "query", -- Neovim
-          "php", "html", "css", "javascript", "typescript", -- Web
+          "php", "html", "css", "javascript", "typescript", "tsx", "jsx", -- Web
           "json", "yaml", "markdown", "markdown_inline", -- Data & Docs
           "bash", "python", -- Scripts
+          "blade", "vue", -- Laravel specific
         },
         sync_install = false,
         auto_install = true,
@@ -289,6 +290,238 @@ return {
     config = function()
       require("ibl").setup({
         scope = { enabled = true },
+      })
+    end,
+  },
+
+  -- LSP Configuration
+  {
+    "neovim/nvim-lspconfig",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+    },
+    config = function()
+      require("mason").setup()
+      require("mason-lspconfig").setup({
+        ensure_installed = {
+          "intelephense", -- PHP
+          "html",         -- HTML
+          "cssls",        -- CSS
+          "tailwindcss",  -- Tailwind CSS
+          "tsserver",     -- TypeScript/JavaScript
+          "emmet_ls",     -- Emmet
+          "jsonls",       -- JSON
+        },
+      })
+
+      local lspconfig = require("lspconfig")
+      local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+      -- PHP
+      lspconfig.intelephense.setup({
+        capabilities = capabilities,
+        settings = {
+          intelephense = {
+            files = {
+              maxSize = 1000000,
+            },
+            environment = {
+              includePaths = {
+                vim.fn.expand("~/.composer/vendor"),
+              },
+            },
+          },
+        },
+      })
+
+      -- Tailwind CSS
+      lspconfig.tailwindcss.setup({
+        capabilities = capabilities,
+        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "blade" },
+      })
+
+      -- TypeScript/JavaScript
+      lspconfig.tsserver.setup({
+        capabilities = capabilities,
+      })
+
+      -- HTML
+      lspconfig.html.setup({
+        capabilities = capabilities,
+      })
+
+      -- CSS
+      lspconfig.cssls.setup({
+        capabilities = capabilities,
+      })
+
+      -- Emmet
+      lspconfig.emmet_ls.setup({
+        capabilities = capabilities,
+        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "blade" },
+      })
+
+      -- JSON
+      lspconfig.jsonls.setup({
+        capabilities = capabilities,
+      })
+    end,
+  },
+
+  -- Autocompletion
+  {
+    "hrsh7th/nvim-cmp",
+    dependencies = {
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "hrsh7th/cmp-cmdline",
+      "hrsh7th/cmp-vsnip",
+    },
+    config = function()
+      local cmp = require("cmp")
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            vim.fn["vsnip#anonymous"](args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert({
+          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<C-e>'] = cmp.mapping.abort(),
+          ['<CR>'] = cmp.mapping.confirm({ select = true }),
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+          ['<S-Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+        }),
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'vsnip' },
+        }, {
+          { name = 'buffer' },
+          { name = 'path' },
+        })
+      })
+    end,
+  },
+
+  -- Laravel Specific
+  {
+    "adalessa/laravel.nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "tpope/vim-dotenv",
+      "MunifTanjim/nui.nvim",
+      "nvimtools/none-ls.nvim",
+    },
+    cmd = { "Sail", "Artisan", "Composer", "Npm", "Yarn", "Laravel" },
+    keys = {
+      { "<leader>la", ":Laravel artisan<cr>" },
+      { "<leader>lr", ":Laravel routes<cr>" },
+      { "<leader>lm", ":Laravel related<cr>" },
+    },
+    event = { "VeryLazy" },
+    config = function()
+      require("laravel").setup()
+    end,
+  },
+
+  -- Blade Syntax
+  {
+    "jwalton512/vim-blade",
+    ft = "blade",
+  },
+
+  -- React/JSX/TSX Support
+  {
+    "windwp/nvim-ts-autotag",
+    ft = { "html", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "blade" },
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+
+  -- Tailwind CSS Tools
+  {
+    "roobert/tailwindcss-colorizer-cmp.nvim",
+    config = function()
+      require("tailwindcss-colorizer-cmp").setup({
+        color_square_width = 2,
+      })
+    end,
+  },
+
+  -- Better PHP syntax
+  {
+    "StanAngeloff/php.vim",
+    ft = "php",
+  },
+
+  -- Auto pairs
+  {
+    "windwp/nvim-autopairs",
+    config = function()
+      require("nvim-autopairs").setup({})
+      -- Integration with cmp
+      local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+      local cmp = require('cmp')
+      cmp.event:on(
+        'confirm_done',
+        cmp_autopairs.on_confirm_done()
+      )
+    end,
+  },
+
+  -- Formatting
+  {
+    "nvimtools/none-ls.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      local null_ls = require("null-ls")
+      null_ls.setup({
+        sources = {
+          -- PHP
+          null_ls.builtins.formatting.phpcsfixer,
+          null_ls.builtins.diagnostics.phpcs,
+          
+          -- JavaScript/TypeScript
+          null_ls.builtins.formatting.prettier.with({
+            filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "css", "scss", "less", "html", "json", "yaml", "markdown" },
+          }),
+          
+          -- CSS/Tailwind
+          null_ls.builtins.formatting.stylelint,
+        },
+      })
+    end,
+  },
+
+  -- File icons
+  {
+    "nvim-tree/nvim-web-devicons",
+    config = function()
+      require("nvim-web-devicons").setup({
+        override = {
+          blade = {
+            icon = "",
+            color = "#f1502f",
+            name = "Blade"
+          },
+        },
       })
     end,
   },

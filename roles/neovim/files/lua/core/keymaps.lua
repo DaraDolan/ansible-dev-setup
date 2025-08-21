@@ -107,5 +107,34 @@ keymap("n", "<Leader>e", "<cmd>Neotree toggle<CR>", { desc = "Toggle file explor
 -- Format file
 keymap("n", "<Leader>p", "<cmd>lua vim.lsp.buf.format()<CR>", { desc = "Format file" })
 
--- LSP keybindings (will be active once LSP is installed)
--- These will be defined in a separate file when we implement LSP
+-- LSP keybindings
+keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", { desc = "Go to definition" })
+keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", { desc = "Go to declaration" })
+keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", { desc = "Go to references" })
+keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", { desc = "Go to implementation" })
+keymap("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", { desc = "Hover documentation" })
+keymap("n", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", { desc = "Signature help" })
+keymap("n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", { desc = "Code actions" })
+keymap("n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", { desc = "Rename symbol" })
+keymap("n", "<leader>d", "<cmd>lua vim.diagnostic.open_float()<CR>", { desc = "Show diagnostics" })
+keymap("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous diagnostic" })
+keymap("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", { desc = "Next diagnostic" })
+
+-- Claude Code integration shortcuts
+keymap("n", "<leader>cc", "<cmd>!claude .<CR>", { desc = "Open project in Claude Code" })
+keymap("n", "<leader>ce", "<cmd>!claude edit %<CR>", { desc = "Edit current file with Claude Code" })
+
+-- Laravel specific shortcuts (when in Laravel project)
+keymap("n", "<leader>lc", "<cmd>!php artisan make:controller ", { desc = "Make controller" })
+keymap("n", "<leader>lm", "<cmd>!php artisan make:model ", { desc = "Make model" })
+keymap("n", "<leader>lmi", "<cmd>!php artisan make:migration ", { desc = "Make migration" })
+keymap("n", "<leader>ls", "<cmd>!php artisan serve<CR>", { desc = "Start Laravel server" })
+keymap("n", "<leader>lt", "<cmd>!php artisan test<CR>", { desc = "Run Laravel tests" })
+
+-- React/Frontend development shortcuts
+keymap("n", "<leader>nd", "<cmd>!npm run dev<CR>", { desc = "Start npm dev server" })
+keymap("n", "<leader>nb", "<cmd>!npm run build<CR>", { desc = "Build for production" })
+keymap("n", "<leader>ni", "<cmd>!npm install<CR>", { desc = "Install npm dependencies" })
+
+-- Tailwind CSS utilities
+keymap("n", "<leader>tw", "<cmd>!npx tailwindcss init<CR>", { desc = "Initialize Tailwind CSS" })

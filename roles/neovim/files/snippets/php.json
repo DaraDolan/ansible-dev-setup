@@ -4,8 +4,7 @@
     "body": [
       "<?php",
       "",
-      "$0",
-      ""
+      "$0"
     ],
     "description": "Open PHP tag"
   },
@@ -50,5 +49,291 @@
       "}"
     ],
     "description": "Creates a test method"
+  },
+  "Pest Test": {
+    "prefix": "pest",
+    "body": [
+      "it('${1:can do something}', function () {",
+      "    ${0:// test code}",
+      "});"
+    ],
+    "description": "Create a Pest test"
+  },
+  "Pest Expect": {
+    "prefix": "expect",
+    "body": [
+      "expect(${1:$value})->toBe(${2:$expected});"
+    ],
+    "description": "Pest expectation"
+  },
+  "Pest Feature Test": {
+    "prefix": "pestfeature",
+    "body": [
+      "<?php",
+      "",
+      "use App\\Models\\User;",
+      "",
+      "it('${1:can perform action}', function () {",
+      "    $user = User::factory()->create();",
+      "    ",
+      "    $response = $this->actingAs($user)",
+      "                     ->get('${2:/endpoint}');",
+      "    ",
+      "    $response->assertStatus(200);",
+      "    ${0:// additional assertions}",
+      "});"
+    ],
+    "description": "Pest feature test template"
+  },
+  "Pest Unit Test": {
+    "prefix": "pestunit",
+    "body": [
+      "<?php",
+      "",
+      "it('${1:tests something}', function () {",
+      "    ${2:$result = someFunction();}",
+      "    ",
+      "    expect(${3:$result})",
+      "        ->toBe(${4:$expected});",
+      "});"
+    ],
+    "description": "Pest unit test template"
+  },
+  "Pest Dataset": {
+    "prefix": "dataset",
+    "body": [
+      "it('${1:tests with data}', function (${2:$input}, ${3:$expected}) {",
+      "    ${4:$result = process($input);}",
+      "    ",
+      "    expect(${5:$result})->toBe(${6:$expected});",
+      "})->with([",
+      "    [${7:'input1'}, ${8:'expected1'}],",
+      "    [${9:'input2'}, ${10:'expected2'}],",
+      "]);"
+    ],
+    "description": "Pest test with dataset"
+  },
+  "Pest beforeEach": {
+    "prefix": "beforeEach",
+    "body": [
+      "beforeEach(function () {",
+      "    ${0:// setup code}",
+      "});"
+    ],
+    "description": "Pest beforeEach hook"
+  },
+  "Pest Mock": {
+    "prefix": "mock",
+    "body": [
+      "$mock = $this->mock(${1:SomeClass}::class);",
+      "$mock->shouldReceive('${2:method}')",
+      "     ->with(${3:'parameters'})",
+      "     ->andReturn(${4:'result'});",
+      "",
+      "${0:// test code}"
+    ],
+    "description": "Pest mock example"
+  },
+  "Pest Database Test": {
+    "prefix": "pestdb",
+    "body": [
+      "it('${1:interacts with database}', function () {",
+      "    ${2:Model}::factory()->create([",
+      "        '${3:field}' => '${4:value}',",
+      "    ]);",
+      "    ",
+      "    $this->assertDatabaseHas('${5:table}', [",
+      "        '${6:field}' => '${7:value}',",
+      "    ]);",
+      "    ",
+      "    ${0:// additional assertions}",
+      "});"
+    ],
+    "description": "Pest database test"
+  },
+  "Laravel Controller": {
+    "prefix": "controller",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Controllers;",
+      "",
+      "use Illuminate\\Http\\Request;",
+      "",
+      "class ${1:Name}Controller extends Controller",
+      "{",
+      "    public function index()",
+      "    {",
+      "        ${0://}",
+      "    }",
+      "}"
+    ],
+    "description": "Laravel Controller"
+  },
+  "Laravel Model": {
+    "prefix": "model",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Models;",
+      "",
+      "use Illuminate\\Database\\Eloquent\\Factories\\HasFactory;",
+      "use Illuminate\\Database\\Eloquent\\Model;",
+      "",
+      "class ${1:Name} extends Model",
+      "{",
+      "    use HasFactory;",
+      "",
+      "    protected $fillable = [",
+      "        ${2:'column'}",
+      "    ];",
+      "",
+      "    ${0://}",
+      "}"
+    ],
+    "description": "Laravel Model"
+  },
+  "Laravel Migration": {
+    "prefix": "migration",
+    "body": [
+      "<?php",
+      "",
+      "use Illuminate\\Database\\Migrations\\Migration;",
+      "use Illuminate\\Database\\Schema\\Blueprint;",
+      "use Illuminate\\Support\\Facades\\Schema;",
+      "",
+      "return new class extends Migration",
+      "{",
+      "    public function up()",
+      "    {",
+      "        Schema::create('${1:table_name}', function (Blueprint $table) {",
+      "            $table->id();",
+      "            ${2:$table->string('name');}",
+      "            $table->timestamps();",
+      "        });",
+      "    }",
+      "",
+      "    public function down()",
+      "    {",
+      "        Schema::dropIfExists('${1:table_name}');",
+      "    }",
+      "};"
+    ],
+    "description": "Laravel Migration"
+  },
+  "Laravel Route": {
+    "prefix": "route",
+    "body": [
+      "Route::${1:get}('${2:path}', [${3:Controller}::class, '${4:method}'])->name('${5:name}');"
+    ],
+    "description": "Laravel Route"
+  },
+  "Laravel Blade Component": {
+    "prefix": "component",
+    "body": [
+      "<x-${1:component-name} ${2:prop=\"value\"}>",
+      "    ${0:content}",
+      "</x-${1:component-name}>"
+    ],
+    "description": "Laravel Blade Component"
+  },
+  "Livewire Component": {
+    "prefix": "livewire",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Livewire;",
+      "",
+      "use Livewire\\Component;",
+      "",
+      "class ${1:ComponentName} extends Component",
+      "{",
+      "    public function render()",
+      "    {",
+      "        return view('livewire.${2:component-name}');",
+      "    }",
+      "",
+      "    ${0://}",
+      "}"
+    ],
+    "description": "Livewire Component"
+  },
+  "PHP Constructor": {
+    "prefix": "construct",
+    "body": [
+      "public function __construct($1)",
+      "{",
+      "    ${0://}",
+      "}"
+    ],
+    "description": "PHP Constructor"
+  },
+  "Eloquent Relationship": {
+    "prefix": "hasMany",
+    "body": [
+      "public function ${1:relation}()",
+      "{",
+      "    return $this->hasMany(${2:Model}::class);",
+      "}"
+    ],
+    "description": "Eloquent hasMany relationship"
+  },
+  "Eloquent belongsTo": {
+    "prefix": "belongsTo",
+    "body": [
+      "public function ${1:relation}()",
+      "{",
+      "    return $this->belongsTo(${2:Model}::class);",
+      "}"
+    ],
+    "description": "Eloquent belongsTo relationship"
+  },
+  "Laravel Resource": {
+    "prefix": "resource",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Resources;",
+      "",
+      "use Illuminate\\Http\\Resources\\Json\\JsonResource;",
+      "",
+      "class ${1:Name}Resource extends JsonResource",
+      "{",
+      "    public function toArray($request)",
+      "    {",
+      "        return [",
+      "            'id' => $this->id,",
+      "            ${0://}",
+      "        ];",
+      "    }",
+      "}"
+    ],
+    "description": "Laravel API Resource"
+  },
+  "Laravel Request": {
+    "prefix": "request",
+    "body": [
+      "<?php",
+      "",
+      "namespace App\\Http\\Requests;",
+      "",
+      "use Illuminate\\Foundation\\Http\\FormRequest;",
+      "",
+      "class ${1:Name}Request extends FormRequest",
+      "{",
+      "    public function authorize()",
+      "    {",
+      "        return true;",
+      "    }",
+      "",
+      "    public function rules()",
+      "    {",
+      "        return [",
+      "            ${0:'field' => 'required|string'}",
+      "        ];",
+      "    }",
+      "}"
+    ],
+    "description": "Laravel Form Request"
   }
 }

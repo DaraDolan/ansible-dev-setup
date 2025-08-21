@@ -27,8 +27,8 @@ source "$HOME/.zinitrc"
   source "$file"
 done
 
-# Ensure ~/.local/bin is in PATH
-export PATH="$HOME/.local/bin:$PATH"
+# Ensure ~/.local/bin and Composer global bin are in PATH
+export PATH="$HOME/.local/bin:$HOME/.config/composer/vendor/bin:$PATH"
 
 # Initialize zoxide for fast directory jumping
 if command -v zoxide &> /dev/null; then
