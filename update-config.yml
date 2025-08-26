@@ -21,3 +21,26 @@
         force: yes
       with_items:
         - "init.lua"
+
+    - name: Copy Neovim core configuration files
+      copy:
+        src: "roles/neovim/files/lua/core/{{ item }}"
+        dest: "{{ user_home.stdout }}/.config/nvim/lua/core/{{ item }}"
+        force: yes
+      with_items:
+        - "keymaps.lua"
+        - "options.lua"
+        - "init.lua"
+        - "autocmds.lua"
+
+    - name: Copy Neovim snippet files
+      copy:
+        src: "roles/neovim/files/snippets/{{ item }}"
+        dest: "{{ user_home.stdout }}/.config/nvim/snippets/{{ item }}"
+        force: yes
+      with_items:
+        - "php.json"
+        - "markdown.json"
+        - "javascript.json"
+        - "typescript.json"
+        - "typescriptreact.json"

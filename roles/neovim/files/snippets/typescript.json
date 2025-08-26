@@ -1,0 +1,207 @@
+{
+  "React Functional Component": {
+    "prefix": "rfc",
+    "body": [
+      "import React from 'react';",
+      "",
+      "interface ${1:ComponentName}Props {",
+      "  ${2:prop}: ${3:string};",
+      "}",
+      "",
+      "const ${1:ComponentName}: React.FC<${1:ComponentName}Props> = ({ ${2:prop} }) => {",
+      "  return (",
+      "    <div>",
+      "      ${0:// Component content}",
+      "    </div>",
+      "  );",
+      "};",
+      "",
+      "export default ${1:ComponentName};"
+    ],
+    "description": "React Functional Component with TypeScript"
+  },
+  "React Component with State": {
+    "prefix": "rfcs",
+    "body": [
+      "import React, { useState } from 'react';",
+      "",
+      "interface ${1:ComponentName}Props {",
+      "  ${2:prop}: ${3:string};",
+      "}",
+      "",
+      "const ${1:ComponentName}: React.FC<${1:ComponentName}Props> = ({ ${2:prop} }) => {",
+      "  const [${4:state}, set${4/(.*)/${4:/capitalize}/}] = useState<${5:string}>('${6:initialValue}');",
+      "",
+      "  return (",
+      "    <div>",
+      "      ${0:// Component content}",
+      "    </div>",
+      "  );",
+      "};",
+      "",
+      "export default ${1:ComponentName};"
+    ],
+    "description": "React Functional Component with useState"
+  },
+  "useState Hook": {
+    "prefix": "useState",
+    "body": [
+      "const [${1:state}, set${1/(.*)/${1:/capitalize}/}] = useState<${2:string}>(${3:'initialValue'});"
+    ],
+    "description": "useState hook with TypeScript"
+  },
+  "useEffect Hook": {
+    "prefix": "useEffect",
+    "body": [
+      "useEffect(() => {",
+      "  ${0:// Effect logic}",
+      "}, [${1:dependencies}]);"
+    ],
+    "description": "useEffect hook"
+  },
+  "useContext Hook": {
+    "prefix": "useContext",
+    "body": [
+      "const ${1:context} = useContext(${2:Context});"
+    ],
+    "description": "useContext hook"
+  },
+  "React Context Setup": {
+    "prefix": "context",
+    "body": [
+      "import React, { createContext, useContext, ReactNode } from 'react';",
+      "",
+      "interface ${1:Context}Value {",
+      "  ${2:property}: ${3:string};",
+      "  ${4:method}: () => void;",
+      "}",
+      "",
+      "const ${1:Context} = createContext<${1:Context}Value | undefined>(undefined);",
+      "",
+      "interface ${1:Context}ProviderProps {",
+      "  children: ReactNode;",
+      "}",
+      "",
+      "export const ${1:Context}Provider: React.FC<${1:Context}ProviderProps> = ({ children }) => {",
+      "  const value: ${1:Context}Value = {",
+      "    ${2:property}: '${5:value}',",
+      "    ${4:method}: () => {",
+      "      ${0:// Method implementation}",
+      "    },",
+      "  };",
+      "",
+      "  return <${1:Context}.Provider value={value}>{children}</${1:Context}.Provider>;",
+      "};",
+      "",
+      "export const use${1:Context} = (): ${1:Context}Value => {",
+      "  const context = useContext(${1:Context});",
+      "  if (context === undefined) {",
+      "    throw new Error('use${1:Context} must be used within a ${1:Context}Provider');",
+      "  }",
+      "  return context;",
+      "};"
+    ],
+    "description": "Complete React Context setup with TypeScript"
+  },
+  "Custom Hook": {
+    "prefix": "customHook",
+    "body": [
+      "import { useState, useEffect } from 'react';",
+      "",
+      "interface Use${1:Hook}Return {",
+      "  ${2:data}: ${3:string} | null;",
+      "  ${4:loading}: boolean;",
+      "  ${5:error}: string | null;",
+      "}",
+      "",
+      "const use${1:Hook} = (${6:param}: ${7:string}): Use${1:Hook}Return => {",
+      "  const [${2:data}, set${2/(.*)/${2:/capitalize}/}] = useState<${3:string} | null>(null);",
+      "  const [${4:loading}, set${4/(.*)/${4:/capitalize}/}] = useState<boolean>(true);",
+      "  const [${5:error}, set${5/(.*)/${5:/capitalize}/}] = useState<string | null>(null);",
+      "",
+      "  useEffect(() => {",
+      "    ${0:// Hook logic}",
+      "  }, [${6:param}]);",
+      "",
+      "  return { ${2:data}, ${4:loading}, ${5:error} };",
+      "};",
+      "",
+      "export default use${1:Hook};"
+    ],
+    "description": "Custom React Hook template"
+  },
+  "TypeScript Interface": {
+    "prefix": "interface",
+    "body": [
+      "interface ${1:InterfaceName} {",
+      "  ${2:property}: ${3:string};",
+      "  ${4:method}(${5:param}: ${6:string}): ${7:void};",
+      "}"
+    ],
+    "description": "TypeScript interface"
+  },
+  "TypeScript Type": {
+    "prefix": "type",
+    "body": [
+      "type ${1:TypeName} = {",
+      "  ${2:property}: ${3:string};",
+      "};"
+    ],
+    "description": "TypeScript type definition"
+  },
+  "Arrow Function": {
+    "prefix": "arrow",
+    "body": [
+      "const ${1:functionName} = (${2:params}: ${3:string}): ${4:void} => {",
+      "  ${0:// Function body}",
+      "};"
+    ],
+    "description": "Arrow function with TypeScript"
+  },
+  "Async Arrow Function": {
+    "prefix": "asyncArrow",
+    "body": [
+      "const ${1:functionName} = async (${2:params}: ${3:string}): Promise<${4:void}> => {",
+      "  try {",
+      "    ${0:// Async logic}",
+      "  } catch (error) {",
+      "    console.error('Error in ${1:functionName}:', error);",
+      "  }",
+      "};"
+    ],
+    "description": "Async arrow function with TypeScript"
+  },
+  "Try-Catch Block": {
+    "prefix": "try",
+    "body": [
+      "try {",
+      "  ${1:// Try block}",
+      "} catch (error) {",
+      "  console.error('${2:Error message}:', error);",
+      "  ${0:// Error handling}",
+      "}"
+    ],
+    "description": "Try-catch block"
+  },
+  "Console Log": {
+    "prefix": "log",
+    "body": [
+      "console.log('${1:message}', ${2:variable});"
+    ],
+    "description": "Console log statement"
+  },
+  "Import Statement": {
+    "prefix": "import",
+    "body": [
+      "import ${2:{ ${3:exportName} \\}} from '${1:module}';"
+    ],
+    "description": "ES6 import statement"
+  },
+  "Export Statement": {
+    "prefix": "export",
+    "body": [
+      "export { ${1:exportName} } from '${2:module}';"
+    ],
+    "description": "ES6 export statement"
+  }
+}

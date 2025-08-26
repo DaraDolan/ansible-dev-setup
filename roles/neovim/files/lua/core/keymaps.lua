@@ -138,3 +138,49 @@ keymap("n", "<leader>ni", "<cmd>!npm install<CR>", { desc = "Install npm depende
 
 -- Tailwind CSS utilities
 keymap("n", "<leader>tw", "<cmd>!npx tailwindcss init<CR>", { desc = "Initialize Tailwind CSS" })
+
+-- ===============================================
+-- MIND-BENDING ENHANCEMENT KEYMAPS
+-- ===============================================
+
+-- Colorscheme switching
+keymap("n", "<leader>cn", "<cmd>colorscheme nord<CR>", { desc = "Nord colorscheme" })
+keymap("n", "<leader>cc", "<cmd>colorscheme catppuccin<CR>", { desc = "Catppuccin colorscheme" })
+keymap("n", "<leader>ck", "<cmd>colorscheme kanagawa<CR>", { desc = "Kanagawa colorscheme" })
+
+-- Enhanced terminal toggles
+keymap("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Horizontal terminal" })
+keymap("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Vertical terminal" })
+keymap("n", "<leader>tt", "<cmd>ToggleTerm direction=tab<CR>", { desc = "Terminal in new tab" })
+
+-- Quick access to common files in Laravel projects
+keymap("n", "<leader>lr", "<cmd>e routes/web.php<CR>", { desc = "Laravel routes" })
+keymap("n", "<leader>la", "<cmd>e routes/api.php<CR>", { desc = "Laravel API routes" })
+keymap("n", "<leader>le", "<cmd>e .env<CR>", { desc = "Laravel environment file" })
+keymap("n", "<leader>lc", "<cmd>e config/app.php<CR>", { desc = "Laravel config" })
+
+-- Quick buffer management
+keymap("n", "<leader>ba", "<cmd>bufdo bd<CR>", { desc = "Close all buffers" })
+keymap("n", "<leader>bo", "<cmd>%bd|e#|bd#<CR>", { desc = "Close all buffers except current" })
+
+-- Improved search and replace
+keymap("n", "<leader>sw", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>", { desc = "Replace word under cursor" })
+keymap("v", "<leader>sw", "\"hy:%s/<C-r>h/<C-r>h/gc<left><left><left>", { desc = "Replace selection" })
+
+-- Quick fix and location list
+keymap("n", "<leader>qo", "<cmd>copen<CR>", { desc = "Open quickfix" })
+keymap("n", "<leader>qc", "<cmd>cclose<CR>", { desc = "Close quickfix" })
+keymap("n", "<leader>qn", "<cmd>cnext<CR>", { desc = "Next quickfix" })
+keymap("n", "<leader>qp", "<cmd>cprev<CR>", { desc = "Previous quickfix" })
+
+-- Improved window management
+keymap("n", "<leader>wh", "<cmd>split<CR>", { desc = "Horizontal split" })
+keymap("n", "<leader>wv", "<cmd>vsplit<CR>", { desc = "Vertical split" })
+keymap("n", "<leader>we", "<C-w>=", { desc = "Equalize windows" })
+keymap("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close window" })
+
+-- Toggle features
+keymap("n", "<leader>tn", "<cmd>set number!<CR>", { desc = "Toggle line numbers" })
+keymap("n", "<leader>tr", "<cmd>set relativenumber!<CR>", { desc = "Toggle relative numbers" })
+keymap("n", "<leader>tws", "<cmd>set wrap!<CR>", { desc = "Toggle word wrap" })
+keymap("n", "<leader>thl", "<cmd>set hlsearch!<CR>", { desc = "Toggle highlight search" })

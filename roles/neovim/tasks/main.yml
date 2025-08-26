@@ -217,6 +217,9 @@
   with_items:
     - "php.json"
     - "markdown.json"
+    - "javascript.json"
+    - "typescript.json"
+    - "typescriptreact.json"
   become: false
 
 - name: Configure Neovim to use pynvim from virtual environment

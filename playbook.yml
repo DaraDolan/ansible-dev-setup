@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   roles:
-    - common-software
-    - zsh
-    - neovim
-    - laravel
+    - { role: common-software, tags: ["common", "software"] }
+    - { role: zsh, tags: ["zsh", "shell"] }
+    - { role: neovim, tags: ["neovim", "editor"] }
+    - { role: laravel, tags: ["laravel", "php"] }
