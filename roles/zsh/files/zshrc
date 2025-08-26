@@ -35,8 +35,13 @@ if command -v zoxide &> /dev/null; then
     eval "$(zoxide init zsh)"
 fi
 
-# Claude Code telemetry for token usage monitoring (optional)
-# Uncomment the lines below if you want to enable telemetry:
-# export CLAUDE_CODE_ENABLE_TELEMETRY=1
-# export OTEL_METRICS_EXPORTER=console
+# Explicitly disable Claude Code telemetry - remove any existing telemetry variables
+unset CLAUDE_CODE_ENABLE_TELEMETRY
+unset OTEL_METRICS_EXPORTER
+unset OTEL_EXPORTER_DISABLED
+export CLAUDE_CODE_ENABLE_TELEMETRY=0
+export OTEL_EXPORTER_DISABLED=1
+
+# Claude Code alias
+alias ccode='claude code'
 

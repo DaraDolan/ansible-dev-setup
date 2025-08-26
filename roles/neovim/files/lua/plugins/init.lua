@@ -215,7 +215,7 @@ return {
       require("nvim-treesitter.configs").setup({
         ensure_installed = {
           "lua", "vim", "vimdoc", "query", -- Neovim
-          "php", "html", "css", "javascript", "typescript", "tsx", "jsx", -- Web
+          "php", "html", "css", "javascript", "typescript", "tsx", -- Web (removed jsx as it's not available)
           "json", "yaml", "markdown", "markdown_inline", -- Data & Docs
           "bash", "python", -- Scripts
           "blade", "vue", -- Laravel specific
@@ -262,7 +262,9 @@ return {
   {
     "phpactor/phpactor",
     ft = "php",
-    build = "composer install --no-dev -o",
+    build = function()
+      vim.cmd("silent! !cd " .. vim.fn.expand("%:p:h") .. " && composer install --no-dev --optimize-autoloader")
+    end,
   },
   -- EditorConfig support
   { "editorconfig/editorconfig-vim" },
@@ -281,7 +283,7 @@ return {
   {
     "iamcco/markdown-preview.nvim",
     ft = { "markdown" },
-    build = function() vim.fn["mkdp#util#install"]() end,
+    build = "cd app && npm install",
   },
   -- Indentation guides
   {
@@ -309,7 +311,7 @@ return {
           "html",         -- HTML
           "cssls",        -- CSS
           "tailwindcss",  -- Tailwind CSS
-          "tsserver",     -- TypeScript/JavaScript
+          "ts_ls",        -- TypeScript/JavaScript
           "emmet_ls",     -- Emmet
           "jsonls",       -- JSON
         },
@@ -342,7 +344,7 @@ return {
       })
 
       -- TypeScript/JavaScript
-      lspconfig.tsserver.setup({
+      lspconfig.ts_ls.setup({
         capabilities = capabilities,
       })
 
@@ -419,12 +421,12 @@ return {
     end,
   },
 
-  -- Laravel Specific
+  -- Laravel Specific (simplified without promise-async)
   {
     "adalessa/laravel.nvim",
     dependencies = {
       "nvim-telescope/telescope.nvim",
-      "tpope/vim-dotenv",
+      "tpope/vim-dotenv",  
       "MunifTanjim/nui.nvim",
       "nvimtools/none-ls.nvim",
     },

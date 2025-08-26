@@ -91,3 +91,36 @@
   become: true
   when: ansible_os_family == "Debian"
   ignore_errors: true
+
+# Get the correct user info for Claude settings
+- name: Get current username
+  command: whoami
+  register: username_result
+  changed_when: false
+  become: false
+
+- name: Get user's home directory
+  shell: 'echo $HOME'
+  register: user_home
+  changed_when: false
+  become: false
+
+# Create Claude configuration directory and disable telemetry
+- name: Create Claude configuration directory
+  file:
+    path: "{{ user_home.stdout }}/.claude"
+    state: directory
+    mode: 0755
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
+  become: false
+
+- name: Install Claude settings to disable telemetry
+  copy:
+    src: "claude-settings.json"
+    dest: "{{ user_home.stdout }}/.claude/settings.json"
+    force: yes
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
+    mode: 0644
+  become: false

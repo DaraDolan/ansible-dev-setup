@@ -185,12 +185,14 @@
   copy:
     src: "init.lua"
     dest: "{{ user_home.stdout }}/.config/nvim/init.lua"
+    force: yes
   become: false
 
 - name: Copy Neovim core configuration files
   copy:
     src: "lua/core/{{ item }}"
     dest: "{{ user_home.stdout }}/.config/nvim/lua/core/{{ item }}"
+    force: yes
   with_items:
     - "init.lua"
     - "options.lua"
@@ -202,6 +204,7 @@
   copy:
     src: "lua/plugins/{{ item }}"
     dest: "{{ user_home.stdout }}/.config/nvim/lua/plugins/{{ item }}"
+    force: yes
   with_items:
     - "init.lua"
   become: false
@@ -210,6 +213,7 @@
   copy:
     src: "snippets/{{ item }}"
     dest: "{{ user_home.stdout }}/.config/nvim/snippets/{{ item }}"
+    force: yes
   with_items:
     - "php.json"
     - "markdown.json"

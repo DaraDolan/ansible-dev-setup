@@ -1,0 +1,11 @@
+{
+  "enableTelemetry": false,
+  "allowedTools": ["*"],
+  "ignorePatterns": [
+    "node_modules/**",
+    ".git/**",
+    "vendor/**",
+    "*.log",
+    "*.tmp"
+  ]
+}

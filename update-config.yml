@@ -1,0 +1,23 @@
+---
+- name: Update Neovim Configuration Only  
+  hosts: localhost
+  connection: local
+  become: false
+  tasks:
+    - name: Get current username
+      command: whoami
+      register: username_result
+      changed_when: false
+
+    - name: Get user's home directory
+      shell: 'echo $HOME'
+      register: user_home
+      changed_when: false
+
+    - name: Copy Neovim plugin configuration files
+      copy:
+        src: "roles/neovim/files/lua/plugins/{{ item }}"
+        dest: "{{ user_home.stdout }}/.config/nvim/lua/plugins/{{ item }}"
+        force: yes
+      with_items:
+        - "init.lua"
