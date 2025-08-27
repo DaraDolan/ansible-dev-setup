@@ -184,3 +184,8 @@ keymap("n", "<leader>tn", "<cmd>set number!<CR>", { desc = "Toggle line numbers"
 keymap("n", "<leader>tr", "<cmd>set relativenumber!<CR>", { desc = "Toggle relative numbers" })
 keymap("n", "<leader>tws", "<cmd>set wrap!<CR>", { desc = "Toggle word wrap" })
 keymap("n", "<leader>thl", "<cmd>set hlsearch!<CR>", { desc = "Toggle highlight search" })
+
+-- Markdown preview
+keymap("n", "<leader>mp", "<cmd>MarkdownPreview<CR>", { desc = "Markdown preview" })
+keymap("n", "<leader>ms", "<cmd>MarkdownPreviewStop<CR>", { desc = "Stop markdown preview" })
+keymap("n", "<leader>mt", "<cmd>MarkdownPreviewToggle<CR>", { desc = "Toggle markdown preview" })
