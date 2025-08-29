@@ -14,7 +14,7 @@ A **Laravel 12.x + React Investment Portfolio Management System** that demonstra
 
 **Backend:**
 - Laravel 12.x (latest)
-- PHP 8.4+ 
+- PHP 8.4+
 - SQLite/MySQL database
 - Spatie Laravel Permission
 - Laravel Sanctum
@@ -62,7 +62,7 @@ A **Laravel 12.x + React Investment Portfolio Management System** that demonstra
 1. **[01-laravel-12-setup.md](./01-laravel-12-setup.md)** - Laravel 12.x with React starter kit
 2. **[02-database-auth-permissions.md](./02-database-auth-permissions.md)** - Spatie permissions setup
 
-**Phase 2: Core Development**  
+**Phase 2: Core Development**
 3. **[03-models-relationships.md](./03-models-relationships.md)** - Eloquent models and relationships
 4. **[04-inertia-react-setup.md](./04-inertia-react-setup.md)** - Inertia + React pages
 5. **[05-api-endpoints.md](./05-api-endpoints.md)** - API development with permissions

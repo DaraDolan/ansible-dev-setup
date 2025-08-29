@@ -730,7 +730,7 @@
   typeset -g POWERLEVEL9K_RANGER_FOREGROUND=178
   # Custom icon.
   # typeset -g POWERLEVEL9K_RANGER_VISUAL_IDENTIFIER_EXPANSION='⭐'
-  
+
   ####################[ yazi: yazi shell (https://github.com/sxyazi/yazi) ]#####################
   # Yazi shell color.
   typeset -g POWERLEVEL9K_YAZI_FOREGROUND=178
@@ -1725,6 +1725,29 @@
   # can slow down prompt by 1-2 milliseconds, so it's better to keep it turned off unless you
   # really need it.
   typeset -g POWERLEVEL9K_DISABLE_HOT_RELOAD=true
+
+  # Nord Color Scheme Customizations
+  # Directory colors - softer Nord blue
+  typeset -g POWERLEVEL9K_DIR_FOREGROUND=81                    # Nord frost blue
+  typeset -g POWERLEVEL9K_DIR_SHORTENED_FOREGROUND=244         # Nord muted
+  typeset -g POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=81             # Nord frost blue
+
+  # Git VCS colors - muted Nord palette
+  typeset -g POWERLEVEL9K_VCS_CLEAN_FOREGROUND=150             # Nord muted green
+  typeset -g POWERLEVEL9K_VCS_MODIFIED_FOREGROUND=222          # Nord muted yellow
+  typeset -g POWERLEVEL9K_VCS_UNTRACKED_FOREGROUND=210         # Nord muted red
+  typeset -g POWERLEVEL9K_VCS_CONFLICTED_FOREGROUND=210        # Nord muted red
+  typeset -g POWERLEVEL9K_VCS_LOADING_FOREGROUND=244           # Nord muted
+
+  # Remove backgrounds for cleaner look
+  typeset -g POWERLEVEL9K_DIR_BACKGROUND=none
+  typeset -g POWERLEVEL9K_VCS_CLEAN_BACKGROUND=none
+  typeset -g POWERLEVEL9K_VCS_MODIFIED_BACKGROUND=none
+  typeset -g POWERLEVEL9K_VCS_UNTRACKED_BACKGROUND=none
+
+  # Status colors
+  typeset -g POWERLEVEL9K_STATUS_OK_FOREGROUND=150             # Nord muted green
+  typeset -g POWERLEVEL9K_STATUS_ERROR_FOREGROUND=210          # Nord muted red
 
   # If p10k is already loaded, reload configuration.
   # This works even with POWERLEVEL9K_DISABLE_HOT_RELOAD=true.

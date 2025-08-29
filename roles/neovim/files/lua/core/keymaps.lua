@@ -103,6 +103,7 @@ keymap("n", "<leader>ve", "<cmd>edit $MYVIMRC<CR>", { desc = "Edit neovim config
 
 -- File explorer
 keymap("n", "<Leader>e", "<cmd>Neotree toggle<CR>", { desc = "Toggle file explorer" })
+keymap("n", "<Leader>n", "<cmd>Neotree toggle<CR>", { desc = "Toggle file explorer (work shortcut)" })
 
 -- Format file
 keymap("n", "<Leader>p", "<cmd>lua vim.lsp.buf.format()<CR>", { desc = "Format file" })
