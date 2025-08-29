@@ -877,8 +877,8 @@ return {
         log_level = "error",
         auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
         auto_session_use_git_branch = false,
-        auto_session_enable_last_session = false,
-        auto_session_create_enabled = false,
+        auto_session_enable_last_session = true,
+        auto_session_create_enabled = true,
         auto_restore_enabled = false,
         auto_save_enabled = true,
         session_lens = {
@@ -889,9 +889,9 @@ return {
         },
       })
 
-      vim.keymap.set("n", "<Leader>ss", require("auto-session.session-lens").search_session, {
+      vim.keymap.set("n", "<Leader>ss", "<Cmd>SessionRestore<CR>", {
         noremap = true,
-        desc = "Search sessions"
+        desc = "Restore session"
       })
     end,
   },

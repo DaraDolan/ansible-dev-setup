@@ -229,6 +229,7 @@
       -- Set Python provider path
       vim.g.python3_host_prog = "{{ user_home.stdout }}/.config/nvim/env/bin/python"
     insertafter: "-- Core configuration loader"
+    marker: "-- {mark} ANSIBLE MANAGED BLOCK"
   become: false
 
 # Create data directories

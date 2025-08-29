@@ -52,6 +52,6 @@ opt.wildmenu = true
 opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50"
 
 -- Performance
-opt.lazyredraw = true
+-- opt.lazyredraw = true  -- Disabled: conflicts with Noice plugin
 opt.updatetime = 250
 opt.timeoutlen = 300
