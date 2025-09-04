@@ -89,6 +89,41 @@ uv run pytest
 uv add --dev pytest black ruff
 ```
 
+### Playwright Commands (Web Automation & Testing)
+```bash
+# Initialize Playwright in a new project
+npx playwright init
+
+# Run all tests
+npx playwright test
+
+# Run tests with UI mode for debugging
+npx playwright test --ui
+
+# Run specific test file
+npx playwright test tests/example.spec.js
+
+# Generate new test
+npx playwright codegen
+
+# Record test interactions
+npx playwright codegen --target javascript https://example.com
+
+# Run tests in headed mode (see browser)
+npx playwright test --headed
+
+# Generate HTML test report
+npx playwright show-report
+
+# Install additional browsers
+npx playwright install firefox
+npx playwright install webkit
+
+# Update Playwright and browsers
+npm update @playwright/test
+npx playwright install
+```
+
 ## Ansible Development Environment Commands
 
 ### Personal Configuration (Recommended First Step)
@@ -113,6 +148,7 @@ ansible-playbook playbook.yml -e @personal-config.yml -K
 ansible-playbook playbook.yml --tags neovim -K
 ansible-playbook playbook.yml --tags laravel -K
 ansible-playbook playbook.yml --tags python -K
+ansible-playbook playbook.yml --tags playwright -K
 ansible-playbook playbook.yml --tags zsh -K
 ```
 
@@ -267,6 +303,7 @@ python-project/
    - Use Claude Code for complex refactoring
    - Switch to Neovim for rapid editing
    - Use `claude edit` for file-specific changes
+   - Playwright MCP server enables web automation through Claude Code
 
 ## GitHub SSH Setup
 

@@ -15,3 +15,7 @@ git_pull_rebase: false
 
 # Git configuration scope (global or local)
 git_config_scope: "global"
+
+# Playwright configuration
+# Set to false to skip Playwright installation
+install_playwright: true

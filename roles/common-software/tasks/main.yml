@@ -179,3 +179,61 @@
     value: "{{ git_pull_rebase | string | lower }}"
   become: false
   when: configure_git | default(true)
+
+# Install Playwright for web automation and MCP server support
+- name: Install Playwright and dependencies for web automation
+  block:
+    - name: Check if npm is available
+      command: npm --version
+      register: npm_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install Playwright test package globally
+      npm:
+        name: "@playwright/test"
+        global: yes
+        state: present
+      when: npm_check.rc == 0
+
+    - name: Install Playwright system dependencies
+      shell: |
+        export PATH="/snap/bin:$PATH"
+        npx playwright install-deps
+      args:
+        executable: /bin/bash
+      become: true
+      changed_when: "'Installing' in playwright_deps.stdout"
+      register: playwright_deps
+      when: npm_check.rc == 0
+
+    - name: Install Chromium browser for Playwright
+      shell: |
+        export PATH="/snap/bin:$PATH"
+        npx playwright install chromium
+      args:
+        executable: /bin/bash
+      changed_when: "'Downloading' in chrome_install.stdout"
+      register: chrome_install
+      when: npm_check.rc == 0
+
+    - name: Verify Playwright installation
+      shell: |
+        export PATH="/snap/bin:$PATH"
+        npx playwright --version
+      args:
+        executable: /bin/bash
+      register: playwright_version
+      changed_when: false
+      when: npm_check.rc == 0
+
+  rescue:
+    - name: Handle Playwright installation failure
+      debug:
+        msg: "Playwright installation failed. Ensure Node.js/npm is properly installed."
+
+  when: install_playwright | default(true)
+  tags:
+    - playwright
+    - web-automation
+    - testing
