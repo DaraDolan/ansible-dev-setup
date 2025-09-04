@@ -3,9 +3,9 @@
 This project provides a comprehensive development environment optimized for PHP/Laravel development with Tailwind CSS and React learning capabilities.
 
 ## Tech Stack Focus
-- **Backend**: PHP 8+, Laravel 11+
-- **Frontend**: Tailwind CSS, React/TypeScript
-- **Development**: Neovim with LSP, Claude Code integration
+- **Backend**: PHP 8+, Laravel 11+, Python 3+
+- **Frontend**: Tailwind CSS, React/TypeScript  
+- **Development**: Neovim with LSP, Claude Code integration, UV package manager
 
 ## Development Commands
 
@@ -63,23 +63,50 @@ composer update
 npm run build-css
 ```
 
+### Python Commands
+```bash
+# Install UV package manager (included in setup)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create new Python project with UV
+uv init my-project
+cd my-project
+
+# Install dependencies with UV
+uv add fastapi uvicorn
+
+# Create virtual environment and install dependencies
+uv venv
+source .venv/bin/activate  # Linux/macOS
+
+# Run Python application
+uv run python main.py
+
+# Run tests
+uv run pytest
+
+# Install development dependencies
+uv add --dev pytest black ruff
+```
+
 ## Ansible Development Environment Commands
 
 ### Initial Setup (First Time)
 ```bash
 # Full development environment setup
-ansible-playbook playbook.yml
+ansible-playbook playbook.yml -K
 
 # Setup specific components only
-ansible-playbook playbook.yml --tags neovim
-ansible-playbook playbook.yml --tags laravel
-ansible-playbook playbook.yml --tags zsh
+ansible-playbook playbook.yml --tags neovim -K
+ansible-playbook playbook.yml --tags laravel -K
+ansible-playbook playbook.yml --tags python -K
+ansible-playbook playbook.yml --tags zsh -K
 ```
 
 ### Configuration Updates
 ```bash
 # Update only Neovim configuration files (after changes)
-ansible-playbook update-config.yml
+ansible-playbook update-config.yml -K
 
 # This updates:
 # - Plugin configurations
@@ -149,6 +176,16 @@ inventory/hosts.yml       # Ansible inventory
 - `useEffect` - useEffect hook
 - `context` - React context setup
 
+### Python
+- `def` - Python function template
+- `class` - Python class template
+- `main` - Python main guard
+- `try` - Try-except block
+- `for` - For loop
+- `test` - Pytest test function
+- `fastapi` - FastAPI route
+- `flask` - Flask route
+
 ### Tailwind CSS
 - `btn` - Button with Tailwind classes
 - `card` - Card component
@@ -156,6 +193,8 @@ inventory/hosts.yml       # Ansible inventory
 - `flex-center` - Centered flex container
 
 ## Project Structure Conventions
+
+### Laravel Project Structure
 ```
 laravel-project/
 ├── app/
@@ -172,6 +211,31 @@ laravel-project/
 └── database/
     ├── migrations/          # Database migrations
     └── seeders/             # Database seeders
+```
+
+### Python Project Structure
+```
+python-project/
+├── pyproject.toml           # UV/pip project configuration
+├── uv.lock                  # UV lock file (like package-lock.json)
+├── README.md               # Project documentation
+├── .env                    # Environment variables
+├── .gitignore              # Git ignore rules
+├── src/
+│   └── myproject/          # Main package
+│       ├── __init__.py     # Package initialization
+│       ├── main.py         # Application entry point
+│       ├── models/         # Data models
+│       ├── services/       # Business logic
+│       ├── api/            # API routes (FastAPI/Flask)
+│       └── utils/          # Utility functions
+├── tests/
+│   ├── __init__.py
+│   ├── test_main.py        # Main tests
+│   ├── unit/               # Unit tests
+│   └── integration/        # Integration tests
+├── docs/                   # Documentation
+└── scripts/                # Utility scripts
 ```
 
 ## Development Workflow Tips

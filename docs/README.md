@@ -1,6 +1,6 @@
 # 📚 Development Environment Documentation
 
-Your complete guide to productive PHP/Laravel/React development with Pest testing and Claude Code integration.
+Your complete guide to productive PHP/Laravel/React/Python development with Pest testing and Claude Code integration.
 
 ## 🚀 Getting Started
 
@@ -9,9 +9,9 @@ Your complete guide to productive PHP/Laravel/React development with Pest testin
 - **[🔧 Troubleshooting](quick-start/troubleshooting.md)** - Fix common issues fast
 
 ### First Steps
-1. Run `./scripts/dev-setup.sh` to set up your environment
-2. Create your first project: `laravel-new my-project react`
-3. Start developing: `dev-start`
+1. Run `ansible-playbook playbook.yml -K` to set up your environment
+2. Create your first project: `laravel-new my-project react` or `uv init my-python-project`
+3. Start developing: `dev-start` (Laravel) or `uv run python main.py` (Python)
 
 ---
 
@@ -39,6 +39,13 @@ Your complete guide to productive PHP/Laravel/React development with Pest testin
   - Component patterns, API integration, Tailwind CSS
   - Form handling, testing, mobile responsive design
 
+### 🐍 Python Development
+- **[🐍 Python Development Guide](PYTHON_DEVELOPMENT.md)** - Complete Python development mastery
+  - UV package manager (10-100x faster than pip), project structure, workflows
+  - FastAPI, Flask, data science, testing with pytest, code quality tools
+- **[⌨️  Neovim Python Integration](NEOVIM_PYTHON.md)** - Python in your editor
+  - LSP features, code snippets, debugging, key bindings, advanced workflows
+
 ---
 
 ## ⚡ Quick Reference Cards
@@ -46,9 +53,10 @@ Your complete guide to productive PHP/Laravel/React development with Pest testin
 ### 🎯 Essential Commands
 | Task | Command |
 |------|---------|
-| **New Project** | `laravel-new project-name [react]` |
-| **Start Servers** | `dev-start` |
-| **Run Tests** | `pest` |
+| **New Laravel Project** | `laravel-new project-name [react]` |
+| **New Python Project** | `uv init project-name && cd project-name` |
+| **Start Servers** | `dev-start` (Laravel), `uv run python main.py` (Python) |
+| **Run Tests** | `pest` (Laravel), `uv run pytest` (Python) |
 | **Open Neovim** | `nv .` |
 | **Claude Code** | `cc` |
 
@@ -92,6 +100,14 @@ Your complete guide to productive PHP/Laravel/React development with Pest testin
 - `rfc` → React component
 - `useState` → useState hook
 - `useEffect` → useEffect hook
+
+#### Python
+- `def` → Function definition
+- `class` → Class definition
+- `main` → Main guard
+- `test` → Pytest test
+- `fastapi` → FastAPI route
+- `flask` → Flask route
 
 #### Tailwind CSS
 - `btn` → Button component
@@ -165,18 +181,20 @@ Your complete guide to productive PHP/Laravel/React development with Pest testin
 ### ✅ What's Included
 - **PHP 8.3** with all essential extensions
 - **Laravel 12** with Pest 4 testing framework
+- **Python 3.x** with UV package manager (10-100x faster than pip)
 - **Node.js 22** with React/TypeScript support  
-- **Neovim** with 30+ productivity plugins
+- **Neovim** with 30+ productivity plugins and full LSP support
 - **Tailwind CSS** for rapid UI development
 - **Claude Code** seamless integration
 - **Zsh + Oh-My-Zsh** with productivity plugins
 
 ### 🎯 Optimized For
 - **Laravel Development**: Controllers, models, migrations, API development
+- **Python Development**: FastAPI, Flask, data science, CLI tools, testing with pytest
 - **React Frontend**: Components, hooks, TypeScript, responsive design
-- **Test-Driven Development**: Pest testing, mutation testing, coverage
-- **Rapid Prototyping**: Snippets, auto-completion, hot reload
-- **Code Quality**: LSP integration, formatting, linting
+- **Test-Driven Development**: Pest testing, pytest, mutation testing, coverage
+- **Rapid Prototyping**: Language-specific snippets, auto-completion, hot reload
+- **Code Quality**: Multi-language LSP integration, formatting, linting
 
 ---
 
@@ -189,9 +207,9 @@ Your development environment is configured for maximum productivity. Use this do
 - 🔧 **Troubleshooting** when things go wrong
 - 🎯 **Best practices** for clean, tested code
 
-**Build amazing Laravel applications with React frontends, backed by comprehensive Pest tests!** 🚀
+**Build amazing Laravel applications with React frontends, Python APIs and data tools, all backed by comprehensive testing!** 🚀
 
 ---
 
 *Last updated: $(date)*  
-*Environment Version: Laravel 12 + Pest 4 + React + Tailwind CSS*
+*Environment Version: Laravel 12 + Pest 4 + Python + UV + React + Tailwind CSS*

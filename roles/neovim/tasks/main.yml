@@ -220,6 +220,7 @@
     - "javascript.json"
     - "typescript.json"
     - "typescriptreact.json"
+    - "python.json"
   become: false
 
 - name: Configure Neovim to use pynvim from virtual environment

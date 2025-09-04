@@ -1,0 +1,134 @@
+{
+  "Python Function": {
+    "prefix": "def",
+    "body": [
+      "def ${1:function_name}(${2:args}):",
+      "    \"\"\"${3:Description}\"\"\"",
+      "    ${4:pass}",
+      "$0"
+    ],
+    "description": "Create a Python function"
+  },
+  "Python Class": {
+    "prefix": "class",
+    "body": [
+      "class ${1:ClassName}:",
+      "    \"\"\"${2:Description}\"\"\"",
+      "    ",
+      "    def __init__(self${3:, args}):",
+      "        ${4:pass}",
+      "$0"
+    ],
+    "description": "Create a Python class"
+  },
+  "Python Main": {
+    "prefix": "main",
+    "body": [
+      "if __name__ == \"__main__\":",
+      "    ${1:pass}$0"
+    ],
+    "description": "Python main guard"
+  },
+  "Python Import": {
+    "prefix": "imp",
+    "body": "import ${1:module}$0",
+    "description": "Import statement"
+  },
+  "Python From Import": {
+    "prefix": "from",
+    "body": "from ${1:module} import ${2:name}$0",
+    "description": "From import statement"
+  },
+  "Python Try-Except": {
+    "prefix": "try",
+    "body": [
+      "try:",
+      "    ${1:pass}",
+      "except ${2:Exception} as ${3:e}:",
+      "    ${4:pass}$0"
+    ],
+    "description": "Try-except block"
+  },
+  "Python For Loop": {
+    "prefix": "for",
+    "body": [
+      "for ${1:item} in ${2:iterable}:",
+      "    ${3:pass}$0"
+    ],
+    "description": "For loop"
+  },
+  "Python While Loop": {
+    "prefix": "while",
+    "body": [
+      "while ${1:condition}:",
+      "    ${2:pass}$0"
+    ],
+    "description": "While loop"
+  },
+  "Python List Comprehension": {
+    "prefix": "lc",
+    "body": "[${1:expr} for ${2:item} in ${3:iterable}]$0",
+    "description": "List comprehension"
+  },
+  "Python Dictionary Comprehension": {
+    "prefix": "dc",
+    "body": "{${1:key}: ${2:value} for ${3:item} in ${4:iterable}}$0",
+    "description": "Dictionary comprehension"
+  },
+  "Python Print Debug": {
+    "prefix": "pdb",
+    "body": "print(f\"${1:variable}: {${1:variable}}\")$0",
+    "description": "Print debug statement"
+  },
+  "Python Docstring": {
+    "prefix": "doc",
+    "body": [
+      "\"\"\"",
+      "${1:Description}",
+      "",
+      "Args:",
+      "    ${2:param}: ${3:Description}",
+      "",
+      "Returns:",
+      "    ${4:Description}",
+      "\"\"\"$0"
+    ],
+    "description": "Function docstring"
+  },
+  "Python FastAPI Route": {
+    "prefix": "fastapi",
+    "body": [
+      "@app.${1:get}(\"${2:/endpoint}\")",
+      "async def ${3:function_name}(${4:params}):",
+      "    \"\"\"${5:Description}\"\"\"",
+      "    ${6:pass}$0"
+    ],
+    "description": "FastAPI route"
+  },
+  "Python Flask Route": {
+    "prefix": "flask",
+    "body": [
+      "@app.route(\"${1:/endpoint}\", methods=[\"${2:GET}\"])",
+      "def ${3:function_name}():",
+      "    \"\"\"${4:Description}\"\"\"",
+      "    ${5:pass}$0"
+    ],
+    "description": "Flask route"
+  },
+  "Python Pytest Test": {
+    "prefix": "test",
+    "body": [
+      "def test_${1:function_name}():",
+      "    \"\"\"${2:Test description}\"\"\"",
+      "    # Arrange",
+      "    ${3:pass}",
+      "    ",
+      "    # Act",
+      "    ${4:pass}",
+      "    ",
+      "    # Assert",
+      "    ${5:assert True}$0"
+    ],
+    "description": "Pytest test function"
+  }
+}

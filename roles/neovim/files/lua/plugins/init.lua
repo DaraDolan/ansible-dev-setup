@@ -333,6 +333,7 @@ return {
           "ts_ls",        -- TypeScript/JavaScript
           "emmet_ls",     -- Emmet
           "jsonls",       -- JSON
+          "pylsp",        -- Python
         },
       })
 
@@ -386,6 +387,21 @@ return {
       -- JSON
       lspconfig.jsonls.setup({
         capabilities = capabilities,
+      })
+
+      -- Python
+      lspconfig.pylsp.setup({
+        capabilities = capabilities,
+        settings = {
+          pylsp = {
+            plugins = {
+              pycodestyle = {
+                ignore = {'W391'},
+                maxLineLength = 100
+              }
+            }
+          }
+        }
       })
     end,
   },

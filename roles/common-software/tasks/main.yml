@@ -124,3 +124,25 @@
     group: "{{ username_result.stdout }}"
     mode: 0644
   become: false
+
+# Install UV Python package manager
+- name: Install UV Python package manager
+  shell: curl -LsSf https://astral.sh/uv/install.sh | sh
+  args:
+    creates: "{{ user_home.stdout }}/.local/bin/uv"
+  become: false
+
+- name: Add UV to PATH in shell profile
+  lineinfile:
+    path: "{{ user_home.stdout }}/.bashrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    state: present
+  become: false
+
+- name: Add UV to PATH in zsh profile
+  lineinfile:
+    path: "{{ user_home.stdout }}/.zshrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    state: present
+  become: false
+  ignore_errors: true
