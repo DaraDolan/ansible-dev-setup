@@ -67,8 +67,5 @@ sz() {
 }
 
 v() {
-    if [ -n "$1" ]; then
-        zoxide query $1  # Use zoxide instead of z
-    fi
-    nvim
+    nvim .
 }
