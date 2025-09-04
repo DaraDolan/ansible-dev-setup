@@ -146,3 +146,32 @@
     state: present
   become: false
   ignore_errors: true
+
+# Configure global Git settings
+- name: Set global Git user name
+  git_config:
+    name: user.name
+    scope: global
+    value: "Dara"
+  become: false
+
+- name: Set global Git user email
+  git_config:
+    name: user.email
+    scope: global
+    value: "daradolan@gmail.com"
+  become: false
+
+- name: Set global Git default branch to main
+  git_config:
+    name: init.defaultBranch
+    scope: global
+    value: "main"
+  become: false
+
+- name: Set global Git pull strategy to merge (not rebase)
+  git_config:
+    name: pull.rebase
+    scope: global
+    value: "false"
+  become: false
