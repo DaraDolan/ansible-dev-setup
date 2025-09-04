@@ -88,6 +88,50 @@ ansible-playbook -i inventory/hosts.yml playbook.yml -l hostname -K
 
 # Remote host with SSH
 ansible-playbook -i inventory/hosts.yml playbook.yml -l remote-host -K
+
+# Setup specific components only (using tags)
+ansible-playbook -i inventory/hosts.yml playbook.yml --tags neovim -K
+ansible-playbook -i inventory/hosts.yml playbook.yml --tags laravel -K
+ansible-playbook -i inventory/hosts.yml playbook.yml --tags zsh -K
+```
+
+### Configuration Updates
+
+For updating just configuration files (after making changes to roles):
+
+```bash
+# Update Neovim configuration only (fast, no package reinstalls)
+ansible-playbook update-config.yml
+
+# This updates:
+# - Plugin configurations  
+# - Key mappings
+# - Core settings
+# - Code snippets
+```
+
+This is much faster than running the full playbook when you only need to update config files.
+
+## Project Structure
+
+```
+ansible-dev-setup/
+├── playbook.yml              # Main setup playbook
+├── update-config.yml         # Quick config update playbook  
+├── inventory/hosts.yml       # Ansible inventory
+├── roles/
+│   ├── common-software/      # Base development tools
+│   ├── neovim/              # Neovim configuration
+│   │   ├── files/           # Source configuration files
+│   │   │   ├── init.lua
+│   │   │   ├── lua/core/    # Core Neovim settings
+│   │   │   ├── lua/plugins/ # Plugin configurations
+│   │   │   └── snippets/    # Code snippets
+│   │   └── tasks/main.yml   # Installation tasks
+│   ├── laravel/             # Laravel-specific setup
+│   └── zsh/                 # Shell configuration
+├── scripts/dev-setup.sh     # Convenience setup script
+└── CLAUDE.md               # Claude Code integration docs
 ```
 
 ## Features

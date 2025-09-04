@@ -63,12 +63,62 @@ composer update
 npm run build-css
 ```
 
+## Ansible Development Environment Commands
+
+### Initial Setup (First Time)
+```bash
+# Full development environment setup
+ansible-playbook playbook.yml
+
+# Setup specific components only
+ansible-playbook playbook.yml --tags neovim
+ansible-playbook playbook.yml --tags laravel
+ansible-playbook playbook.yml --tags zsh
+```
+
+### Configuration Updates
+```bash
+# Update only Neovim configuration files (after changes)
+ansible-playbook update-config.yml
+
+# This updates:
+# - Plugin configurations
+# - Key mappings  
+# - Core settings
+# - Snippets
+# Without reinstalling packages or dependencies
+```
+
+### Ansible Project Structure
+```
+roles/
+├── neovim/files/          # Source configuration files
+│   ├── init.lua
+│   ├── lua/core/          # Core Neovim settings
+│   ├── lua/plugins/       # Plugin configurations
+│   └── snippets/          # Code snippets
+├── common-software/       # Base development tools
+├── laravel/              # Laravel-specific setup
+└── zsh/                  # Shell configuration
+
+playbook.yml              # Main setup playbook
+update-config.yml         # Quick config update playbook
+inventory/hosts.yml       # Ansible inventory
+```
+
 ## Neovim Key Bindings
 
 ### Laravel Specific (leader = space)
 - `<leader>la` - Laravel Artisan commands
 - `<leader>lr` - Laravel routes
 - `<leader>lm` - Laravel related files
+
+### GitHub Copilot (AI Code Suggestions)
+- `Alt+l` - Accept Copilot suggestion
+- `Alt+j` - Next suggestion
+- `Alt+k` - Previous suggestion
+- `Alt+h` - Dismiss suggestion
+- `<leader>cp` - Toggle Copilot on/off
 
 ### LSP Functions
 - `gd` - Go to definition
