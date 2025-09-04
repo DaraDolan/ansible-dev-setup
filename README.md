@@ -21,6 +21,40 @@ The setup is designed to work on both Debian-based Linux distributions (Ubuntu, 
 - SSH access to target machines (or localhost for local setup)
 - Sudo privileges on target machines
 
+## Personal Configuration (Important First Step!)
+
+Before running the setup, it's **highly recommended** to configure your personal settings:
+
+```bash
+# Copy the example configuration
+cp personal-config.yml.example personal-config.yml
+
+# Edit with your personal preferences
+nano personal-config.yml  # or vim, code, etc.
+```
+
+The personal configuration file allows you to set:
+
+- **Git user name and email** (instead of using system defaults)
+- **Git default branch** (main, master, develop, etc.)
+- **Git pull behavior** (merge vs rebase)
+- **Whether to configure Git at all** (useful for shared systems)
+
+**Example `personal-config.yml`:**
+```yaml
+---
+# Git Configuration
+git_user_name: "Jane Developer"
+git_user_email: "jane@company.com"
+git_default_branch: "main"
+git_pull_rebase: false
+
+# To skip git configuration entirely:
+# configure_git: false
+```
+
+**Why this matters:** Without personal configuration, the playbook will use system defaults like your username and `username@example.com` for Git commits.
+
 ## Installation
 
 ### Option 1: Quick Setup Script (Recommended)
@@ -30,6 +64,12 @@ For convenience with enhanced error handling and auto-installation of Ansible:
 ```bash
 git clone <your-repo-url>
 cd <repo-directory>
+
+# Configure your personal settings first (recommended)
+cp personal-config.yml.example personal-config.yml
+nano personal-config.yml
+
+# Run setup
 ./scripts/dev-setup.sh
 ```
 
@@ -52,9 +92,20 @@ git clone <your-repo-url>
 cd <repo-directory>
 ```
 
-2. Run the playbook directly:
+2. Configure your personal settings (recommended):
 
 ```bash
+cp personal-config.yml.example personal-config.yml
+nano personal-config.yml
+```
+
+3. Run the playbook:
+
+```bash
+# With personal configuration
+ansible-playbook -i inventory/hosts.yml playbook.yml -e @personal-config.yml -K
+
+# Or with defaults (not recommended)
 ansible-playbook -i inventory/hosts.yml playbook.yml -K
 ```
 
@@ -169,6 +220,51 @@ A sophisticated shell prompt with:
 ### Additional Tools
 
 - **Zoxide**: A smarter alternative to the `cd` command for faster directory navigation
+
+## Configuration Options
+
+### Personal Configuration Variables
+
+The following variables can be customized in `personal-config.yml`:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `git_user_name` | `{{ ansible_user_id \| title }}` | Git user name for commits |
+| `git_user_email` | `{{ ansible_user_id }}@example.com` | Git user email for commits |
+| `git_default_branch` | `main` | Default branch name for new repositories |
+| `git_pull_rebase` | `false` | Whether to rebase or merge on git pull |
+| `git_config_scope` | `global` | Git config scope (global or local) |
+| `configure_git` | `true` | Whether to configure Git at all |
+
+### Advanced Usage
+
+```bash
+# Override individual settings at runtime
+ansible-playbook playbook.yml -e git_user_name="Different Name" -K
+
+# Use different config files for different environments  
+ansible-playbook playbook.yml -e @work-config.yml -K
+ansible-playbook playbook.yml -e @home-config.yml -K
+
+# Skip git configuration entirely
+ansible-playbook playbook.yml -e configure_git=false -K
+
+# Set git config to local instead of global
+ansible-playbook playbook.yml -e git_config_scope=local -K
+```
+
+### Multiple Configuration Files
+
+You can create different configuration files for different contexts:
+
+```bash
+# Work setup
+cp personal-config.yml.example work-config.yml
+# Home setup  
+cp personal-config.yml.example home-config.yml
+# Shared/server setup
+cp personal-config.yml.example server-config.yml
+```
 
 ## Customization
 

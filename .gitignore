@@ -1,0 +1,21 @@
+# Personal configuration files - do not commit personal settings
+personal-config.yml
+*-config.yml
+
+# Ansible retry files
+*.retry
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

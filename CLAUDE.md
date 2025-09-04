@@ -91,10 +91,23 @@ uv add --dev pytest black ruff
 
 ## Ansible Development Environment Commands
 
+### Personal Configuration (Recommended First Step)
+```bash
+# Copy and customize your personal settings
+cp personal-config.yml.example personal-config.yml
+# Edit personal-config.yml with your git name, email, and preferences
+
+# Run with personal configuration
+ansible-playbook playbook.yml -e @personal-config.yml -K
+```
+
 ### Initial Setup (First Time)
 ```bash
-# Full development environment setup
+# Full development environment setup (with defaults)
 ansible-playbook playbook.yml -K
+
+# With custom configuration file
+ansible-playbook playbook.yml -e @personal-config.yml -K
 
 # Setup specific components only
 ansible-playbook playbook.yml --tags neovim -K

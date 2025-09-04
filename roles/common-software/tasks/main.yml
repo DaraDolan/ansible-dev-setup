@@ -147,31 +147,35 @@
   become: false
   ignore_errors: true
 
-# Configure global Git settings
-- name: Set global Git user name
+# Configure Git settings (configurable via variables)
+- name: Set Git user name
   git_config:
     name: user.name
-    scope: global
-    value: "Dara"
+    scope: "{{ git_config_scope }}"
+    value: "{{ git_user_name }}"
   become: false
+  when: configure_git | default(true)
 
-- name: Set global Git user email
+- name: Set Git user email
   git_config:
     name: user.email
-    scope: global
-    value: "daradolan@gmail.com"
+    scope: "{{ git_config_scope }}"
+    value: "{{ git_user_email }}"
   become: false
+  when: configure_git | default(true)
 
-- name: Set global Git default branch to main
+- name: Set Git default branch
   git_config:
     name: init.defaultBranch
-    scope: global
-    value: "main"
+    scope: "{{ git_config_scope }}"
+    value: "{{ git_default_branch }}"
   become: false
+  when: configure_git | default(true)
 
-- name: Set global Git pull strategy to merge (not rebase)
+- name: Set Git pull strategy
   git_config:
     name: pull.rebase
-    scope: global
-    value: "false"
+    scope: "{{ git_config_scope }}"
+    value: "{{ git_pull_rebase | string | lower }}"
   become: false
+  when: configure_git | default(true)

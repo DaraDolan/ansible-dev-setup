@@ -1,0 +1,16 @@
+---
+# Personal Configuration Override Example
+# Copy this file to personal-config.yml and customize your settings
+# Then run: ansible-playbook playbook.yml -e @personal-config.yml -K
+
+# Git Configuration
+git_user_name: "Your Name"
+git_user_email: "your.email@example.com"
+git_default_branch: "main"
+git_pull_rebase: false
+
+# To disable git configuration entirely, uncomment:
+# configure_git: false
+
+# To use local git config instead of global, uncomment:
+# git_config_scope: "local"
