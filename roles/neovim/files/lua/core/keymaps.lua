@@ -121,7 +121,10 @@ keymap("n", "<leader>d", "<cmd>lua vim.diagnostic.open_float()<CR>", { desc = "S
 keymap("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous diagnostic" })
 keymap("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", { desc = "Next diagnostic" })
 
--- Claude Code integration shortcuts
+-- Copilot toggle
+keymap("n", "<leader>cp", "<cmd>CopilotToggle<CR>", { desc = "Toggle GitHub Copilot" })
+
+-- Claude Code integration shortcuts  
 keymap("n", "<leader>cc", "<cmd>!claude .<CR>", { desc = "Open project in Claude Code" })
 keymap("n", "<leader>ce", "<cmd>!claude edit %<CR>", { desc = "Edit current file with Claude Code" })
 
