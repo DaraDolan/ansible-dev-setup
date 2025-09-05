@@ -180,6 +180,15 @@
   become: false
   when: configure_git | default(true)
 
+# Configure git aliases
+- name: Configure git aliases
+  git_config:
+    name: alias.trim
+    value: '!git diff --cached --name-only -z | xargs -0 sed -i "s/[[:space:]]*$//"'
+    scope: global
+  become: false
+  when: configure_git | default(true)
+
 # Install Playwright for web automation and MCP server support
 - name: Install Playwright and dependencies for web automation
   block:
