@@ -1,0 +1,14 @@
+---
+# Debian/Ubuntu specific variables for AWS CodeCommit role
+
+# Default AWS region (can be overridden in personal-config.yml)
+aws_region: "{{ aws_default_region | default('eu-west-1') }}"
+
+# Whether to configure git for CodeCommit
+configure_codecommit_git: true
+
+# Required packages for AWS CLI v2 (usually already present in modern Ubuntu)
+required_packages:
+  - unzip
+  - curl
+  - ca-certificates

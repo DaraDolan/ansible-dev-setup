@@ -128,12 +128,27 @@ keymap("n", "<leader>cp", "<cmd>CopilotToggle<CR>", { desc = "Toggle GitHub Copi
 keymap("n", "<leader>cc", "<cmd>!claude .<CR>", { desc = "Open project in Claude Code" })
 keymap("n", "<leader>ce", "<cmd>!claude edit %<CR>", { desc = "Edit current file with Claude Code" })
 
--- Laravel specific shortcuts (when in Laravel project)
-keymap("n", "<leader>lc", "<cmd>!php artisan make:controller ", { desc = "Make controller" })
-keymap("n", "<leader>lm", "<cmd>!php artisan make:model ", { desc = "Make model" })
-keymap("n", "<leader>lmi", "<cmd>!php artisan make:migration ", { desc = "Make migration" })
-keymap("n", "<leader>ls", "<cmd>!php artisan serve<CR>", { desc = "Start Laravel server" })
-keymap("n", "<leader>lt", "<cmd>!php artisan test<CR>", { desc = "Run Laravel tests" })
+-- Laravel Sail shortcuts (using sail alias for cleaner commands)
+-- Container management
+keymap("n", "<leader>lsu", "<cmd>!sail up -d<CR>", { desc = "Start Sail containers" })
+keymap("n", "<leader>lsd", "<cmd>!sail down<CR>", { desc = "Stop Sail containers" })
+keymap("n", "<leader>lsr", "<cmd>!sail restart<CR>", { desc = "Restart Sail containers" })
+
+-- Sail artisan commands
+keymap("n", "<leader>lsa", ":!sail artisan ", { desc = "Sail artisan command" })
+keymap("n", "<leader>lst", "<cmd>!sail test<CR>", { desc = "Run Sail tests" })
+keymap("n", "<leader>lsm", "<cmd>!sail artisan migrate<CR>", { desc = "Run Sail migrations" })
+keymap("n", "<leader>lsf", "<cmd>!sail artisan migrate:fresh --seed<CR>", { desc = "Fresh Sail migration with seed" })
+
+-- Sail make commands
+keymap("n", "<leader>lsc", ":!sail artisan make:controller ", { desc = "Make controller via Sail" })
+keymap("n", "<leader>lsmo", ":!sail artisan make:model ", { desc = "Make model via Sail" })
+keymap("n", "<leader>lsmi", ":!sail artisan make:migration ", { desc = "Make migration via Sail" })
+
+-- Regular Laravel shortcuts (fallback for non-Sail projects)
+keymap("n", "<leader>lpa", ":!php artisan ", { desc = "PHP artisan command" })
+keymap("n", "<leader>lps", "<cmd>!php artisan serve<CR>", { desc = "Start Laravel server" })
+keymap("n", "<leader>lpt", "<cmd>!php artisan test<CR>", { desc = "Run Laravel tests" })
 
 -- React/Frontend development shortcuts
 keymap("n", "<leader>nd", "<cmd>!npm run dev<CR>", { desc = "Start npm dev server" })
@@ -157,11 +172,12 @@ keymap("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "
 keymap("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Vertical terminal" })
 keymap("n", "<leader>tt", "<cmd>ToggleTerm direction=tab<CR>", { desc = "Terminal in new tab" })
 
--- Quick access to common files in Laravel projects
-keymap("n", "<leader>lr", "<cmd>e routes/web.php<CR>", { desc = "Laravel routes" })
-keymap("n", "<leader>la", "<cmd>e routes/api.php<CR>", { desc = "Laravel API routes" })
-keymap("n", "<leader>le", "<cmd>e .env<CR>", { desc = "Laravel environment file" })
-keymap("n", "<leader>lc", "<cmd>e config/app.php<CR>", { desc = "Laravel config" })
+-- Quick access to common files in Laravel projects (using 'lf' prefix to avoid conflicts with laravel.nvim)
+keymap("n", "<leader>lfw", "<cmd>e routes/web.php<CR>", { desc = "Laravel web routes" })
+keymap("n", "<leader>lfa", "<cmd>e routes/api.php<CR>", { desc = "Laravel API routes" })
+keymap("n", "<leader>lfe", "<cmd>e .env<CR>", { desc = "Laravel environment file" })
+keymap("n", "<leader>lfc", "<cmd>e config/app.php<CR>", { desc = "Laravel config file" })
+keymap("n", "<leader>lfd", "<cmd>e docker-compose.yml<CR>", { desc = "Docker compose file" })
 
 -- Quick buffer management
 keymap("n", "<leader>ba", "<cmd>bufdo bd<CR>", { desc = "Close all buffers" })

@@ -7,3 +7,4 @@
     - { role: zsh, tags: ["zsh", "shell"] }
     - { role: neovim, tags: ["neovim", "editor", "python"] }
     - { role: laravel, tags: ["laravel", "php"] }
+    - { role: aws-codecommit, tags: ["aws", "codecommit", "git"] }

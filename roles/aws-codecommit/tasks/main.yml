@@ -1,0 +1,153 @@
+---
+- name: Include platform-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+# Get the correct user info
+- name: Get current username
+  command: whoami
+  register: username_result
+  changed_when: false
+  become: false
+
+- name: Get user's home directory
+  shell: 'echo $HOME'
+  register: user_home
+  changed_when: false
+  become: false
+
+# Check if AWS CLI v2 is already installed
+- name: Check if AWS CLI v2 is installed
+  command: aws --version
+  register: aws_cli_check
+  changed_when: false
+  failed_when: false
+
+- name: Parse AWS CLI version
+  set_fact:
+    aws_cli_version: "{{ aws_cli_check.stdout | regex_search('aws-cli/([0-9]+)', '\\1') | first | default('0') | int }}"
+  when: aws_cli_check.rc == 0
+
+# Install AWS CLI v2 if not present or if version is less than 2
+- name: Install AWS CLI v2
+  block:
+    - name: Download AWS CLI v2 installer
+      get_url:
+        url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+        dest: "/tmp/awscliv2.zip"
+        mode: '0644'
+      become: false
+
+    - name: Extract AWS CLI v2 installer
+      unarchive:
+        src: "/tmp/awscliv2.zip"
+        dest: "/tmp"
+        remote_src: yes
+      become: false
+
+    - name: Install AWS CLI v2
+      shell: |
+        cd /tmp/aws
+        sudo ./install{% if aws_cli_check.rc == 0 %} --update{% endif %}
+      become: true
+      args:
+        creates: "{% if aws_cli_check.rc != 0 %}/usr/local/bin/aws{% endif %}"
+
+    - name: Clean up AWS CLI installer files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/tmp/awscliv2.zip"
+        - "/tmp/aws"
+      become: false
+
+  when: aws_cli_check.rc != 0 or (aws_cli_check.rc == 0 and aws_cli_version | int < 2)
+
+# Verify AWS CLI v2 installation
+- name: Verify AWS CLI v2 installation
+  command: aws --version
+  register: aws_cli_verify
+  changed_when: false
+
+- name: Display AWS CLI version
+  debug:
+    msg: "AWS CLI installed: {{ aws_cli_verify.stdout }}"
+
+# Configure git credential helper for CodeCommit
+- name: Configure git credential helper for AWS CodeCommit (global)
+  git_config:
+    name: credential.helper
+    scope: global
+    value: "!aws codecommit credential-helper $@"
+  become: false
+  when: configure_codecommit_git | default(true)
+
+- name: Configure git credential helper to use HTTPS for AWS CodeCommit (global)
+  git_config:
+    name: credential.UseHttpPath
+    scope: global
+    value: "true"
+  become: false
+  when: configure_codecommit_git | default(true)
+
+# Create AWS config directory if it doesn't exist
+- name: Create AWS config directory
+  file:
+    path: "{{ user_home.stdout }}/.aws"
+    state: directory
+    mode: 0700
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
+  become: false
+
+# Check if AWS credentials are configured
+- name: Check if AWS credentials file exists
+  stat:
+    path: "{{ user_home.stdout }}/.aws/credentials"
+  register: aws_credentials_file
+
+- name: Check if AWS config file exists
+  stat:
+    path: "{{ user_home.stdout }}/.aws/config"
+  register: aws_config_file
+
+# Display information about AWS configuration
+- name: Display AWS configuration status
+  debug:
+    msg: |
+      AWS CLI v2 installation complete.
+
+      To configure AWS credentials for CodeCommit access, run:
+        aws configure
+
+      Or manually create/edit these files:
+        - ~/.aws/credentials (for access keys)
+        - ~/.aws/config (for region and other settings)
+
+      Git has been configured with CodeCommit credential helper.
+      You can now clone CodeCommit repositories using HTTPS URLs.
+
+      Credentials file exists: {{ aws_credentials_file.stat.exists }}
+      Config file exists: {{ aws_config_file.stat.exists }}
+
+# Optional: Set up AWS profile-specific git configuration
+- name: Configure git for specific AWS regions (if region specified)
+  block:
+    - name: Set CodeCommit URL pattern for specific region
+      git_config:
+        name: "credential.https://git-codecommit.{{ aws_region }}.amazonaws.com.helper"
+        scope: global
+        value: "!aws codecommit credential-helper $@"
+      become: false
+
+    - name: Set UseHttpPath for specific region
+      git_config:
+        name: "credential.https://git-codecommit.{{ aws_region }}.amazonaws.com.UseHttpPath"
+        scope: global
+        value: "true"
+      become: false
+
+  when:
+    - configure_codecommit_git | default(true)
+    - aws_region is defined
+    - aws_region | length > 0

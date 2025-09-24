@@ -1,0 +1,11 @@
+---
+# macOS specific variables for AWS CodeCommit role
+
+# Default AWS region (can be overridden in personal-config.yml)
+aws_region: "{{ aws_default_region | default('') }}"
+
+# Whether to configure git for CodeCommit
+configure_codecommit_git: true
+
+# AWS CLI v2 download URL for macOS
+aws_cli_macos_url: "https://awscli.amazonaws.com/AWSCLIV2.pkg"

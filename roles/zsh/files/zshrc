@@ -61,6 +61,9 @@ alias ci='co install'
 alias cg='nvim ~/.composer/composer.json'
 alias cogu='co global update'
 alias ptest='./vendor/bin/pest'
+
+# Laravel Sail shortcuts (official Laravel recommendation)
+alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
 alias spf='sail test --filter'
 
 # Custom functions
