@@ -208,6 +208,8 @@ return {
             ["c"] = "copy",
             ["m"] = "move",
             ["q"] = "close_window",
+            ["<leader>e"] = "close_window",
+            ["<leader>n"] = "close_window",
             ["R"] = "refresh",
             ["?"] = "show_help",
           }
