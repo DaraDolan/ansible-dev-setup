@@ -368,7 +368,13 @@ return {
       -- TypeScript/JavaScript
       lspconfig.ts_ls.setup({
         capabilities = capabilities,
-        root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git"),
+        root_dir = function(fname)
+          local util = require('lspconfig.util')
+          -- Fix for nvim-lspconfig bug - properly find root by lock files or package.json
+          return util.root_pattern('package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb', 'bun.lock')(fname)
+            or util.root_pattern('package.json', 'tsconfig.json', 'jsconfig.json')(fname)
+            or util.find_git_ancestor(fname)
+        end,
       })
 
       -- HTML

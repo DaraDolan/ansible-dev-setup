@@ -259,6 +259,15 @@
     msg: "For the best experience, please install a Nerd Font manually: https://www.nerdfonts.com/font-downloads"
   when: ansible_os_family == "Debian"
 
+  # Fix nvim-lspconfig ts_ls bug (double-wrapped table issue)
+- name: Fix ts_ls.lua root_dir bug in nvim-lspconfig
+  replace:
+    path: "{{ user_home.stdout }}/.local/share/nvim/lazy/nvim-lspconfig/lsp/ts_ls.lua"
+    regexp: 'local project_root = vim\.fs\.root\(bufnr, \{ project_root_markers \}\)'
+    replace: 'local project_root = vim.fs.root(bufnr, project_root_markers)'
+  become: false
+  ignore_errors: yes
+
   # Add these verification tasks at the end of the file
 - name: Verify Neovim setup with healthcheck
   shell: nvim --headless -c "checkhealth" -c "q" > /tmp/nvim_health_check.log 2>&1
