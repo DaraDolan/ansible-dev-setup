@@ -185,9 +185,39 @@ inventory/hosts.yml       # Ansible inventory
 ## Neovim Key Bindings
 
 ### Laravel Specific (leader = space)
-- `<leader>la` - Laravel Artisan commands
-- `<leader>lr` - Laravel routes
+
+#### Laravel.nvim Plugin Features:
+- `<leader>la` - Laravel Artisan commands (interactive picker)
+- `<leader>lr` - Laravel routes (route browser)
 - `<leader>lm` - Laravel related files
+
+#### Sail Container Management:
+- `<leader>lsu` - Start Sail containers (`sail up -d`)
+- `<leader>lsd` - Stop Sail containers (`sail down`)
+- `<leader>lsr` - Restart Sail containers
+
+#### Sail Artisan Commands:
+- `<leader>lsa` - Sail artisan command (interactive)
+- `<leader>lst` - Run Sail tests
+- `<leader>lsm` - Run Sail migrations
+- `<leader>lsf` - Fresh Sail migration with seed
+
+#### Sail Make Commands:
+- `<leader>lsc` - Make controller via Sail
+- `<leader>lsmo` - Make model via Sail
+- `<leader>lsmi` - Make migration via Sail
+
+#### Regular Laravel (fallback for non-Sail projects):
+- `<leader>lpa` - PHP artisan command (interactive)
+- `<leader>lps` - Start Laravel server (`php artisan serve`)
+- `<leader>lpt` - Run Laravel tests
+
+#### Laravel File Navigation:
+- `<leader>lfw` - Open web routes file
+- `<leader>lfa` - Open API routes file
+- `<leader>lfe` - Open .env file
+- `<leader>lfc` - Open config/app.php file
+- `<leader>lfd` - Open docker-compose.yml file
 
 ### GitHub Copilot (AI Code Suggestions)
 - `Alt+l` - Accept Copilot suggestion
