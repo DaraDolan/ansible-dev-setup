@@ -368,6 +368,7 @@ return {
       -- TypeScript/JavaScript
       lspconfig.ts_ls.setup({
         capabilities = capabilities,
+        root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git"),
       })
 
       -- HTML
