@@ -22,7 +22,7 @@ keymap("n", "<Leader>f", "<cmd>Telescope git_files<CR>", { desc = "Find Git File
 keymap("n", "<Leader>F", "<cmd>Telescope find_files cwd_only=true<CR>", { desc = "Find Files in Project" })
 keymap("n", "<Leader>b", "<cmd>Telescope buffers sort_lastused=true<CR>", { desc = "Find Buffers" })
 keymap("n", "<Leader>m", "<cmd>Telescope git_status<CR>", { desc = "Git Status" })
-keymap("n", "<Leader><Leader>f", "<cmd>Telescope oldfiles cwd_only=true<CR>", { desc = "Project History/Old Files" })
+keymap("n", "<Leader>h", "<cmd>Telescope oldfiles cwd_only=true<CR>", { desc = "File History" })
 keymap("n", "<Leader>H", "<cmd>Telescope command_history<CR>", { desc = "Command History" })
 keymap("n", "<Leader>/", "<cmd>Telescope live_grep search_dirs={vim.fn.getcwd()}<CR>", { desc = "Live Grep in Project" })
 keymap("n", "<Leader>t", "<cmd>Telescope current_buffer_tags<CR>", { desc = "Buffer Tags" })
