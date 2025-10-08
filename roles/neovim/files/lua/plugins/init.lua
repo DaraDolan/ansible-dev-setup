@@ -322,85 +322,116 @@ return {
     "neovim/nvim-lspconfig",
     dependencies = {
       "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
     },
     config = function()
       require("mason").setup()
-      require("mason-lspconfig").setup({
-        ensure_installed = {
-          "intelephense", -- PHP
-          "html",         -- HTML
-          "cssls",        -- CSS
-          "tailwindcss",  -- Tailwind CSS
-          "ts_ls",        -- TypeScript/JavaScript
-          "emmet_ls",     -- Emmet
-          "jsonls",       -- JSON
-          "pylsp",        -- Python
-        },
-      })
 
-      local lspconfig = require("lspconfig")
+      -- Use modern vim.lsp.config API (Neovim 0.11+) to avoid deprecation warnings
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      -- PHP
-      lspconfig.intelephense.setup({
+      -- Helper function to find project root
+      local function root_pattern(...)
+        local patterns = {...}
+        return function(fname)
+          for _, pattern in ipairs(patterns) do
+            local match = vim.fs.find(pattern, { path = fname, upward = true })[1]
+            if match then
+              return vim.fs.dirname(match)
+            end
+          end
+          return vim.fs.dirname(fname)
+        end
+      end
+
+      -- PHP (Intelephense Premium)
+      -- Read license key
+      local license_file = vim.fn.expand("~/.config/intelephense/licence.txt")
+      local license_key = ""
+      if vim.fn.filereadable(license_file) == 1 then
+        license_key = vim.trim(vim.fn.readfile(license_file)[1])
+      end
+
+      vim.lsp.config.intelephense = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/intelephense"), "--stdio" },
+        filetypes = { "php", "blade", "php_only" },
+        root_markers = { "composer.json", ".git" },
         capabilities = capabilities,
+        init_options = {
+          licenceKey = license_key,
+          storagePath = vim.fn.expand("~/.cache/intelephense"),
+        },
         settings = {
           intelephense = {
             files = {
-              maxSize = 1000000,
+              maxSize = 5000000,
+              associations = { "*.php", "*.blade.php" },
+              exclude = {
+                "**/.git/**",
+                "**/node_modules/**",
+                "**/storage/framework/cache/**",
+                "**/storage/framework/views/**",
+              },
             },
             environment = {
-              includePaths = {
-                vim.fn.expand("~/.composer/vendor"),
-              },
+              includePaths = { vim.fn.expand("~/.composer/vendor") },
             },
           },
         },
-      })
-
-      -- Tailwind CSS
-      lspconfig.tailwindcss.setup({
-        capabilities = capabilities,
-        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "blade" },
-      })
-
-      -- TypeScript/JavaScript
-      lspconfig.ts_ls.setup({
-        capabilities = capabilities,
-        root_dir = function(fname)
-          local util = require('lspconfig.util')
-          -- Fix for nvim-lspconfig bug - properly find root by lock files or package.json
-          return util.root_pattern('package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb', 'bun.lock')(fname)
-            or util.root_pattern('package.json', 'tsconfig.json', 'jsconfig.json')(fname)
-            or util.find_git_ancestor(fname)
-        end,
-      })
+      }
 
       -- HTML
-      lspconfig.html.setup({
+      vim.lsp.config.html = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/vscode-html-language-server"), "--stdio" },
+        filetypes = { "html" },
+        root_markers = { ".git" },
         capabilities = capabilities,
-      })
+      }
 
       -- CSS
-      lspconfig.cssls.setup({
+      vim.lsp.config.cssls = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/vscode-css-language-server"), "--stdio" },
+        filetypes = { "css", "scss", "less" },
+        root_markers = { ".git" },
         capabilities = capabilities,
-      })
+      }
+
+      -- Tailwind CSS
+      vim.lsp.config.tailwindcss = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/tailwindcss-language-server"), "--stdio" },
+        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "blade" },
+        root_markers = { "tailwind.config.js", "tailwind.config.ts", ".git" },
+        capabilities = capabilities,
+      }
+
+      -- TypeScript/JavaScript
+      vim.lsp.config.ts_ls = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/typescript-language-server"), "--stdio" },
+        filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+        root_markers = { "package.json", "tsconfig.json", "jsconfig.json", ".git" },
+        capabilities = capabilities,
+      }
 
       -- Emmet
-      lspconfig.emmet_ls.setup({
-        capabilities = capabilities,
+      vim.lsp.config.emmet_ls = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/emmet-ls"), "--stdio" },
         filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "blade" },
-      })
+        root_markers = { ".git" },
+        capabilities = capabilities,
+      }
 
       -- JSON
-      lspconfig.jsonls.setup({
+      vim.lsp.config.jsonls = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/vscode-json-language-server"), "--stdio" },
+        filetypes = { "json", "jsonc" },
+        root_markers = { ".git" },
         capabilities = capabilities,
-      })
+      }
 
       -- Python
-      lspconfig.pylsp.setup({
-        capabilities = capabilities,
+      vim.lsp.config.pylsp = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/pylsp") },
+        filetypes = { "python" },
+        root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
         settings = {
           pylsp = {
             plugins = {
@@ -410,8 +441,12 @@ return {
               }
             }
           }
-        }
-      })
+        },
+        capabilities = capabilities,
+      }
+
+      -- Enable LSP servers for their configured filetypes
+      vim.lsp.enable({ 'intelephense', 'html', 'cssls', 'tailwindcss', 'ts_ls', 'emmet_ls', 'jsonls', 'pylsp' })
     end,
   },
 
@@ -465,14 +500,13 @@ return {
     end,
   },
 
-  -- Laravel Specific (simplified without promise-async)
+  -- Laravel Specific
   {
     "adalessa/laravel.nvim",
     dependencies = {
       "nvim-telescope/telescope.nvim",
-      "tpope/vim-dotenv",  
+      "tpope/vim-dotenv",
       "MunifTanjim/nui.nvim",
-      "nvimtools/none-ls.nvim",
     },
     cmd = { "Sail", "Artisan", "Composer", "Npm", "Yarn", "Laravel" },
     keys = {
@@ -532,28 +566,47 @@ return {
     end,
   },
 
-  -- Formatting
+  -- Formatting (conform.nvim - modern replacement for none-ls)
   {
-    "nvimtools/none-ls.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      local null_ls = require("null-ls")
-      null_ls.setup({
-        sources = {
-          -- PHP
-          null_ls.builtins.formatting.phpcsfixer,
-          null_ls.builtins.diagnostics.phpcs,
-          
-          -- JavaScript/TypeScript
-          null_ls.builtins.formatting.prettier.with({
-            filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "css", "scss", "less", "html", "json", "yaml", "markdown" },
-          }),
-          
-          -- CSS/Tailwind
-          null_ls.builtins.formatting.stylelint,
-        },
-      })
-    end,
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+    keys = {
+      {
+        "<leader>fm",
+        function()
+          require("conform").format({ async = true, lsp_fallback = true })
+        end,
+        mode = "",
+        desc = "Format buffer",
+      },
+    },
+    opts = {
+      formatters_by_ft = {
+        -- PHP - Laravel Pint (install globally: composer global require laravel/pint)
+        php = { "pint" },
+        blade = { "pint" },
+
+        -- JavaScript/TypeScript/React (install globally: npm install -g prettier)
+        javascript = { "prettier" },
+        javascriptreact = { "prettier" },
+        typescript = { "prettier" },
+        typescriptreact = { "prettier" },
+
+        -- Frontend
+        css = { "prettier" },
+        scss = { "prettier" },
+        html = { "prettier" },
+        json = { "prettier" },
+        yaml = { "prettier" },
+        markdown = { "prettier" },
+      },
+      -- Format on save
+      format_on_save = {
+        timeout_ms = 500,
+        lsp_fallback = true,
+      },
+    },
   },
 
   -- File icons

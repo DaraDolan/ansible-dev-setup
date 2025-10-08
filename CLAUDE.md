@@ -28,6 +28,12 @@ php artisan make:controller ControllerName
 
 # Run tests
 php artisan test
+
+# Laravel IDE Helper (improves Neovim/Intelephense autocomplete)
+composer require --dev barryvdh/laravel-ide-helper
+php artisan ide-helper:generate    # Generate facade helpers
+php artisan ide-helper:models      # Generate model annotations
+php artisan ide-helper:meta        # Generate PhpStorm meta file (optional)
 ```
 
 ### Frontend Commands
@@ -53,10 +59,16 @@ composer install
 # Update dependencies
 composer update
 
-# Code formatting (PHP CS Fixer)
-./vendor/bin/php-cs-fixer fix
+# Code formatting with Laravel Pint (installed globally via Ansible)
+pint                    # Format all files
+pint app/Models         # Format specific directory
+pint --dirty            # Format only uncommitted files
 
-# Static analysis (PHPStan)
+# Format React/Frontend code with Prettier (installed globally via Ansible)
+prettier --write .      # Format all files
+prettier --write "src/**/*.{js,jsx,ts,tsx,css}"  # Format specific files
+
+# Static analysis (PHPStan) - install per project
 ./vendor/bin/phpstan analyse
 
 # Tailwind CSS build
@@ -183,6 +195,14 @@ inventory/hosts.yml       # Ansible inventory
 ```
 
 ## Neovim Key Bindings
+
+### Code Formatting (leader = space)
+- `<leader>fm` - Format current buffer (uses Pint for PHP, Prettier for JS/React)
+- `==` - Auto-indent current line (Vim default)
+- `=G` - Format from cursor to end of file
+- `gg=G` - Format entire file
+- Visual select + `=` - Format selected lines
+- Auto-formats on save for all supported file types
 
 ### Laravel Specific (leader = space)
 

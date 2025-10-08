@@ -205,6 +205,13 @@
         state: present
       when: npm_check.rc == 0
 
+    - name: Install Prettier globally for code formatting
+      npm:
+        name: "prettier"
+        global: yes
+        state: present
+      when: npm_check.rc == 0
+
     - name: Install Playwright system dependencies
       shell: |
         export PATH="/snap/bin:$PATH"

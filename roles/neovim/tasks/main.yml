@@ -23,19 +23,35 @@
   when: ansible_os_family == "Debian"
   become: true
 
-- name: Add Neovim unstable PPA
+- name: Remove Neovim unstable PPA (if present)
   apt_repository:
     repo: ppa:neovim-ppa/unstable
-    state: present
+    state: absent
+  when: ansible_os_family == "Debian"
+  become: true
+  ignore_errors: true
+
+- name: Remove Neovim stable PPA (if present)
+  apt_repository:
+    repo: ppa:neovim-ppa/stable
+    state: absent
+  when: ansible_os_family == "Debian"
+  become: true
+  ignore_errors: true
+
+- name: Remove apt-installed Neovim (we'll use Snap instead)
+  apt:
+    name: neovim
+    state: absent
   when: ansible_os_family == "Debian"
   become: true
 
-# Install Neovim and dependencies
-- name: Install Neovim and dependencies (Debian/Ubuntu)
-  apt:
-    name: "{{ neovim_packages }}"
+# Install Neovim via Snap (always gets latest stable)
+- name: Install Neovim via Snap (stable version)
+  snap:
+    name: nvim
+    classic: yes
     state: present
-    update_cache: yes
   when: ansible_os_family == "Debian"
   become: true
 
@@ -178,6 +194,24 @@
     - "lua/core"
     - "lua/plugins"
     - "snippets"
+  become: false
+
+- name: Create Intelephense config directory
+  file:
+    path: "{{ user_home.stdout }}/.config/intelephense"
+    state: directory
+    mode: 0755
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
+  become: false
+
+- name: Install Intelephense Premium license key
+  copy:
+    content: "00QWFAL4F6OR8QP"
+    dest: "{{ user_home.stdout }}/.config/intelephense/licence.txt"
+    mode: 0600
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
   become: false
 
 # Copy configuration files
