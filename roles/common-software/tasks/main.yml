@@ -17,12 +17,13 @@
   when: ansible_os_family == "Debian"
   become: true
 
-- name: Install Node.js and npm via snap (cleaner dependencies)
+- name: Remove snap Node.js installation (migrating to mise)
   snap:
     name: node
-    classic: yes
+    state: absent
   when: ansible_os_family == "Debian"
   become: true
+  ignore_errors: true
 
 - name: Install Homebrew packages (macOS)
   homebrew:
@@ -147,6 +148,43 @@
   become: false
   ignore_errors: true
 
+# Install mise for Node.js version management
+- name: Install mise version manager
+  shell: curl https://mise.run | sh
+  args:
+    creates: "{{ user_home.stdout }}/.local/bin/mise"
+  become: false
+
+- name: Create mise config directory
+  file:
+    path: "{{ user_home.stdout }}/.config/mise"
+    state: directory
+    mode: 0755
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
+  become: false
+
+- name: Configure mise for Node.js LTS
+  copy:
+    dest: "{{ user_home.stdout }}/.config/mise/config.toml"
+    content: |
+      [tools]
+      node = "lts"
+    owner: "{{ username_result.stdout }}"
+    group: "{{ username_result.stdout }}"
+    mode: 0644
+  become: false
+
+- name: Install Node.js LTS via mise
+  shell: |
+    export PATH="$HOME/.local/bin:$PATH"
+    ~/.local/bin/mise install
+  args:
+    executable: /bin/bash
+  become: false
+  changed_when: false
+  ignore_errors: true
+
 # Configure Git settings (configurable via variables)
 - name: Set Git user name
   git_config:
@@ -192,29 +230,51 @@
 # Install Playwright for web automation and MCP server support
 - name: Install Playwright and dependencies for web automation
   block:
-    - name: Check if npm is available
-      command: npm --version
+    - name: Check if npm is available via mise
+      shell: |
+        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+        eval "$(~/.local/bin/mise activate bash)"
+        npm --version
+      args:
+        executable: /bin/bash
       register: npm_check
       changed_when: false
       failed_when: false
 
-    - name: Install Playwright test package globally
-      npm:
-        name: "@playwright/test"
-        global: yes
-        state: present
+    - name: Install Playwright test package globally via mise
+      shell: |
+        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+        eval "$(~/.local/bin/mise activate bash)"
+        npm install -g @playwright/test
+      args:
+        executable: /bin/bash
       when: npm_check.rc == 0
+      changed_when: false
 
-    - name: Install Prettier globally for code formatting
-      npm:
-        name: "prettier"
-        global: yes
-        state: present
+    - name: Install Prettier globally for code formatting via mise
+      shell: |
+        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+        eval "$(~/.local/bin/mise activate bash)"
+        npm install -g prettier
+      args:
+        executable: /bin/bash
       when: npm_check.rc == 0
+      changed_when: false
+
+    - name: Install Google Gemini CLI globally via mise
+      shell: |
+        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+        eval "$(~/.local/bin/mise activate bash)"
+        npm install -g @google/gemini-cli
+      args:
+        executable: /bin/bash
+      when: npm_check.rc == 0
+      changed_when: false
 
     - name: Install Playwright system dependencies
       shell: |
-        export PATH="/snap/bin:$PATH"
+        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+        eval "$(~/.local/bin/mise activate bash)"
         npx playwright install-deps
       args:
         executable: /bin/bash
@@ -225,7 +285,8 @@
 
     - name: Install Chromium browser for Playwright
       shell: |
-        export PATH="/snap/bin:$PATH"
+        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+        eval "$(~/.local/bin/mise activate bash)"
         npx playwright install chromium
       args:
         executable: /bin/bash
@@ -235,7 +296,8 @@
 
     - name: Verify Playwright installation
       shell: |
-        export PATH="/snap/bin:$PATH"
+        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+        eval "$(~/.local/bin/mise activate bash)"
         npx playwright --version
       args:
         executable: /bin/bash

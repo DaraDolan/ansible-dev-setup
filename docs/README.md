@@ -35,9 +35,12 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
   - Mutation testing, parallel execution, performance improvements
 
 ### ⚛️  Frontend Development
-- **[⚛️  React + Laravel](frontend/react-setup.md)** - Modern frontend development  
+- **[⚛️  React + Laravel](frontend/react-setup.md)** - Modern frontend development
   - Component patterns, API integration, Tailwind CSS
   - Form handling, testing, mobile responsive design
+- **[📦 Node.js with Mise](development/nodejs-mise.md)** - Node.js version management
+  - Install multiple Node versions, per-project configurations
+  - No more npm permission errors, automatic version switching
 
 ### 🐍 Python Development
 - **[🐍 Python Development Guide](PYTHON_DEVELOPMENT.md)** - Complete Python development mastery
@@ -45,6 +48,11 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
   - FastAPI, Flask, data science, testing with pytest, code quality tools
 - **[⌨️  Neovim Python Integration](NEOVIM_PYTHON.md)** - Python in your editor
   - LSP features, code snippets, debugging, key bindings, advanced workflows
+
+### 🤖 AI Development Tools
+- **[🤖 Google Gemini CLI](development/gemini-cli.md)** - AI-assisted development
+  - Chat with AI from terminal, code generation, file analysis
+  - Debugging assistance, best practices, workflow integration
 
 ---
 
@@ -57,8 +65,9 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
 | **New Python Project** | `uv init project-name && cd project-name` |
 | **Start Servers** | `dev-start` (Laravel), `uv run python main.py` (Python) |
 | **Run Tests** | `pest` (Laravel), `uv run pytest` (Python) |
+| **Node Version** | `mise use node@lts` (set version), `mise list` (show installed) |
+| **AI Assistance** | `gemini chat "your question"` (Gemini), `cc` (Claude Code) |
 | **Open Neovim** | `nv .` |
-| **Claude Code** | `cc` |
 
 ### ⌨️  Top Shortcuts
 | Neovim | Action |
@@ -182,7 +191,7 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
 - **PHP 8.3** with all essential extensions
 - **Laravel 12** with Pest 4 testing framework
 - **Python 3.x** with UV package manager (10-100x faster than pip)
-- **Node.js 22** with React/TypeScript support  
+- **Node.js** with mise version manager (multi-version support, no permission errors)
 - **Neovim** with 30+ productivity plugins and full LSP support
 - **Tailwind CSS** for rapid UI development
 - **Claude Code** seamless integration

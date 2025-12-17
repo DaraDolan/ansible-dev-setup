@@ -34,6 +34,11 @@ export PATH="$HOME/.local/bin:$HOME/.config/composer/vendor/bin:$PATH"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
+# Initialize mise for Node.js version management
+if command -v mise &> /dev/null; then
+    eval "$(mise activate zsh)"
+fi
+
 # Initialize zoxide for fast directory jumping
 if command -v zoxide &> /dev/null; then
     eval "$(zoxide init zsh)"

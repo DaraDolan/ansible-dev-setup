@@ -4,8 +4,10 @@ This project provides a comprehensive development environment optimized for PHP/
 
 ## Tech Stack Focus
 - **Backend**: PHP 8+, Laravel 11+, Python 3+
-- **Frontend**: Tailwind CSS, React/TypeScript  
-- **Development**: Neovim with LSP, Claude Code integration, UV package manager
+- **Frontend**: Tailwind CSS, React/TypeScript
+- **Development**: Neovim with LSP, Claude Code integration, mise for Node.js, UV for Python
+- **AI Tools**: Google Gemini CLI, Claude Code
+- **Version Management**: mise (Node.js), UV (Python packages)
 
 ## Development Commands
 
@@ -51,6 +53,40 @@ npm run build
 npm run watch
 ```
 
+### Mise (Node.js Version Manager) Commands
+```bash
+# Check installed versions
+mise list
+
+# Install specific Node.js version
+mise use node@20.10.0      # Install and use specific version
+mise use node@lts          # Use latest LTS version
+
+# Install versions from config file
+mise install               # Installs versions from .mise.toml or .tool-versions
+
+# Set global default Node.js version
+mise use -g node@lts       # Set global LTS version
+
+# Set project-specific version (creates .mise.toml)
+mise use node@20           # Use Node 20 for this project
+
+# Update mise itself
+mise self-update
+
+# See available Node.js versions
+mise ls-remote node
+
+# Remove a version
+mise uninstall node@18.0.0
+
+# Check current active versions
+mise current
+
+# Run command with specific version
+mise exec node@20 -- npm install
+```
+
 ### Common Development Tasks
 ```bash
 # Install PHP dependencies
@@ -73,6 +109,30 @@ prettier --write "src/**/*.{js,jsx,ts,tsx,css}"  # Format specific files
 
 # Tailwind CSS build
 npm run build-css
+```
+
+### Google Gemini CLI Commands
+```bash
+# Set up Gemini CLI with your API key
+gemini config set apiKey YOUR_API_KEY
+
+# Chat with Gemini
+gemini chat "Explain how Laravel middleware works"
+
+# Generate code
+gemini generate "Create a Laravel controller for user management"
+
+# Use Gemini with files
+gemini chat -f code.php "Review this code for security issues"
+
+# List available models
+gemini models
+
+# Set default model
+gemini config set model gemini-pro
+
+# Get help
+gemini --help
 ```
 
 ### Python Commands
@@ -203,6 +263,15 @@ inventory/hosts.yml       # Ansible inventory
 - `gg=G` - Format entire file
 - Visual select + `=` - Format selected lines
 - Auto-formats on save for all supported file types
+
+### Code Commenting (Comment.nvim)
+- `gcc` - Toggle line comment
+- `gbc` - Toggle block comment
+- `gc` + motion - Comment using motion (e.g., `gc2j` comments 2 lines down, `gcap` comments a paragraph)
+- `gb` + motion - Block comment using motion
+- Visual mode + `gc` - Toggle comment on selection
+- Visual mode + `gb` - Toggle block comment on selection
+- Automatically detects correct comment syntax for each filetype
 
 ### Laravel Specific (leader = space)
 
