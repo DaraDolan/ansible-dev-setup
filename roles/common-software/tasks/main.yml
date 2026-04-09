@@ -67,8 +67,8 @@
 - name: Ensure en_US.UTF-8 locale is available
   lineinfile:
     path: /etc/locale.gen
-    regexp: '^# en_US.UTF-8 UTF-8'
-    line: 'en_US.UTF-8 UTF-8'
+    regexp: "^# en_US.UTF-8 UTF-8"
+    line: "en_US.UTF-8 UTF-8"
     state: present
   become: true
   when: ansible_os_family == "Debian"
@@ -99,14 +99,40 @@
   register: username_result
   changed_when: false
   become: false
+  tags:
+    - always
 
 - name: Get user's home directory
-  shell: 'echo $HOME'
+  shell: "echo $HOME"
   register: user_home
   changed_when: false
   become: false
+  tags:
+    - always
 
-# Create Claude configuration directory and disable telemetry
+# Install Claude Code via native installer (enables auto-update)
+- name: Install Claude Code
+  shell: curl -fsSL https://claude.ai/install.sh | bash
+  args:
+    creates: "{{ user_home.stdout }}/.local/bin/claude"
+  become: false
+  tags:
+    - claude
+
+- name: Clean up old Claude Code versions
+  shell: |
+    current=$(readlink {{ user_home.stdout }}/.local/bin/claude | xargs basename)
+    ls ~/.local/share/claude/versions/ | grep -v "^${current}$" | while read v; do
+      rm -f ~/.local/share/claude/versions/$v
+    done
+  args:
+    executable: /bin/bash
+  become: false
+  changed_when: false
+  tags:
+    - claude
+
+# Configure Claude settings
 - name: Create Claude configuration directory
   file:
     path: "{{ user_home.stdout }}/.claude"
@@ -115,16 +141,38 @@
     owner: "{{ username_result.stdout }}"
     group: "{{ username_result.stdout }}"
   become: false
+  tags:
+    - claude
 
-- name: Install Claude settings to disable telemetry
+- name: Install Claude settings
   copy:
     src: "claude-settings.json"
     dest: "{{ user_home.stdout }}/.claude/settings.json"
-    force: yes
+    force: no
     owner: "{{ username_result.stdout }}"
     group: "{{ username_result.stdout }}"
     mode: 0644
   become: false
+  tags:
+    - claude
+
+- name: Create Claude commands directory
+  file:
+    path: "{{ user_home.stdout }}/.claude/commands"
+    state: directory
+    mode: 0775
+  become: false
+  tags:
+    - claude
+
+- name: Install Claude custom commands
+  copy:
+    src: "claude-commands/"
+    dest: "{{ user_home.stdout }}/.claude/commands/"
+    mode: 0644
+  become: false
+  tags:
+    - claude
 
 # Install UV Python package manager
 - name: Install UV Python package manager
