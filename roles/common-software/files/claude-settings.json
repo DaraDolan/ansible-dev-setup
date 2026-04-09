@@ -1,6 +1,13 @@
 {
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true
+  },
   "enableTelemetry": false,
-  "allowedTools": ["*"],
+  "allowedTools": [
+    "*"
+  ],
   "ignorePatterns": [
     "node_modules/**",
     ".git/**",
