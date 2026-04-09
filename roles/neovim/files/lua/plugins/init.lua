@@ -257,7 +257,14 @@ return {
   },
 
   -- Text manipulation plugins
-  { "tpope/vim-surround" },        -- Surroundings manipulation
+  {
+    "kylechui/nvim-surround",      -- Lua replacement for vim-surround
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup()
+    end,
+  },
   { "tpope/vim-unimpaired" },      -- Pairs of handy bracket mappings
   { "tpope/vim-projectionist" },   -- Project configuration
   -- Commenting plugin
@@ -287,19 +294,26 @@ return {
       vim.cmd("silent! !cd " .. vim.fn.expand("%:p:h") .. " && composer install --no-dev --optimize-autoloader")
     end,
   },
-  -- EditorConfig support
-  { "editorconfig/editorconfig-vim" },
   -- Snippets
   {
-    "hrsh7th/vim-vsnip",
+    "L3MON4D3/LuaSnip",
+    version = "v2.*",
+    build = "make install_jsregexp",
     dependencies = {
-      "hrsh7th/vim-vsnip-integ",
       "rafamadriz/friendly-snippets",
     },
     config = function()
-      vim.g.vsnip_snippet_dir = vim.fn.stdpath('config') .. '/snippets'
+      local luasnip = require("luasnip")
+      -- Load friendly-snippets
+      require("luasnip.loaders.from_vscode").lazy_load()
+      -- Load custom snippets from config dir
+      require("luasnip.loaders.from_vscode").lazy_load({
+        paths = { vim.fn.stdpath('config') .. '/snippets' }
+      })
+      luasnip.config.setup({})
     end,
   },
+  { "saadparwaiz1/cmp_luasnip" }, -- LuaSnip completion source for nvim-cmp
   -- Markdown preview
   {
     "iamcco/markdown-preview.nvim",
@@ -445,8 +459,25 @@ return {
         capabilities = capabilities,
       }
 
+      -- ESLint
+      vim.lsp.config.eslint = {
+        cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/vscode-eslint-language-server"), "--stdio" },
+        filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+        root_markers = { ".eslintrc", ".eslintrc.js", ".eslintrc.json", ".eslintrc.cjs", "eslint.config.js", "package.json", ".git" },
+        capabilities = capabilities,
+        settings = {
+          validate = "on",
+          packageManager = "npm",
+          useESLintClass = false,
+          experimental = { useFlatConfig = false },
+          codeActionOnSave = { enable = false, mode = "all" },
+          format = false, -- Let conform handle formatting
+          workingDirectory = { mode = "location" },
+        },
+      }
+
       -- Enable LSP servers for their configured filetypes
-      vim.lsp.enable({ 'intelephense', 'html', 'cssls', 'tailwindcss', 'ts_ls', 'emmet_ls', 'jsonls', 'pylsp' })
+      vim.lsp.enable({ 'intelephense', 'html', 'cssls', 'tailwindcss', 'ts_ls', 'emmet_ls', 'jsonls', 'pylsp', 'eslint' })
     end,
   },
 
@@ -458,14 +489,16 @@ return {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-cmdline",
-      "hrsh7th/cmp-vsnip",
+      "saadparwaiz1/cmp_luasnip",
+      "L3MON4D3/LuaSnip",
     },
     config = function()
       local cmp = require("cmp")
+      local luasnip = require("luasnip")
       cmp.setup({
         snippet = {
           expand = function(args)
-            vim.fn["vsnip#anonymous"](args.body)
+            luasnip.lsp_expand(args.body)
           end,
         },
         mapping = cmp.mapping.preset.insert({
@@ -477,6 +510,8 @@ return {
           ['<Tab>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_next_item()
+            elseif luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump()
             else
               fallback()
             end
@@ -484,6 +519,8 @@ return {
           ['<S-Tab>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+              luasnip.jump(-1)
             else
               fallback()
             end
@@ -491,12 +528,35 @@ return {
         }),
         sources = cmp.config.sources({
           { name = 'nvim_lsp', priority = 1000 },
-          { name = 'vsnip', priority = 750 },
+          { name = 'luasnip', priority = 750 },
         }, {
           { name = 'buffer', priority = 500 },
           { name = 'path', priority = 250 },
         })
       })
+    end,
+  },
+
+  -- Linting (nvim-lint runs linters on save; conform handles formatting)
+  {
+    "mfussenegger/nvim-lint",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      local lint = require("lint")
+      lint.linters_by_ft = {
+        javascript = { "eslint_d" },
+        javascriptreact = { "eslint_d" },
+        typescript = { "eslint_d" },
+        typescriptreact = { "eslint_d" },
+        php = { "phpstan" },
+      }
+      -- Run linter on save and when entering a buffer
+      vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
+        callback = function()
+          lint.try_lint()
+        end,
+      })
+      vim.keymap.set("n", "<leader>ll", function() lint.try_lint() end, { desc = "Run linter" })
     end,
   },
 
@@ -599,7 +659,6 @@ return {
         html = { "prettier" },
         json = { "prettier" },
         yaml = { "prettier" },
-        markdown = { "prettier" },
       },
       -- Format on save
       format_on_save = {
@@ -951,6 +1010,14 @@ return {
       end
 
       vim.keymap.set("n", "<leader>gg", "<cmd>lua _LAZYGIT_TOGGLE()<CR>", {noremap = true, silent = true, desc = "LazyGit"})
+
+      local claude = Terminal:new({ cmd = "claude", hidden = true, direction = "float" })
+
+      function _CLAUDE_TOGGLE()
+        claude:toggle()
+      end
+
+      vim.keymap.set("n", "<leader>ai", "<cmd>lua _CLAUDE_TOGGLE()<CR>", {noremap = true, silent = true, desc = "Claude Code"})
     end,
   },
 
@@ -1132,7 +1199,7 @@ return {
       vim.g.copilot_no_tab_map = true
       vim.g.copilot_assume_mapped = true
       vim.g.copilot_tab_fallback = ""
-      
+
       -- Filetype configuration
       vim.g.copilot_filetypes = {
         ["*"] = false,
@@ -1154,26 +1221,26 @@ return {
         ["gitcommit"] = false,
         ["help"] = false,
       }
-      
+
       -- Alt+hjkl keybindings for Copilot suggestions
       vim.keymap.set("i", "<M-l>", 'copilot#Accept("")', {
         expr = true,
         replace_keycodes = false,
         desc = "Accept Copilot suggestion"
       })
-      
+
       vim.keymap.set("i", "<M-j>", "<Plug>(copilot-next)", {
         desc = "Next Copilot suggestion"
       })
-      
+
       vim.keymap.set("i", "<M-k>", "<Plug>(copilot-previous)", {
-        desc = "Previous Copilot suggestion" 
+        desc = "Previous Copilot suggestion"
       })
-      
+
       vim.keymap.set("i", "<M-h>", "<Plug>(copilot-dismiss)", {
         desc = "Dismiss Copilot suggestion"
       })
-      
+
       -- Toggle Copilot functionality
       vim.api.nvim_create_user_command("CopilotToggle", function()
         if vim.g.copilot_enabled == 0 then
@@ -1186,7 +1253,7 @@ return {
           vim.notify("Copilot disabled", vim.log.levels.WARN)
         end
       end, { desc = "Toggle GitHub Copilot" })
-      
+
       -- Initialize Copilot as enabled
       vim.g.copilot_enabled = 1
     end,
