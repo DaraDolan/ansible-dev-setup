@@ -382,3 +382,58 @@
     - playwright
     - web-automation
     - testing
+
+# Install GitHub CLI (gh) via first-party apt repository
+- name: Get dpkg architecture for GitHub CLI repo
+  command: dpkg --print-architecture
+  register: dpkg_arch
+  changed_when: false
+  when: ansible_os_family == "Debian"
+  tags:
+    - github
+
+- name: Ensure /etc/apt/keyrings directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - github
+
+- name: Download GitHub CLI GPG key
+  get_url:
+    url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    dest: /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    mode: '0644'
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - github
+
+- name: Add GitHub CLI apt repository
+  apt_repository:
+    repo: "deb [arch={{ dpkg_arch.stdout }} signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+    filename: github-cli
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - github
+
+- name: Install GitHub CLI
+  apt:
+    name: gh
+    state: present
+    update_cache: yes
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - github
+
+- name: Remind user to authenticate with GitHub CLI
+  debug:
+    msg: "GitHub CLI installed. Run 'gh auth login' to authenticate with your GitHub account."
+  tags:
+    - github
