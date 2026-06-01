@@ -60,6 +60,14 @@ alias sizes='du -sh -c *'
 alias cwd="pwd && pwd | pbcopy && echo 'Copied to clipboard 📁'"
 alias os='cd ~/code/php/open-source'
 
+# Ollama - use Windows binary when running in WSL2
+if grep -qi microsoft /proc/version 2>/dev/null; then
+  OLLAMA_WIN=$(ls /mnt/c/Users/*/AppData/Local/Programs/Ollama/ollama.exe 2>/dev/null | head -1)
+  if [[ -n "$OLLAMA_WIN" ]]; then
+    alias ollama="$OLLAMA_WIN"
+  fi
+fi
+
 # Composer shortcuts
 alias co='composer'
 alias ci='co install'
