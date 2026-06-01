@@ -29,3 +29,4 @@ software_packages:
   - php-simplexml
   - php-dom
   - php-fileinfo
+  - ripgrep

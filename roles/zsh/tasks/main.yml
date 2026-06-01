@@ -4,64 +4,53 @@
     state: present
   become: true
 
-- name: Get current username
-  command: whoami
-  register: username_result
-  changed_when: false
-  become: false
-
-- name: Get user's home directory
-  shell: 'echo $HOME'
-  register: user_home
-  changed_when: false
-  become: false
-
 - name: Set Zsh as default shell for current user
   user:
-    name: "{{ username_result.stdout }}"
+    name: "{{ lookup('env', 'USER') }}"
     shell: /usr/bin/zsh
   become: true
 
 - name: Install Oh-My-Zsh
   git:
     repo: 'https://github.com/ohmyzsh/ohmyzsh.git'
-    dest: "{{ user_home.stdout }}/.oh-my-zsh"
+    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh"
     depth: 1
   become: false
 
 - name: Install zoxide (modern replacement for z)
   shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
   args:
-    creates: "{{ user_home.stdout }}/.local/bin/zoxide"
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/zoxide"
   become: false
 
 - name: Install Zinit plugin manager
   shell: curl -fsSL https://git.io/zinit-install | zsh
   args:
-    creates: "{{ user_home.stdout }}/.local/share/zinit"
+    creates: "{{ lookup('env', 'HOME') }}/.local/share/zinit"
   become: false
 
 - name: Copy .zinitrc configuration file
   copy:
     src: "{{ role_path }}/files/zinit.zsh"
-    dest: "{{ user_home.stdout }}/.zinitrc"
+    dest: "{{ lookup('env', 'HOME') }}/.zinitrc"
   become: false
 
 - name: Copy Zsh configuration file
   copy:
     src: "{{ role_path }}/files/zshrc"
-    dest: "{{ user_home.stdout }}/.zshrc"
+    dest: "{{ lookup('env', 'HOME') }}/.zshrc"
   become: false
 
 - name: Copy Powerlevel10k config file
   copy:
     src: "{{ role_path }}/files/p10k.zsh"
-    dest: "{{ user_home.stdout }}/.p10k.zsh"
+    dest: "{{ lookup('env', 'HOME') }}/.p10k.zsh"
   become: false
 
 - name: Add snap/bin to PATH in zshrc
   lineinfile:
-    path: "{{ user_home.stdout }}/.zshrc"
+    path: "{{ lookup('env', 'HOME') }}/.zshrc"
     line: 'export PATH="/snap/bin:$PATH"'
     state: present
+    create: yes
   become: false

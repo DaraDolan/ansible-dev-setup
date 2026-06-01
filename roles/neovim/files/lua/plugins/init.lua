@@ -231,27 +231,38 @@ return {
   -- Treesitter for improved syntax highlighting
   {
     "nvim-treesitter/nvim-treesitter",
+    lazy = false,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = {
-          "lua", "vim", "vimdoc", "query", -- Neovim
-          "php", "html", "css", "javascript", "typescript", "tsx", -- Web (removed jsx as it's not available)
-          "json", "yaml", "markdown", "markdown_inline", -- Data & Docs
-          "bash", "python", -- Scripts
-          "blade", "vue", -- Laravel specific
-        },
-        sync_install = false,
-        auto_install = true,
-        modules = {},
-        ignore_install = {},
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = false,
-        },
-        indent = {
-          enable = true,
-        },
+      local ts = require("nvim-treesitter")
+      local parsers = {
+        "lua", "vim", "vimdoc", "query", -- Neovim
+        "php", "html", "css", "javascript", "typescript", "tsx", -- Web
+        "json", "yaml", "markdown", "markdown_inline", -- Data & Docs
+        "bash", "python", -- Scripts
+        "blade", "vue", -- Laravel specific
+      }
+
+      for _, parser in ipairs(parsers) do
+        ts.install(parser)
+      end
+
+      -- Build filetype patterns from installed parsers
+      local patterns = {}
+      for _, parser in ipairs(parsers) do
+        local fts = vim.treesitter.language.get_filetypes(parser)
+        for _, ft in ipairs(fts) do
+          table.insert(patterns, ft)
+        end
+      end
+
+      -- Enable treesitter highlighting and indentation via autocmd
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = patterns,
+        callback = function(ev)
+          vim.treesitter.start(ev.buf)
+          vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
       })
     end,
   },
@@ -567,6 +578,7 @@ return {
       "nvim-telescope/telescope.nvim",
       "tpope/vim-dotenv",
       "MunifTanjim/nui.nvim",
+      "nvim-neotest/nvim-nio",
     },
     cmd = { "Sail", "Artisan", "Composer", "Npm", "Yarn", "Laravel" },
     keys = {

@@ -2,19 +2,6 @@
 - name: Include platform-specific variables
   include_vars: "{{ ansible_os_family }}.yml"
 
-# Get the correct user info
-- name: Get current username
-  command: whoami
-  register: username_result
-  changed_when: false
-  become: false
-
-- name: Get user's home directory
-  shell: 'echo $HOME'
-  register: user_home
-  changed_when: false
-  become: false
-
 # Install Neovim repository and dependencies
 - name: Install software-properties-common (for add-apt-repository)
   apt:
@@ -62,61 +49,30 @@
   with_items: "{{ neovim_packages }}"
   when: ansible_os_family == "Darwin"
 
-- name: Create Python virtual environment for Neovim
-  shell: python3 -m venv "{{ user_home.stdout }}/.config/nvim/env"
+- name: Create Python virtual environment for Neovim (using uv)
+  shell: '{{ lookup("env", "HOME") }}/.local/bin/uv venv --python 3 "{{ lookup("env", "HOME") }}/.config/nvim/env"'
   args:
-    creates: "{{ user_home.stdout }}/.config/nvim/env/bin/python"
+    creates: "{{ lookup('env', 'HOME') }}/.config/nvim/env/bin/python"
   become: false
 
-- name: Install pynvim in the virtual environment
-  shell: "{{ user_home.stdout }}/.config/nvim/env/bin/pip install pynvim"
+- name: Install pynvim in the virtual environment (using uv)
+  shell: '{{ lookup("env", "HOME") }}/.local/bin/uv pip install pynvim -p "{{ lookup("env", "HOME") }}/.config/nvim/env/bin/python"'
   args:
-    creates: "{{ user_home.stdout }}/.config/nvim/env/lib/python*/site-packages/pynvim"
+    creates: "{{ lookup('env', 'HOME') }}/.config/nvim/env/lib/python*/site-packages/pynvim"
   become: false
 
 
 # Install Python and Node.js providers for Neovim
 
-- name: Install Node.js provider for Neovim
-  npm:
-    name: neovim
-    global: yes
-    state: latest
-  become: false
-  environment:
-    npm_config_prefix: "{{ user_home.stdout }}/.local"
-
-- name: Create neovim node directory if needed
-  file:
-    path: "{{ ansible_env.HOME }}/.local/lib/node_modules/neovim/bin"
-    state: directory
-    mode: 0755
-  when: ansible_os_family == 'Debian'
-
-  become: true
-
-- name: Install PHP and Composer (for phpactor plugin)
-  apt:
-    name:
-      - php-cli
-      - unzip
-    state: present
-  when: ansible_os_family == "Debian"
-  become: true
-
-- name: Download Composer installer
-  get_url:
-    url: https://getcomposer.org/installer
-    dest: /tmp/composer-setup.php
-    mode: 0755
-  when: ansible_os_family == "Debian"
-
-- name: Install Composer globally
-  command: php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+- name: Install Node.js provider for Neovim (via mise)
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
+    npm install -g neovim
   args:
-    creates: /usr/local/bin/composer
-  when: ansible_os_family == "Debian"
-  become: true
+    executable: /bin/bash
+  become: false
+  changed_when: false
 
 - name: Install luarocks (for Hererocks support)
   apt:
@@ -148,12 +104,6 @@
   become: true
   when: ansible_os_family == "Debian"
 
-- name: Install Ruby Neovim provider
-  gem:
-    name: neovim
-    state: latest
-  become: true
-  when: ansible_os_family == "Debian"
 
 - name: Install FZF for Telescope
   apt:
@@ -162,32 +112,23 @@
   become: true
   when: ansible_os_family == "Debian"
 
-- name: Build Telescope FZF native extension
-  shell: cd ~/.local/share/nvim/lazy/telescope-fzf-native.nvim && make
-  args:
-    creates: "~/.local/share/nvim/lazy/telescope-fzf-native.nvim/build"
-  register: fzf_build
-  failed_when: false
-  become: false
-  when: ansible_os_family == "Debian"
-
 # Create config directories
 - name: Create base config directory
   file:
-    path: "{{ user_home.stdout }}/.config"
+    path: "{{ lookup('env', 'HOME') }}/.config"
     state: directory
     mode: 0755
-    owner: "{{ username_result.stdout }}"
-    group: "{{ username_result.stdout }}"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
   become: false
 
 - name: Create Neovim configuration directories
   file:
-    path: "{{ user_home.stdout }}/.config/nvim/{{ item }}"
+    path: "{{ lookup('env', 'HOME') }}/.config/nvim/{{ item }}"
     state: directory
     mode: 0755
-    owner: "{{ username_result.stdout }}"
-    group: "{{ username_result.stdout }}"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
   with_items:
     - ""
     - "lua"
@@ -196,36 +137,54 @@
     - "snippets"
   become: false
 
+- name: Ensure lazy.nvim plugin manager is installed
+  git:
+    repo: 'https://github.com/folke/lazy.nvim.git'
+    dest: "{{ lookup('env', 'HOME') }}/.local/share/nvim/lazy/lazy.nvim"
+    version: stable
+    clone: yes
+    update: yes
+  become: false
+
 - name: Create Intelephense config directory
   file:
-    path: "{{ user_home.stdout }}/.config/intelephense"
+    path: "{{ lookup('env', 'HOME') }}/.config/intelephense"
     state: directory
     mode: 0755
-    owner: "{{ username_result.stdout }}"
-    group: "{{ username_result.stdout }}"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
   become: false
 
 - name: Install Intelephense Premium license key
   copy:
     content: "00QWFAL4F6OR8QP"
-    dest: "{{ user_home.stdout }}/.config/intelephense/licence.txt"
+    dest: "{{ lookup('env', 'HOME') }}/.config/intelephense/licence.txt"
     mode: 0600
-    owner: "{{ username_result.stdout }}"
-    group: "{{ username_result.stdout }}"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
   become: false
 
 # Copy configuration files
+- name: Ensure init.lua file exists
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/init.lua"
+    state: touch
+    mode: 0644
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
+  become: false
+
 - name: Copy Neovim main configuration
   copy:
     src: "init.lua"
-    dest: "{{ user_home.stdout }}/.config/nvim/init.lua"
+    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/init.lua"
     force: yes
   become: false
 
 - name: Copy Neovim core configuration files
   copy:
     src: "lua/core/{{ item }}"
-    dest: "{{ user_home.stdout }}/.config/nvim/lua/core/{{ item }}"
+    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/{{ item }}"
     force: yes
   with_items:
     - "init.lua"
@@ -237,7 +196,7 @@
 - name: Copy Neovim plugin configuration files
   copy:
     src: "lua/plugins/{{ item }}"
-    dest: "{{ user_home.stdout }}/.config/nvim/lua/plugins/{{ item }}"
+    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/plugins/{{ item }}"
     force: yes
   with_items:
     - "init.lua"
@@ -246,7 +205,7 @@
 - name: Copy Neovim snippet files
   copy:
     src: "snippets/{{ item }}"
-    dest: "{{ user_home.stdout }}/.config/nvim/snippets/{{ item }}"
+    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/snippets/{{ item }}"
     force: yes
   with_items:
     - "php.json"
@@ -257,24 +216,14 @@
     - "python.json"
   become: false
 
-- name: Configure Neovim to use pynvim from virtual environment
-  blockinfile:
-    path: "{{ user_home.stdout }}/.config/nvim/lua/core/init.lua"
-    block: |
-      -- Set Python provider path
-      vim.g.python3_host_prog = "{{ user_home.stdout }}/.config/nvim/env/bin/python"
-    insertafter: "-- Core configuration loader"
-    marker: "-- {mark} ANSIBLE MANAGED BLOCK"
-  become: false
-
 # Create data directories
 - name: Create Neovim data directories
   file:
-    path: "{{ user_home.stdout }}/.local/share/nvim/{{ item }}"
+    path: "{{ lookup('env', 'HOME') }}/.local/share/nvim/{{ item }}"
     state: directory
     mode: 0755
-    owner: "{{ username_result.stdout }}"
-    group: "{{ username_result.stdout }}"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
   with_items:
     - "site"
     - "undo"
@@ -293,23 +242,60 @@
     msg: "For the best experience, please install a Nerd Font manually: https://www.nerdfonts.com/font-downloads"
   when: ansible_os_family == "Debian"
 
+# Install plugins and compile treesitter parsers
+- name: Install plugins via lazy.nvim
+  shell: nvim --headless "+Lazy sync" +qa
+  become: false
+  environment:
+    CC: gcc
+  timeout: 300
+
+- name: Build Telescope FZF native extension
+  shell: cd {{ lookup('env', 'HOME') }}/.local/share/nvim/lazy/telescope-fzf-native.nvim && make
+  args:
+    creates: "{{ lookup('env', 'HOME') }}/.local/share/nvim/lazy/telescope-fzf-native.nvim/build"
+  register: fzf_build
+  failed_when: false
+  become: false
+  when: ansible_os_family == "Debian"
+
+- name: Compile treesitter parsers
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    nvim --headless -c "TSUpdate" -c "sleep 30" -c "qa"
+  args:
+    executable: /bin/bash
+  become: false
+  environment:
+    CC: gcc
+  timeout: 300
+
   # Fix nvim-lspconfig ts_ls bug (double-wrapped table issue)
 - name: Fix ts_ls.lua root_dir bug in nvim-lspconfig
   replace:
-    path: "{{ user_home.stdout }}/.local/share/nvim/lazy/nvim-lspconfig/lsp/ts_ls.lua"
+    path: "{{ lookup('env', 'HOME') }}/.local/share/nvim/lazy/nvim-lspconfig/lsp/ts_ls.lua"
     regexp: 'local project_root = vim\.fs\.root\(bufnr, \{ project_root_markers \}\)'
     replace: 'local project_root = vim.fs.root(bufnr, project_root_markers)'
   become: false
   ignore_errors: yes
 
-  # Add these verification tasks at the end of the file
+  # Verification
 - name: Verify Neovim setup with healthcheck
   shell: nvim --headless -c "checkhealth" -c "q" > /tmp/nvim_health_check.log 2>&1
-  args:
-    creates: "/tmp/nvim_health_check.log"
   changed_when: false
   register: health_check
 
 - name: Display healthcheck results location
   debug:
     msg: "Neovim health check log available at /tmp/nvim_health_check.log"
+
+- name: Configure Neovim to use pynvim from virtual environment
+  blockinfile:
+    path: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/init.lua"
+    block: |
+      -- Set Python provider path
+      vim.g.python3_host_prog = "{{ lookup('env', 'HOME') }}/.config/nvim/env/bin/python"
+    insertafter: "-- Core configuration loader"
+    marker: "-- {mark} ANSIBLE MANAGED BLOCK"
+  become: false
+  ignore_errors: true

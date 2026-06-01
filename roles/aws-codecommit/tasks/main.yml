@@ -2,29 +2,17 @@
 - name: Include platform-specific variables
   include_vars: "{{ ansible_os_family }}.yml"
 
-# Get the correct user info
-- name: Get current username
-  command: whoami
-  register: username_result
-  changed_when: false
-  become: false
-
-- name: Get user's home directory
-  shell: 'echo $HOME'
-  register: user_home
-  changed_when: false
-  become: false
-
 # Check if AWS CLI v2 is already installed
 - name: Check if AWS CLI v2 is installed
   command: aws --version
   register: aws_cli_check
   changed_when: false
   failed_when: false
+  ignore_errors: true
 
 - name: Parse AWS CLI version
   set_fact:
-    aws_cli_version: "{{ aws_cli_check.stdout | regex_search('aws-cli/([0-9]+)', '\\1') | first | default('0') | int }}"
+    aws_cli_version: "{{ (aws_cli_check.stdout | default('')) | regex_search('aws-cli/([0-9]+)', '\\1') | first | default('0') | int }}"
   when: aws_cli_check.rc == 0
 
 # Install AWS CLI v2 if not present or if version is less than 2
@@ -93,22 +81,22 @@
 # Create AWS config directory if it doesn't exist
 - name: Create AWS config directory
   file:
-    path: "{{ user_home.stdout }}/.aws"
+    path: "{{ lookup('env', 'HOME') }}/.aws"
     state: directory
     mode: 0700
-    owner: "{{ username_result.stdout }}"
-    group: "{{ username_result.stdout }}"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
   become: false
 
 # Check if AWS credentials are configured
 - name: Check if AWS credentials file exists
   stat:
-    path: "{{ user_home.stdout }}/.aws/credentials"
+    path: "{{ lookup('env', 'HOME') }}/.aws/credentials"
   register: aws_credentials_file
 
 - name: Check if AWS config file exists
   stat:
-    path: "{{ user_home.stdout }}/.aws/config"
+    path: "{{ lookup('env', 'HOME') }}/.aws/config"
   register: aws_config_file
 
 # Display information about AWS configuration

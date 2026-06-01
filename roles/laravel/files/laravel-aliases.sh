@@ -2,7 +2,7 @@
 # Automatically loaded in .zshrc for Laravel workflow optimization
 
 # Development aliases for seamless workflow
-alias cc='claude'
+alias cl='claude'
 alias cce='claude edit'
 alias nv='nvim'
 alias art='php artisan'
