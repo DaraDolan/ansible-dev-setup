@@ -1202,6 +1202,38 @@ return {
     keys = { { "<leader>z", "<cmd>ZenMode<cr>", desc = "Zen Mode" } },
   },
 
+  -- AI Assistant (codecompanion + Ollama)
+  {
+    "olimorris/codecompanion.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    opts = {
+      adapters = {
+        ollama = function()
+          return require("codecompanion.adapters").extend("ollama", {
+            schema = {
+              model = {
+                default = "qwen2.5-coder:7b",
+              },
+            },
+          })
+        end,
+      },
+      strategies = {
+        chat = { adapter = "ollama" },
+        inline = { adapter = "ollama" },
+        agent = { adapter = "ollama" },
+      },
+    },
+    keys = {
+      { "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle AI Chat" },
+      { "<leader>aa", "<cmd>CodeCompanionActions<cr>", desc = "AI Actions", mode = { "n", "v" } },
+      { "<leader>an", "<cmd>CodeCompanion<cr>", desc = "AI Inline", mode = { "n", "v" } },
+    },
+  },
+
   -- GitHub Copilot
   {
     "github/copilot.vim",
