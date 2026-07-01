@@ -17,7 +17,15 @@
   when: ansible_os_family == "Debian"
   become: true
 
-- name: Install PHP and Composer (for phpactor plugin)
+- name: Symlink fdfind to fd (Ubuntu's fd-find package installs as fdfind)
+  file:
+    src: /usr/bin/fdfind
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin/fd"
+    state: link
+    force: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install PHP CLI (for Composer, Artisan, Pint)
   apt:
     name:
       - php-cli
@@ -441,3 +449,44 @@
     msg: "GitHub CLI installed. Run 'gh auth login' to authenticate with your GitHub account."
   tags:
     - github
+
+# Install win32yank for WSL2 system clipboard support (used by Neovim's unnamedplus clipboard)
+- name: Check if running under WSL2
+  set_fact:
+    is_wsl2: "{{ 'microsoft' in ansible_kernel | lower }}"
+  tags:
+    - clipboard
+    - neovim
+
+- name: Ensure ~/.local/bin exists
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.local/bin"
+    state: directory
+    mode: '0755'
+  when: is_wsl2
+  tags:
+    - clipboard
+    - neovim
+
+- name: Download win32yank
+  get_url:
+    url: https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip
+    dest: /tmp/win32yank.zip
+    mode: '0644'
+  when: is_wsl2
+  tags:
+    - clipboard
+    - neovim
+
+- name: Extract win32yank.exe to ~/.local/bin
+  unarchive:
+    src: /tmp/win32yank.zip
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
+    remote_src: yes
+    include:
+      - win32yank.exe
+    mode: '0755'
+  when: is_wsl2
+  tags:
+    - clipboard
+    - neovim

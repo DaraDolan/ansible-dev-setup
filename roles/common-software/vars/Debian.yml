@@ -30,3 +30,4 @@ software_packages:
   - php-dom
   - php-fileinfo
   - ripgrep
+  - fd-find
