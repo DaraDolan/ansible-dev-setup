@@ -1,6 +1,13 @@
 -- Neovim options
 local opt = vim.opt
 
+-- Point Neovim at the pynvim venv provisioned by Ansible (roles/neovim)
+vim.g.python3_host_prog = vim.fn.expand("~/.config/nvim/env/bin/python")
+
+-- Unused providers (avoids probing for interpreters/hosts this setup doesn't provision)
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+
 -- Core settings (from your sanity.vim)
 opt.backup = false
 opt.number = true
@@ -24,6 +31,9 @@ opt.wrap = false
 opt.autoindent = true
 opt.smartindent = true
 opt.termguicolors = true -- Enable 24-bit RGB colors
+
+-- Needed by auto-session so filetype/highlighting survive a session restore
+opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- File type detection and plugin loading
 vim.cmd("filetype plugin on")
