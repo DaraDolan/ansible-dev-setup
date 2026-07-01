@@ -339,9 +339,27 @@ return {
     "neovim/nvim-lspconfig",
     dependencies = {
       "williamboman/mason.nvim",
+      "WhoIsSethDaniel/mason-tool-installer.nvim",
     },
     config = function()
       require("mason").setup()
+
+      -- Installs/updates the LSP servers configured below automatically on startup
+      require("mason-tool-installer").setup({
+        ensure_installed = {
+          "intelephense",
+          "html-lsp",
+          "css-lsp",
+          "tailwindcss-language-server",
+          "typescript-language-server",
+          "emmet-ls",
+          "json-lsp",
+          "python-lsp-server",
+          "eslint-lsp",
+        },
+        auto_update = false,
+        run_on_start = true,
+      })
 
       -- Use modern vim.lsp.config API (Neovim 0.11+) to avoid deprecation warnings
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
@@ -370,7 +388,7 @@ return {
 
       vim.lsp.config.intelephense = {
         cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/intelephense"), "--stdio" },
-        filetypes = { "php", "blade", "php_only" },
+        filetypes = { "php", "blade" },
         root_markers = { "composer.json", ".git" },
         capabilities = capabilities,
         init_options = {
