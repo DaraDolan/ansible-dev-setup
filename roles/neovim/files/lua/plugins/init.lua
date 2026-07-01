@@ -598,7 +598,7 @@ return {
     },
     event = { "VeryLazy" },
     config = function()
-      require("laravel").setup()
+      require("laravel").setup({})
     end,
   },
 
