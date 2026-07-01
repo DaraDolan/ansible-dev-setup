@@ -183,23 +183,16 @@
 
 - name: Copy Neovim core configuration files
   copy:
-    src: "lua/core/{{ item }}"
-    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/{{ item }}"
+    src: "lua/core/"
+    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/"
     force: yes
-  with_items:
-    - "init.lua"
-    - "options.lua"
-    - "keymaps.lua"
-    - "autocmds.lua"
   become: false
 
 - name: Copy Neovim plugin configuration files
   copy:
-    src: "lua/plugins/{{ item }}"
-    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/plugins/{{ item }}"
+    src: "lua/plugins/"
+    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/plugins/"
     force: yes
-  with_items:
-    - "init.lua"
   become: false
 
 - name: Copy Neovim snippet files

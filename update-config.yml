@@ -16,22 +16,15 @@
 
     - name: Copy Neovim plugin configuration files
       copy:
-        src: "roles/neovim/files/lua/plugins/{{ item }}"
-        dest: "{{ user_home.stdout }}/.config/nvim/lua/plugins/{{ item }}"
+        src: "roles/neovim/files/lua/plugins/"
+        dest: "{{ user_home.stdout }}/.config/nvim/lua/plugins/"
         force: yes
-      with_items:
-        - "init.lua"
 
     - name: Copy Neovim core configuration files
       copy:
-        src: "roles/neovim/files/lua/core/{{ item }}"
-        dest: "{{ user_home.stdout }}/.config/nvim/lua/core/{{ item }}"
+        src: "roles/neovim/files/lua/core/"
+        dest: "{{ user_home.stdout }}/.config/nvim/lua/core/"
         force: yes
-      with_items:
-        - "keymaps.lua"
-        - "options.lua"
-        - "init.lua"
-        - "autocmds.lua"
 
     - name: Copy Neovim snippet files
       copy:
