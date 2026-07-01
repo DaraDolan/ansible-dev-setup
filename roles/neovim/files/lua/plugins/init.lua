@@ -297,14 +297,6 @@ return {
       end
     end,
   },
-  -- PHP specific tools
-  {
-    "phpactor/phpactor",
-    ft = "php",
-    build = function()
-      vim.cmd("silent! !cd " .. vim.fn.expand("%:p:h") .. " && composer install --no-dev --optimize-autoloader")
-    end,
-  },
   -- Snippets
   {
     "L3MON4D3/LuaSnip",
@@ -592,7 +584,7 @@ return {
     end,
   },
 
-  -- Blade Syntax
+  -- Blade Syntax (also provides *.blade.php filetype detection, used by LSP/treesitter/conform config above)
   {
     "jwalton512/vim-blade",
     ft = "blade",
@@ -615,12 +607,6 @@ return {
         color_square_width = 2,
       })
     end,
-  },
-
-  -- Better PHP syntax
-  {
-    "StanAngeloff/php.vim",
-    ft = "php",
   },
 
   -- Auto pairs
@@ -1232,74 +1218,5 @@ return {
       { "<leader>aa", "<cmd>CodeCompanionActions<cr>", desc = "AI Actions", mode = { "n", "v" } },
       { "<leader>an", "<cmd>CodeCompanion<cr>", desc = "AI Inline", mode = { "n", "v" } },
     },
-  },
-
-  -- GitHub Copilot
-  {
-    "github/copilot.vim",
-    event = "InsertEnter",
-    config = function()
-      -- Disable default tab mapping
-      vim.g.copilot_no_tab_map = true
-      vim.g.copilot_assume_mapped = true
-      vim.g.copilot_tab_fallback = ""
-
-      -- Filetype configuration
-      vim.g.copilot_filetypes = {
-        ["*"] = false,
-        ["php"] = true,
-        ["blade"] = true,
-        ["javascript"] = true,
-        ["typescript"] = true,
-        ["vue"] = true,
-        ["jsx"] = true,
-        ["tsx"] = true,
-        ["html"] = true,
-        ["css"] = true,
-        ["lua"] = true,
-        ["python"] = true,
-        ["markdown"] = true,
-        ["json"] = true,
-        ["TelescopePrompt"] = false,
-        ["fugitive"] = false,
-        ["gitcommit"] = false,
-        ["help"] = false,
-      }
-
-      -- Alt+hjkl keybindings for Copilot suggestions
-      vim.keymap.set("i", "<M-l>", 'copilot#Accept("")', {
-        expr = true,
-        replace_keycodes = false,
-        desc = "Accept Copilot suggestion"
-      })
-
-      vim.keymap.set("i", "<M-j>", "<Plug>(copilot-next)", {
-        desc = "Next Copilot suggestion"
-      })
-
-      vim.keymap.set("i", "<M-k>", "<Plug>(copilot-previous)", {
-        desc = "Previous Copilot suggestion"
-      })
-
-      vim.keymap.set("i", "<M-h>", "<Plug>(copilot-dismiss)", {
-        desc = "Dismiss Copilot suggestion"
-      })
-
-      -- Toggle Copilot functionality
-      vim.api.nvim_create_user_command("CopilotToggle", function()
-        if vim.g.copilot_enabled == 0 then
-          vim.cmd("Copilot enable")
-          vim.g.copilot_enabled = 1
-          vim.notify("Copilot enabled", vim.log.levels.INFO)
-        else
-          vim.cmd("Copilot disable")
-          vim.g.copilot_enabled = 0
-          vim.notify("Copilot disabled", vim.log.levels.WARN)
-        end
-      end, { desc = "Toggle GitHub Copilot" })
-
-      -- Initialize Copilot as enabled
-      vim.g.copilot_enabled = 1
-    end,
   },
 }
