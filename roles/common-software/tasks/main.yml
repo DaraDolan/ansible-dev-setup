@@ -157,6 +157,18 @@
   tags:
     - claude
 
+- name: Install Claude statusline script
+  copy:
+    src: "statusline-command.sh"
+    dest: "{{ lookup('env', 'HOME') }}/.claude/statusline-command.sh"
+    force: yes
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
+    mode: 0755
+  become: false
+  tags:
+    - claude
+
 - name: Create Claude commands directory
   file:
     path: "{{ lookup('env', 'HOME') }}/.claude/commands"

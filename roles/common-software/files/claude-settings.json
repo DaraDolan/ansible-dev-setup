@@ -5,6 +5,10 @@
     "frontend-design@claude-plugins-official": true
   },
   "enableTelemetry": false,
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"$HOME/.claude/statusline-command.sh\""
+  },
   "allowedTools": [
     "*"
   ],
