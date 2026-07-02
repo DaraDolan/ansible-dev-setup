@@ -296,20 +296,100 @@
   become: false
   when: configure_git | default(true)
 
-# Install Playwright for web automation and MCP server support
-- name: Install Playwright and dependencies for web automation
-  block:
-    - name: Check if npm is available via mise
-      shell: |
-        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-        eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
-        npm --version
-      args:
-        executable: /bin/bash
-      register: npm_check
-      changed_when: false
-      failed_when: false
+# npm-based global tool installs (Prettier, Gemini CLI, tree-sitter-cli, Playwright)
+# each tool below is independent: a failure in one must not skip the others.
+- name: Check if npm is available via mise
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
+    npm --version
+  args:
+    executable: /bin/bash
+  register: npm_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - always
 
+- name: Warn if npm is not available via mise
+  debug:
+    msg: "npm not available via mise (rc={{ npm_check.rc }}); skipping Prettier, Gemini CLI, tree-sitter-cli, and Playwright installs. stderr: {{ npm_check.stderr }}"
+  when: npm_check.rc != 0
+  tags:
+    - always
+
+- name: Install Prettier globally for code formatting via mise
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
+    npm install -g prettier
+  args:
+    executable: /bin/bash
+  when: npm_check.rc == 0
+  register: prettier_install
+  changed_when: false
+  failed_when: false
+  tags:
+    - prettier
+    - formatting
+
+- name: Warn if Prettier install failed
+  debug:
+    msg: "Prettier install failed (rc={{ prettier_install.rc }}): {{ prettier_install.stderr }}"
+  when: npm_check.rc == 0 and prettier_install.rc != 0
+  tags:
+    - prettier
+    - formatting
+
+- name: Install Google Gemini CLI globally via mise
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
+    npm install -g @google/gemini-cli
+  args:
+    executable: /bin/bash
+  when: npm_check.rc == 0
+  register: gemini_cli_install
+  changed_when: false
+  failed_when: false
+  tags:
+    - gemini
+    - ai-tools
+
+- name: Warn if Gemini CLI install failed
+  debug:
+    msg: "Gemini CLI install failed (rc={{ gemini_cli_install.rc }}): {{ gemini_cli_install.stderr }}"
+  when: npm_check.rc == 0 and gemini_cli_install.rc != 0
+  tags:
+    - gemini
+    - ai-tools
+
+- name: Install tree-sitter CLI for Neovim treesitter parser compilation
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
+    npm install -g tree-sitter-cli
+  args:
+    executable: /bin/bash
+  when: npm_check.rc == 0
+  register: tree_sitter_cli_install
+  changed_when: false
+  failed_when: false
+  tags:
+    - neovim
+    - treesitter
+
+- name: Warn if tree-sitter-cli install failed
+  debug:
+    msg: "tree-sitter-cli install failed (rc={{ tree_sitter_cli_install.rc }}): {{ tree_sitter_cli_install.stderr }}"
+  when: npm_check.rc == 0 and tree_sitter_cli_install.rc != 0
+  tags:
+    - neovim
+    - treesitter
+
+# Install Playwright for web automation and MCP server support
+- name: Install Playwright and its browser/system dependencies
+  block:
     - name: Install Playwright test package globally via mise
       shell: |
         export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
@@ -317,37 +397,6 @@
         npm install -g @playwright/test
       args:
         executable: /bin/bash
-      when: npm_check.rc == 0
-      changed_when: false
-
-    - name: Install Prettier globally for code formatting via mise
-      shell: |
-        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-        eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
-        npm install -g prettier
-      args:
-        executable: /bin/bash
-      when: npm_check.rc == 0
-      changed_when: false
-
-    - name: Install Google Gemini CLI globally via mise
-      shell: |
-        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-        eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
-        npm install -g @google/gemini-cli
-      args:
-        executable: /bin/bash
-      when: npm_check.rc == 0
-      changed_when: false
-
-    - name: Install tree-sitter CLI for Neovim treesitter parser compilation
-      shell: |
-        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-        eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
-        npm install -g tree-sitter-cli
-      args:
-        executable: /bin/bash
-      when: npm_check.rc == 0
       changed_when: false
 
     - name: Install Playwright system dependencies
@@ -360,7 +409,6 @@
       become: true
       changed_when: "'Installing' in playwright_deps.stdout"
       register: playwright_deps
-      when: npm_check.rc == 0
 
     - name: Install Chromium browser for Playwright
       shell: |
@@ -371,7 +419,6 @@
         executable: /bin/bash
       changed_when: "'Downloading' in chrome_install.stdout"
       register: chrome_install
-      when: npm_check.rc == 0
 
     - name: Verify Playwright installation
       shell: |
@@ -382,14 +429,13 @@
         executable: /bin/bash
       register: playwright_version
       changed_when: false
-      when: npm_check.rc == 0
 
   rescue:
-    - name: Handle Playwright installation failure
+    - name: Warn that Playwright installation failed
       debug:
-        msg: "Playwright installation failed. Ensure Node.js/npm is properly installed."
+        msg: "Playwright installation failed: {{ ansible_failed_result.msg | default('see task output above') }}"
 
-  when: install_playwright | default(true)
+  when: npm_check.rc == 0 and (install_playwright | default(true))
   tags:
     - playwright
     - web-automation
