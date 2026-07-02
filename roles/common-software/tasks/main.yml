@@ -353,6 +353,7 @@
     npm --version
   args:
     executable: /bin/bash
+  become: false
   register: npm_check
   changed_when: false
   failed_when: false
@@ -373,6 +374,7 @@
     npm install -g prettier
   args:
     executable: /bin/bash
+  become: false
   when: npm_check.rc == 0
   register: prettier_install
   changed_when: false
@@ -396,6 +398,7 @@
     npm install -g @google/gemini-cli
   args:
     executable: /bin/bash
+  become: false
   when: npm_check.rc == 0
   register: gemini_cli_install
   changed_when: false
@@ -419,6 +422,7 @@
     npm install -g tree-sitter-cli
   args:
     executable: /bin/bash
+  become: false
   when: npm_check.rc == 0
   register: tree_sitter_cli_install
   changed_when: false
@@ -483,6 +487,7 @@
       debug:
         msg: "Playwright installation failed: {{ ansible_failed_result.msg | default('see task output above') }}"
 
+  become: false
   when: npm_check.rc == 0 and (install_playwright | default(true))
   tags:
     - playwright
