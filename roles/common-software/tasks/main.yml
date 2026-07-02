@@ -605,6 +605,50 @@
   tags:
     - terraform
 
+# Install glow for rendering markdown files in the terminal
+- name: Ensure /etc/apt/keyrings directory exists (Charm)
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - glow
+    - markdown
+
+- name: Download and dearmor Charm GPG key
+  shell: curl -fsSL https://repo.charm.sh/apt/gpg.key | gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+  args:
+    creates: /etc/apt/keyrings/charm.gpg
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - glow
+    - markdown
+
+- name: Add Charm apt repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *"
+    filename: charm
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - glow
+    - markdown
+
+- name: Install glow
+  apt:
+    name: glow
+    state: present
+    update_cache: yes
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - glow
+    - markdown
+
 # Install win32yank for WSL2 system clipboard support (used by Neovim's unnamedplus clipboard)
 - name: Check if running under WSL2
   set_fact:

@@ -6,3 +6,4 @@ software_packages:
   - zsh
   - python
   - node
+  - glow
