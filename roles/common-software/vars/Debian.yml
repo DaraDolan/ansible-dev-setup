@@ -25,9 +25,5 @@ software_packages:
   - php-pear
   - php-bcmath
   - php-tokenizer
-  - php-xmlwriter
-  - php-simplexml
-  - php-dom
-  - php-fileinfo
   - ripgrep
   - fd-find
