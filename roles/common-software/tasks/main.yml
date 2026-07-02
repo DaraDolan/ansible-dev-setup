@@ -254,6 +254,54 @@
   changed_when: false
   ignore_errors: true
 
+# Yarn support (via Node's built-in Corepack, not a separate npm/mise install)
+- name: Enable Corepack for Yarn support
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
+    corepack enable
+  args:
+    executable: /bin/bash
+  become: false
+  register: corepack_enable
+  changed_when: false
+  failed_when: false
+  tags:
+    - yarn
+    - corepack
+
+- name: Warn if Corepack enable failed
+  debug:
+    msg: "Corepack enable failed (rc={{ corepack_enable.rc }}): {{ corepack_enable.stderr }}"
+  when: corepack_enable.rc != 0
+  tags:
+    - yarn
+    - corepack
+
+- name: Activate Yarn via Corepack
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
+    corepack prepare yarn@stable --activate
+  args:
+    executable: /bin/bash
+  become: false
+  when: corepack_enable.rc == 0
+  register: yarn_activate
+  changed_when: false
+  failed_when: false
+  tags:
+    - yarn
+    - corepack
+
+- name: Warn if Yarn activation failed
+  debug:
+    msg: "Yarn activation via Corepack failed (rc={{ yarn_activate.rc }}): {{ yarn_activate.stderr }}"
+  when: corepack_enable.rc == 0 and yarn_activate.rc != 0
+  tags:
+    - yarn
+    - corepack
+
 # Configure Git settings (configurable via variables)
 - name: Set Git user name
   git_config:
