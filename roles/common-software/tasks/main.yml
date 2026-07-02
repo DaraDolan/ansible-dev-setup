@@ -649,6 +649,28 @@
     - glow
     - markdown
 
+- name: Create zsh completions directory
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.zsh/completions"
+    state: directory
+    mode: '0755'
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
+  become: false
+  tags:
+    - glow
+    - markdown
+
+- name: Generate glow zsh completion script
+  shell: glow completion zsh > "{{ lookup('env', 'HOME') }}/.zsh/completions/_glow"
+  args:
+    executable: /bin/bash
+    creates: "{{ lookup('env', 'HOME') }}/.zsh/completions/_glow"
+  become: false
+  tags:
+    - glow
+    - markdown
+
 # Install win32yank for WSL2 system clipboard support (used by Neovim's unnamedplus clipboard)
 - name: Check if running under WSL2
   set_fact:

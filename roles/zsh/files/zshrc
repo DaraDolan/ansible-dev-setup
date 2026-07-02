@@ -1,5 +1,8 @@
 export ZSH="$HOME/.oh-my-zsh"
 
+# Custom completion scripts (e.g. glow), must be in fpath before compinit runs
+fpath=(~/.zsh/completions $fpath)
+
 plugins=(
   git               # Git aliases & shortcuts
   tmux              # Tmux shortcuts
