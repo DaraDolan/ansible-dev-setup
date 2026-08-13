@@ -1,0 +1,19 @@
+---
+# Ansible collection dependencies.
+#
+# Install before the first playbook run:
+#   ansible-galaxy collection install -r requirements.yml
+#
+# ansible-core ships none of these. Without this file, a fresh control node
+# (e.g. `pip install ansible-core`, or a corporate-managed Ansible) fails
+# partway through the play with "couldn't resolve module/action".
+#
+# Modules used from community.general:
+#   git_config  - roles/common-software (git identity + aliases)
+#   snap        - roles/common-software (remove legacy node snap)
+#                 roles/neovim         (remove legacy nvim snap)
+#   homebrew    - macOS paths only; currently unreachable behind the
+#                 platform guard in playbook.yml, kept for the future
+collections:
+  - name: community.general
+    version: ">=8.3.0,<12.0.0"
