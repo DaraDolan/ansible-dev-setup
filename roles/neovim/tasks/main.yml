@@ -26,21 +26,127 @@
   become: true
   ignore_errors: true
 
-- name: Remove apt-installed Neovim (we'll use Snap instead)
+- name: Remove apt-installed Neovim (superseded by the pinned tarball)
   apt:
     name: neovim
     state: absent
   when: ansible_os_family == "Debian"
   become: true
 
-# Install Neovim via Snap (always gets latest stable)
-- name: Install Neovim via Snap (stable version)
-  snap:
-    name: nvim
-    classic: yes
-    state: present
+# Install Neovim from the official static tarball into $HOME.
+#
+# This replaces the previous `snap install nvim --classic`. Snap requires
+# systemd, which is opt-in under WSL2 (/etc/wsl.conf `systemd=true`) and is
+# not managed by this repo, and snapd is absent from many hardened corporate
+# Ubuntu images. The tarball needs neither systemd nor sudo, so it also works
+# under `--tags user` on a machine where you have no admin rights.
+- name: Select the Neovim release asset for this architecture
+  set_fact:
+    neovim_asset: "nvim-linux-{{ neovim_arch_map[ansible_architecture] }}.tar.gz"
+    neovim_checksum: "{{ neovim_tarball_checksums[ansible_architecture] }}"
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture in neovim_arch_map
+  tags:
+    - neovim
+    - user
+
+- name: Fail clearly on an unsupported CPU architecture
+  fail:
+    msg: >-
+      No pinned Neovim tarball for architecture '{{ ansible_architecture }}'.
+      Add it to neovim_arch_map and neovim_tarball_checksums in
+      roles/neovim/defaults/main.yml.
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture not in neovim_arch_map
+  tags:
+    - neovim
+    - user
+
+- name: Ensure ~/.local/bin exists
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.local/bin"
+    state: directory
+    mode: '0755'
+  become: false
+  tags:
+    - neovim
+    - user
+
+- name: Create versioned Neovim install directory
+  file:
+    path: "{{ neovim_install_root }}/{{ neovim_version }}"
+    state: directory
+    mode: '0755'
+  become: false
   when: ansible_os_family == "Debian"
+  tags:
+    - neovim
+    - user
+
+- name: Download pinned Neovim tarball
+  get_url:
+    url: "https://github.com/neovim/neovim/releases/download/{{ neovim_version }}/{{ neovim_asset }}"
+    dest: "/tmp/{{ neovim_asset }}"
+    checksum: "{{ neovim_checksum }}"
+    mode: '0644'
+  become: false
+  when: ansible_os_family == "Debian"
+  tags:
+    - neovim
+    - user
+
+- name: Extract Neovim tarball
+  unarchive:
+    src: "/tmp/{{ neovim_asset }}"
+    dest: "{{ neovim_install_root }}/{{ neovim_version }}"
+    remote_src: yes
+    extra_opts:
+      - "--strip-components=1"
+    creates: "{{ neovim_install_root }}/{{ neovim_version }}/bin/nvim"
+  become: false
+  when: ansible_os_family == "Debian"
+  tags:
+    - neovim
+    - user
+
+# nvim resolves its runtime directory from the realpath of the executable,
+# so symlinking bin/nvim keeps ../share/nvim discoverable.
+- name: Link the pinned Neovim into ~/.local/bin
+  file:
+    src: "{{ neovim_install_root }}/{{ neovim_version }}/bin/nvim"
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin/nvim"
+    state: link
+    force: yes
+  become: false
+  when: ansible_os_family == "Debian"
+  tags:
+    - neovim
+    - user
+
+- name: Remove the downloaded Neovim tarball
+  file:
+    path: "/tmp/{{ neovim_asset }}"
+    state: absent
+  become: false
+  when: ansible_os_family == "Debian"
+  tags:
+    - neovim
+    - user
+
+# Done last so the machine is never left without a working nvim. Needs sudo,
+# so it is deliberately outside the `user` tag; skipping it just leaves a
+# stale snap that ~/.local/bin shadows on PATH.
+- name: Remove snap-installed Neovim (superseded by the pinned tarball)
+  community.general.snap:
+    name: nvim
+    state: absent
   become: true
+  when: ansible_os_family == "Debian"
+  failed_when: false
+  tags:
+    - neovim
 
 - name: Install Neovim and dependencies (macOS)
   homebrew:
@@ -54,12 +160,18 @@
   args:
     creates: "{{ lookup('env', 'HOME') }}/.config/nvim/env/bin/python"
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Install pynvim in the virtual environment (using uv)
   shell: '{{ lookup("env", "HOME") }}/.local/bin/uv pip install pynvim -p "{{ lookup("env", "HOME") }}/.config/nvim/env/bin/python"'
   args:
     creates: "{{ lookup('env', 'HOME') }}/.config/nvim/env/lib/python*/site-packages/pynvim"
   become: false
+  tags:
+    - neovim
+    - user
 
 
 # Install Python and Node.js providers for Neovim
@@ -73,6 +185,9 @@
     executable: /bin/bash
   become: false
   changed_when: false
+  tags:
+    - neovim
+    - user
 
 - name: Install luarocks (for Hererocks support)
   apt:
@@ -121,6 +236,9 @@
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Create Neovim configuration directories
   file:
@@ -136,6 +254,9 @@
     - "lua/plugins"
     - "snippets"
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Ensure lazy.nvim plugin manager is installed
   git:
@@ -145,6 +266,9 @@
     clone: yes
     update: yes
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Create Intelephense config directory
   file:
@@ -154,6 +278,9 @@
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Install Intelephense Premium license key
   copy:
@@ -163,6 +290,9 @@
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
   become: false
+  tags:
+    - neovim
+    - user
 
 # Copy configuration files
 - name: Ensure init.lua file exists
@@ -173,6 +303,9 @@
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Copy Neovim main configuration
   copy:
@@ -180,6 +313,9 @@
     dest: "{{ lookup('env', 'HOME') }}/.config/nvim/init.lua"
     force: yes
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Copy Neovim core configuration files
   copy:
@@ -187,6 +323,9 @@
     dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/"
     force: yes
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Copy Neovim plugin configuration files
   copy:
@@ -194,6 +333,9 @@
     dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/plugins/"
     force: yes
   become: false
+  tags:
+    - neovim
+    - user
 
 - name: Copy Neovim snippet files
   copy:
@@ -208,6 +350,26 @@
     - "typescriptreact.json"
     - "python.json"
   become: false
+  tags:
+    - neovim
+    - user
+
+# Pins every plugin to a known commit so two machines provisioned weeks apart
+# get an identical editor. Must land before `Lazy! restore` below.
+#
+# The repo is the source of truth: this is copied with force. After running
+# `:Lazy update` locally and confirming the result, copy the lockfile back:
+#   cp ~/.config/nvim/lazy-lock.json roles/neovim/files/lazy-lock.json
+- name: Install pinned lazy.nvim lockfile
+  copy:
+    src: "lazy-lock.json"
+    dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lazy-lock.json"
+    force: yes
+    mode: 0644
+  become: false
+  tags:
+    - neovim
+    - user
 
 # Create data directories
 - name: Create Neovim data directories
@@ -221,6 +383,9 @@
     - "site"
     - "undo"
   become: false
+  tags:
+    - neovim
+    - user
 
 # Install Nerd Fonts
 - name: Install Nerd Font (macOS)
@@ -236,12 +401,26 @@
   when: ansible_os_family == "Debian"
 
 # Install plugins and compile treesitter parsers
-- name: Install plugins via lazy.nvim
-  shell: nvim --headless "+Lazy sync" +qa
+# `Lazy! restore` installs anything missing and then checks out exactly the
+# commits in lazy-lock.json. `Lazy sync` was doing the opposite: updating every
+# plugin to its latest commit and rewriting the lockfile on every run.
+#
+# The mise shims on PATH matter here: plugins with npm build steps
+# (markdown-preview.nvim runs `cd app && npm install`) silently fail to build
+# without them, because Ansible's default PATH has no node.
+- name: Install and pin plugins via lazy.nvim
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    nvim --headless "+Lazy! restore" +qa
+  args:
+    executable: /bin/bash
   become: false
   environment:
     CC: gcc
-  timeout: 300
+  timeout: 600
+  tags:
+    - neovim
+    - user
 
 - name: Build Telescope FZF native extension
   shell: cd {{ lookup('env', 'HOME') }}/.local/share/nvim/lazy/telescope-fzf-native.nvim && make
@@ -251,6 +430,9 @@
   failed_when: false
   become: false
   when: ansible_os_family == "Debian"
+  tags:
+    - neovim
+    - user
 
 - name: Compile treesitter parsers
   shell: |
@@ -264,6 +446,9 @@
   timeout: 300
 
   # Fix nvim-lspconfig ts_ls bug (double-wrapped table issue)
+  tags:
+    - neovim
+    - user
 - name: Fix ts_ls.lua root_dir bug in nvim-lspconfig
   replace:
     path: "{{ lookup('env', 'HOME') }}/.local/share/nvim/lazy/nvim-lspconfig/lsp/ts_ls.lua"
@@ -273,10 +458,24 @@
   ignore_errors: yes
 
   # Verification
+  # become: false matters — without it this inherits the play-level `become: yes`
+  # and reports root's Neovim health against root's config, not yours.
+  tags:
+    - neovim
+    - user
 - name: Verify Neovim setup with healthcheck
-  shell: nvim --headless -c "checkhealth" -c "q" > /tmp/nvim_health_check.log 2>&1
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    nvim --headless -c "checkhealth" -c "q" > /tmp/nvim_health_check.log 2>&1
+  args:
+    executable: /bin/bash
+  become: false
   changed_when: false
+  failed_when: false
   register: health_check
+  tags:
+    - neovim
+    - user
 
 - name: Display healthcheck results location
   debug:
@@ -292,3 +491,6 @@
     marker: "-- {mark} ANSIBLE MANAGED BLOCK"
   become: false
   ignore_errors: true
+  tags:
+    - neovim
+    - user
