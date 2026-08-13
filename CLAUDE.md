@@ -421,8 +421,11 @@ python-project/
 3. **Claude Code Integration**:
    - Use Claude Code for complex refactoring
    - Switch to Neovim for rapid editing
-   - Use `claude edit` for file-specific changes
-   - Playwright MCP server enables web automation through Claude Code
+   - `<leader>ai` opens Claude Code in a floating terminal inside Neovim
+   - Playwright is installed as a CLI for test authoring. There is **no MCP
+     server configured** in this repo — `~/.claude/settings.json` enables the
+     context7, github and frontend-design plugins only. Web automation through
+     Claude Code would need an MCP server to be added first.
 
 ## GitHub SSH Setup
 

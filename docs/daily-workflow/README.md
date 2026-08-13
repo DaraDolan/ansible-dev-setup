@@ -56,7 +56,7 @@ claude edit app/Services/UserService.php
 | `<leader>fg` | Search content |
 | `<leader>la` | Laravel artisan |
 | `<leader>lt` | Run tests |
-| `<leader>cc` | Claude Code |
+| `<leader>ai` | Claude Code |
 | `gd` | Go to definition |
 | `<leader>ca` | Code actions |
 
@@ -225,7 +225,7 @@ git log --oneline --since="1 week ago"
 1. **Use Snippets**: Type `controller`, `model`, `pest`, `rfc` for instant templates
 2. **Keep Tests Running**: Use `pest --watch` during development  
 3. **LSP Power**: Use `gd`, `gr`, `K` for code navigation
-4. **Claude Integration**: Use `<leader>cc` for complex refactoring
+4. **Claude Integration**: Use `<leader>ai` for complex refactoring
 5. **Terminal Management**: Keep multiple terminals with tmux or terminal tabs
 
 ## 📚 Related Guides

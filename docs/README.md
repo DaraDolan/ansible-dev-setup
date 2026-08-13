@@ -76,7 +76,7 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
 | `<leader>fg` | Search content |
 | `<leader>la` | Laravel artisan |
 | `<leader>lt` | Run tests |
-| `<leader>cc` | Claude Code |
+| `<leader>ai` | Claude Code |
 | `gd` | Go to definition |
 
 ### 🧪 Testing Shortcuts
@@ -147,7 +147,7 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
 ### 🌅 Daily Development Routine
 1. **Morning**: `dev-start` → `nv .` → `pest --watch`
 2. **Development**: Code → Test → Refactor cycle
-3. **Complex Tasks**: `<leader>cc` for Claude Code assistance
+3. **Complex Tasks**: `<leader>ai` for Claude Code assistance
 4. **Evening**: Git commit → Push changes
 
 ### 🧪 Test-Driven Development

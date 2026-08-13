@@ -13,13 +13,23 @@ This project uses Ansible to automate the installation and configuration of:
 - Zoxide for fast directory navigation
 - Various Zsh plugins for enhanced productivity
 
-The setup is designed to work on both Debian-based Linux distributions (Ubuntu, Debian) and macOS.
+**Supported platforms: Debian-based Linux only (Ubuntu, Debian), including under WSL2.**
+
+macOS is *not* currently supported. The repo contains `Darwin.yml` variable
+files and some Homebrew tasks, but the macOS path is incomplete and would
+silently half-install rather than fail: the zsh role has no OS guards, several
+tasks assume a Linux-style user-private group, the Laravel role hardcodes
+`/usr/bin/php`, and `vars/Darwin.yml` omits PHP, ripgrep and fd entirely.
+`playbook.yml` therefore asserts the platform up front and stops. See
+`AUDIT.md` for the full list of what would need doing to lift that guard.
 
 ## Prerequisites
 
 - Ansible 2.9+ installed on your control machine
+- Required collections: `ansible-galaxy collection install -r requirements.yml`
 - SSH access to target machines (or localhost for local setup)
-- Sudo privileges on target machines
+- Sudo privileges on target machines — *or* run `--tags user` for the subset
+  that installs entirely into `$HOME` and needs no root
 
 ## Personal Configuration (Important First Step!)
 

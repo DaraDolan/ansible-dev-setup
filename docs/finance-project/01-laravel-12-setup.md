@@ -90,8 +90,8 @@ npm run dev
 
 **🎮 Neovim Shortcuts**:
 - `<C-\>` - Open floating terminal
-- `<leader>th` - Horizontal terminal
-- `<leader>tv` - Vertical terminal
+- `<leader>Th` - Horizontal terminal
+- `<leader>Tv` - Vertical terminal
 
 ### 7. Verify Installation
 

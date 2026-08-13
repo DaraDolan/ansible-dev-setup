@@ -56,7 +56,7 @@ Master your Neovim workflow with these carefully crafted keybindings for PHP/Lar
 | `gr` | References | Find all references |
 | `gi` | Implementation | Go to implementation |
 | `K` | Hover | Show documentation |
-| `<C-k>` | Signature | Function signature help |
+| `gK` | Signature | Function signature help |
 | `<leader>ca` | Code Actions | Available code actions |
 | `<leader>rn` | Rename | Rename symbol |
 | `<leader>d` | Diagnostics | Show error details |
@@ -99,8 +99,7 @@ Master your Neovim workflow with these carefully crafted keybindings for PHP/Lar
 
 | Shortcut | Action | Description |
 |----------|--------|-------------|
-| `<leader>cc` | Claude Project | Open project in Claude Code |
-| `<leader>ce` | Claude Edit | Edit current file with Claude |
+| `<leader>ai` | Claude Code | Open Claude Code in a floating terminal |
 
 ## 🌲 File Explorer
 
@@ -218,7 +217,7 @@ Type these prefixes and press Tab for instant templates:
 3. **LSP Navigation**: `gd` → `<C-o>` to jump back
 4. **Testing Flow**: `<leader>tf` while editing tests
 5. **Git Workflow**: Stage hunks with `<leader>hs`
-6. **Claude Integration**: Complex refactoring with `<leader>cc`
+6. **Claude Integration**: Complex refactoring with `<leader>ai`
 
 ---
 

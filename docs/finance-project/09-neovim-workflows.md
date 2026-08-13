@@ -66,8 +66,8 @@ Switch between beautiful colorschemes:
 
 ### ToggleTerm - Multiple Terminals
 - `<C-\>` - Toggle floating terminal
-- `<leader>th` - Horizontal terminal
-- `<leader>tv` - Vertical terminal  
+- `<leader>Th` - Horizontal terminal
+- `<leader>Tv` - Vertical terminal  
 - `<leader>tt` - Terminal in new tab
 
 **In terminal mode:**
