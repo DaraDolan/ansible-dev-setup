@@ -19,3 +19,15 @@ git_config_scope: "global"
 # Playwright configuration
 # Set to false to skip Playwright installation
 install_playwright: true
+
+# lazygit - bound to <leader>gg in the Neovim config (toggleterm), which was
+# a runtime error until this was installed. Fetched as a static tarball into
+# ~/.local/bin so it needs no sudo and works under `--tags user`.
+# Checksums are the upstream ones from the release's checksums.txt.
+lazygit_version: "0.64.1"
+lazygit_arch_map:
+  x86_64: "x86_64"
+  aarch64: "arm64"
+lazygit_checksums:
+  x86_64: "sha256:f8ea237c41f194cd799b48505518bfdaae4edf5a2ad6bd3d898e939785ee4532"
+  aarch64: "sha256:8b7ca3b344e60340ad1f89f29b9868ee39bcaba5bb92ee818bbe65476bb8b6e7"

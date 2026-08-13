@@ -118,6 +118,7 @@
   become: false
   tags:
     - claude
+    - user
 
 - name: Clean up old Claude Code versions
   shell: |
@@ -131,6 +132,7 @@
   changed_when: false
   tags:
     - claude
+    - user
 
 # Create Claude configuration directory and disable telemetry
 
@@ -144,6 +146,7 @@
   become: false
   tags:
     - claude
+    - user
 
 - name: Install Claude settings
   copy:
@@ -156,6 +159,7 @@
   become: false
   tags:
     - claude
+    - user
 
 - name: Install Claude statusline script
   copy:
@@ -168,6 +172,7 @@
   become: false
   tags:
     - claude
+    - user
 
 - name: Create Claude commands directory
   file:
@@ -177,6 +182,7 @@
   become: false
   tags:
     - claude
+    - user
 
 - name: Install Claude custom commands
   copy:
@@ -186,6 +192,7 @@
   become: false
   tags:
     - claude
+    - user
 
 - name: Create Claude global memory directory
   file:
@@ -195,6 +202,7 @@
   become: false
   tags:
     - claude
+    - user
 
 - name: Install Claude global memory files
   copy:
@@ -205,6 +213,7 @@
   become: false
   tags:
     - claude
+    - user
 
 # Install UV Python package manager
 - name: Install UV Python package manager
@@ -212,6 +221,8 @@
   args:
     creates: "{{ lookup('env', 'HOME') }}/.local/bin/uv"
   become: false
+  tags:
+    - user
 
 - name: Add UV to PATH in shell profile
   lineinfile:
@@ -219,15 +230,14 @@
     line: 'export PATH="$HOME/.local/bin:$PATH"'
     state: present
   become: false
+  tags:
+    - user
 
-- name: Add UV to PATH in zsh profile
-  lineinfile:
-    path: "{{ lookup('env', 'HOME') }}/.zshrc"
-    line: 'export PATH="$HOME/.local/bin:$PATH"'
-    state: present
-    create: yes
-  become: false
-  ignore_errors: true
+# The "Add UV to PATH in zsh profile" lineinfile task was removed here.
+# roles/zsh copies ~/.zshrc over the top of it later in the same play, so this
+# line was discarded on every run. ~/.local/bin is on PATH via
+# roles/zsh/files/zshrc instead. The .bashrc task above is kept: no role owns
+# ~/.bashrc, so appending to it is safe.
 
 # Install mise for Node.js version management
 - name: Install mise version manager
@@ -235,6 +245,8 @@
   args:
     creates: "{{ lookup('env', 'HOME') }}/.local/bin/mise"
   become: false
+  tags:
+    - user
 
 - name: Create mise config directory
   file:
@@ -244,6 +256,8 @@
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
   become: false
+  tags:
+    - user
 
 - name: Configure mise for Node.js LTS
   copy:
@@ -255,6 +269,8 @@
     group: "{{ lookup('env', 'USER') }}"
     mode: 0644
   become: false
+  tags:
+    - user
 
 - name: Install Node.js LTS via mise
   shell: |
@@ -265,6 +281,8 @@
   become: false
   changed_when: false
   ignore_errors: true
+  tags:
+    - user
 
 # Yarn support (via Node's built-in Corepack, not a separate npm/mise install)
 - name: Enable Corepack for Yarn support
@@ -281,6 +299,7 @@
   tags:
     - yarn
     - corepack
+    - user
 
 - name: Warn if Corepack enable failed
   debug:
@@ -305,6 +324,7 @@
   tags:
     - yarn
     - corepack
+    - user
 
 - name: Warn if Yarn activation failed
   debug:
@@ -322,6 +342,8 @@
     value: "{{ git_user_name }}"
   become: false
   when: configure_git | default(true)
+  tags:
+    - user
 
 - name: Set Git user email
   git_config:
@@ -330,6 +352,8 @@
     value: "{{ git_user_email }}"
   become: false
   when: configure_git | default(true)
+  tags:
+    - user
 
 - name: Set Git default branch
   git_config:
@@ -338,6 +362,8 @@
     value: "{{ git_default_branch }}"
   become: false
   when: configure_git | default(true)
+  tags:
+    - user
 
 - name: Set Git pull strategy
   git_config:
@@ -346,6 +372,8 @@
     value: "{{ git_pull_rebase | string | lower }}"
   become: false
   when: configure_git | default(true)
+  tags:
+    - user
 
 # Configure git aliases
 - name: Configure git aliases
@@ -355,6 +383,8 @@
     scope: global
   become: false
   when: configure_git | default(true)
+  tags:
+    - user
 
 # npm-based global tool installs (Prettier, Gemini CLI, tree-sitter-cli, Playwright)
 # each tool below is independent: a failure in one must not skip the others.
@@ -394,6 +424,7 @@
   tags:
     - prettier
     - formatting
+    - user
 
 - name: Warn if Prettier install failed
   debug:
@@ -418,6 +449,7 @@
   tags:
     - gemini
     - ai-tools
+    - user
 
 - name: Warn if Gemini CLI install failed
   debug:
@@ -442,6 +474,7 @@
   tags:
     - neovim
     - treesitter
+    - user
 
 - name: Warn if tree-sitter-cli install failed
   debug:
@@ -450,6 +483,34 @@
   tags:
     - neovim
     - treesitter
+
+# nvim-lint is configured to lint js/ts/jsx/tsx with eslint_d but the binary
+# was never installed, so linting silently no-opped. See AUDIT.md section 5.3.
+# nvim-lint prefers ./node_modules/.bin/eslint_d and falls back to this one.
+- name: Install eslint_d globally for nvim-lint
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
+    npm install -g eslint_d
+  args:
+    executable: /bin/bash
+  become: false
+  when: npm_check.rc == 0
+  register: eslint_d_install
+  changed_when: false
+  failed_when: false
+  tags:
+    - neovim
+    - linting
+    - user
+
+- name: Warn if eslint_d install failed
+  debug:
+    msg: "eslint_d install failed (rc={{ eslint_d_install.rc }}): {{ eslint_d_install.stderr }}"
+  when: npm_check.rc == 0 and eslint_d_install.rc != 0
+  tags:
+    - neovim
+    - linting
 
 # Install Playwright for web automation and MCP server support
 - name: Install Playwright and its browser/system dependencies
@@ -682,6 +743,78 @@
   tags:
     - glow
     - markdown
+
+# Install lazygit. The Neovim config binds <leader>gg to a lazygit floating
+# terminal (toggleterm), which errored at runtime because nothing installed
+# the binary. See AUDIT.md section 5.3.
+- name: Fail clearly if lazygit has no build for this architecture
+  fail:
+    msg: >-
+      No pinned lazygit tarball for architecture '{{ ansible_architecture }}'.
+      Add it to lazygit_arch_map and lazygit_checksums in
+      roles/common-software/defaults/main.yml.
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture not in lazygit_arch_map
+  tags:
+    - lazygit
+    - git
+    - user
+
+- name: Ensure ~/.local/bin exists for lazygit
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.local/bin"
+    state: directory
+    mode: '0755'
+  become: false
+  tags:
+    - lazygit
+    - git
+    - user
+
+- name: Download pinned lazygit tarball
+  get_url:
+    url: >-
+      https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_linux_{{ lazygit_arch_map[ansible_architecture] }}.tar.gz
+    dest: "/tmp/lazygit_{{ lazygit_version }}.tar.gz"
+    checksum: "{{ lazygit_checksums[ansible_architecture] }}"
+    mode: '0644'
+  become: false
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture in lazygit_arch_map
+  tags:
+    - lazygit
+    - git
+    - user
+
+- name: Extract lazygit into ~/.local/bin
+  unarchive:
+    src: "/tmp/lazygit_{{ lazygit_version }}.tar.gz"
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
+    remote_src: yes
+    include:
+      - lazygit
+    mode: '0755'
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/lazygit"
+  become: false
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture in lazygit_arch_map
+  tags:
+    - lazygit
+    - git
+    - user
+
+- name: Remove the downloaded lazygit tarball
+  file:
+    path: "/tmp/lazygit_{{ lazygit_version }}.tar.gz"
+    state: absent
+  become: false
+  tags:
+    - lazygit
+    - git
+    - user
 
 # Install win32yank for WSL2 system clipboard support (used by Neovim's unnamedplus clipboard)
 - name: Check if running under WSL2
