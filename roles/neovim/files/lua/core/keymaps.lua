@@ -114,7 +114,9 @@ keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", { desc = "Go to decl
 keymap("n", "gr", "<cmd>Telescope lsp_references<CR>", { desc = "Go to references" })
 keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", { desc = "Go to implementation" })
 keymap("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", { desc = "Hover documentation" })
-keymap("n", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", { desc = "Signature help" })
+-- gK, not <C-k>: <C-k> is split navigation above, and this line silently
+-- overwrote it because the LSP block is defined later in the file.
+keymap("n", "gK", "<cmd>lua vim.lsp.buf.signature_help()<CR>", { desc = "Signature help" })
 keymap("n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", { desc = "Code actions" })
 keymap("n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", { desc = "Rename symbol" })
 keymap("n", "<leader>d", "<cmd>lua vim.diagnostic.open_float()<CR>", { desc = "Show diagnostics" })
@@ -124,9 +126,13 @@ keymap("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", { desc = "Next diag
 -- Copilot toggle
 keymap("n", "<leader>cp", "<cmd>CopilotToggle<CR>", { desc = "Toggle GitHub Copilot" })
 
--- Claude Code integration shortcuts  
-keymap("n", "<leader>cc", "<cmd>!claude .<CR>", { desc = "Open project in Claude Code" })
-keymap("n", "<leader>ce", "<cmd>!claude edit %<CR>", { desc = "Edit current file with Claude Code" })
+-- Claude Code integration
+--
+-- Claude Code opens in a floating toggleterm via <leader>ai (see
+-- lua/plugins/init.lua). The two `:!claude` mappings that used to live here
+-- were removed: <leader>cc was silently overwritten by the catppuccin
+-- colorscheme mapping further down this file, and <leader>ce called
+-- `claude edit`, which is not a Claude Code subcommand.
 
 -- Laravel Sail shortcuts (using sail alias for cleaner commands)
 -- Container management
@@ -168,9 +174,12 @@ keymap("n", "<leader>cc", "<cmd>colorscheme catppuccin<CR>", { desc = "Catppucci
 keymap("n", "<leader>ck", "<cmd>colorscheme kanagawa<CR>", { desc = "Kanagawa colorscheme" })
 
 -- Enhanced terminal toggles
-keymap("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Horizontal terminal" })
-keymap("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Vertical terminal" })
-keymap("n", "<leader>tt", "<cmd>ToggleTerm direction=tab<CR>", { desc = "Terminal in new tab" })
+-- Moved from <leader>t* to <leader>T*: <leader>tv collided with vim-test's
+-- "Test Visit" above (this block loaded later, so it silently won), and
+-- <leader>th shadowed <leader>thl. <leader>t* is now vim-test's alone.
+keymap("n", "<leader>Th", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Horizontal terminal" })
+keymap("n", "<leader>Tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Vertical terminal" })
+keymap("n", "<leader>Tt", "<cmd>ToggleTerm direction=tab<CR>", { desc = "Terminal in new tab" })
 
 -- Quick access to common files in Laravel projects (using 'lf' prefix to avoid conflicts with laravel.nvim)
 keymap("n", "<leader>lfw", "<cmd>e routes/web.php<CR>", { desc = "Laravel web routes" })
@@ -200,10 +209,13 @@ keymap("n", "<leader>we", "<C-w>=", { desc = "Equalize windows" })
 keymap("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close window" })
 
 -- Toggle features
-keymap("n", "<leader>tn", "<cmd>set number!<CR>", { desc = "Toggle line numbers" })
-keymap("n", "<leader>tr", "<cmd>set relativenumber!<CR>", { desc = "Toggle relative numbers" })
-keymap("n", "<leader>tws", "<cmd>set wrap!<CR>", { desc = "Toggle word wrap" })
-keymap("n", "<leader>thl", "<cmd>set hlsearch!<CR>", { desc = "Toggle highlight search" })
+-- Moved from <leader>t* to <leader>u* (UI): <leader>tn collided with
+-- vim-test's "Test Nearest" above and silently won, because this block is
+-- defined later in the file.
+keymap("n", "<leader>un", "<cmd>set number!<CR>", { desc = "Toggle line numbers" })
+keymap("n", "<leader>ur", "<cmd>set relativenumber!<CR>", { desc = "Toggle relative numbers" })
+keymap("n", "<leader>uw", "<cmd>set wrap!<CR>", { desc = "Toggle word wrap" })
+keymap("n", "<leader>uh", "<cmd>set hlsearch!<CR>", { desc = "Toggle highlight search" })
 
 -- Markdown preview
 keymap("n", "<leader>mp", "<cmd>MarkdownPreview<CR>", { desc = "Markdown preview" })
