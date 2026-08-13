@@ -4,19 +4,12 @@
     "github@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true
   },
-  "enableTelemetry": false,
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "DISABLE_TELEMETRY": "1"
+  },
   "statusLine": {
     "type": "command",
     "command": "bash \"$HOME/.claude/statusline-command.sh\""
-  },
-  "allowedTools": [
-    "*"
-  ],
-  "ignorePatterns": [
-    "node_modules/**",
-    ".git/**",
-    "vendor/**",
-    "*.log",
-    "*.tmp"
-  ]
+  }
 }
