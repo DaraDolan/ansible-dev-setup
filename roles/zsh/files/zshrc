@@ -1,3 +1,15 @@
+# ---------------------------------------------------------------------------
+# MANAGED BY ANSIBLE - roles/zsh/files/zshrc
+#
+# This file is copied over ~/.zshrc on every playbook run. Local edits are
+# destroyed. Change it in the repo and re-run:
+#     ansible-playbook playbook.yml --tags zsh -K
+#
+# roles/zsh is the sole owner of this file. Do not add lineinfile tasks that
+# append to ~/.zshrc from other roles - they run before this copy and are
+# silently discarded.
+# ---------------------------------------------------------------------------
+
 export ZSH="$HOME/.oh-my-zsh"
 
 # Custom completion scripts (e.g. glow), must be in fpath before compinit runs
@@ -30,8 +42,14 @@ source "$HOME/.zinitrc"
   source "$file"
 done
 
-# Ensure ~/.local/bin and Composer global bin are in PATH
+# Ensure ~/.local/bin and Composer global bin are in PATH.
+# ~/.local/bin must come first: it holds the pinned Neovim tarball symlink,
+# uv, mise and lazygit, and it must win over any older system copy.
 export PATH="$HOME/.local/bin:$HOME/.config/composer/vendor/bin:$PATH"
+
+# Snap binaries, if this machine has snapd at all. Appended rather than
+# prepended so a leftover snap never shadows ~/.local/bin.
+[[ -d /snap/bin ]] && export PATH="$PATH:/snap/bin"
 
 # Set Neovim as default editor
 export EDITOR="nvim"
@@ -70,6 +88,9 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
     alias ollama="$OLLAMA_WIN"
   fi
 fi
+
+# Laravel development aliases and functions (deployed by roles/laravel)
+[[ -f ~/.laravel-aliases.sh ]] && source ~/.laravel-aliases.sh
 
 # Composer shortcuts
 alias co='composer'
