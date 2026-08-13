@@ -1,11 +1,26 @@
 ---
-# Install Composer globally
+# Install Composer into ~/.local/bin rather than /usr/local/bin.
+#
+# Two reasons: it needs no sudo, so the Pint/PHPStan tasks below actually work
+# under `--tags user`; and it drops the hardcoded /usr/bin/php, invoking
+# whichever php is on PATH instead. ~/.local/bin precedes /usr/local/bin in
+# the PATH set by roles/zsh/files/zshrc, so this wins over any older copy.
+#
+# PHP itself still comes from apt and needs root: `--tags user` gives you
+# Composer + Pint + PHPStan only on a machine that already has PHP.
 - name: Check if Composer is installed
-  command: composer --version
+  shell: |
+    export PATH="$HOME/.local/bin:$PATH"
+    composer --version
+  args:
+    executable: /bin/bash
   register: composer_check
   changed_when: false
   failed_when: false
   become: false
+  tags:
+    - laravel
+    - user
 
 - name: Download Composer installer
   get_url:
@@ -14,11 +29,32 @@
     mode: '0755'
   when: composer_check.rc != 0
   become: false
+  tags:
+    - laravel
+    - user
 
-- name: Install Composer globally
-  shell: /usr/bin/php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+- name: Ensure ~/.local/bin exists for Composer
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.local/bin"
+    state: directory
+    mode: '0755'
+  become: false
+  tags:
+    - laravel
+    - user
+
+- name: Install Composer into ~/.local/bin
+  shell: |
+    export PATH="$HOME/.local/bin:$PATH"
+    php /tmp/composer-setup.php --install-dir="$HOME/.local/bin" --filename=composer
+  args:
+    executable: /bin/bash
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/composer"
   when: composer_check.rc != 0
-  become: true
+  become: false
+  tags:
+    - laravel
+    - user
 
 - name: Remove Composer installer
   file:
@@ -26,34 +62,50 @@
     state: absent
   when: composer_check.rc != 0
   become: false
+  tags:
+    - laravel
+    - user
 
 # Install global Composer packages for Laravel development
-# - name: Install Laravel Pint globally
-#   composer:
-#     command: require
-#     global_command: true
-#     arguments: laravel/pint
-#     executable: /usr/bin/php
-#   become: false
+#
+# These are not optional extras: the Neovim config already assumes both exist.
+#   - conform.nvim formats php/blade with `pint` (lua/plugins/init.lua)
+#   - nvim-lint lints php with `phpstan`   (lua/plugins/init.lua)
+# Without them, format-on-save silently fell back to LSP formatting and
+# linting silently never ran. See AUDIT.md section 5.3.
+#
+# Both linters prefer a project-local vendor/bin copy and fall back to the
+# global one, so a global install is the right backstop for projects that
+# don't ship their own.
+- name: Install Laravel Pint globally
+  shell: |
+    export PATH="$HOME/.local/bin:$PATH"
+    composer global require laravel/pint --no-interaction
+  args:
+    executable: /bin/bash
+    creates: "{{ lookup('env', 'HOME') }}/.config/composer/vendor/bin/pint"
+  become: false
+  tags:
+    - laravel
+    - user
 
-# - name: Install Laravel IDE Helper globally (optional)
-#   composer:
-#     command: require
-#     global_command: true
-#     arguments: barryvdh/laravel-ide-helper
-#     executable: /usr/bin/php
-#   become: false
-#   ignore_errors: true
+- name: Install PHPStan globally
+  shell: |
+    export PATH="$HOME/.local/bin:$PATH"
+    composer global require phpstan/phpstan --no-interaction
+  args:
+    executable: /bin/bash
+    creates: "{{ lookup('env', 'HOME') }}/.config/composer/vendor/bin/phpstan"
+  become: false
+  tags:
+    - laravel
+    - user
 
 # Ensure Composer global bin is in PATH
-- name: Add Composer global bin to PATH in zshrc
-  lineinfile:
-    path: "{{ lookup('env', 'HOME') }}/.zshrc"
-    line: 'export PATH="$HOME/.config/composer/vendor/bin:$PATH"'
-    state: present
-    create: yes
-  become: false
-
+#
+# The zshrc equivalent of the task below was removed: roles/zsh owns ~/.zshrc
+# and already exports ~/.config/composer/vendor/bin. ~/.bashrc has no owner,
+# so appending to it here is still correct.
 - name: Add Composer global bin to PATH in bashrc
   lineinfile:
     path: "{{ lookup('env', 'HOME') }}/.bashrc"
@@ -62,6 +114,9 @@
     create: yes
   become: false
   ignore_errors: true
+  tags:
+    - laravel
+    - user
 
 - name: Create development directory structure
   file:
@@ -71,6 +126,9 @@
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
   become: false
+  tags:
+    - laravel
+    - user
 
 - name: Copy Laravel development aliases and functions
   copy:
@@ -80,24 +138,11 @@
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
   become: false
+  tags:
+    - laravel
+    - user
 
-- name: Add Laravel aliases to zshrc
-  lineinfile:
-    path: "{{ lookup('env', 'HOME') }}/.zshrc"
-    line: "# Laravel development aliases and functions"
-    state: present
-    create: yes
-    owner: "{{ lookup('env', 'USER') }}"
-    group: "{{ lookup('env', 'USER') }}"
-  become: false
-
-- name: Source Laravel aliases in zshrc
-  lineinfile:
-    path: "{{ lookup('env', 'HOME') }}/.zshrc"
-    line: "source ~/.laravel-aliases.sh"
-    state: present
-    insertafter: "# Laravel development aliases and functions"
-    create: yes
-    owner: "{{ lookup('env', 'USER') }}"
-    group: "{{ lookup('env', 'USER') }}"
-  become: false
+# The "Add Laravel aliases to zshrc" / "Source Laravel aliases in zshrc"
+# lineinfile pair was removed here. They depended on a fragile insertafter
+# anchor and wrote to a file roles/zsh owns. roles/zsh/files/zshrc now sources
+# ~/.laravel-aliases.sh directly, guarded on the file existing.
