@@ -2,6 +2,30 @@
 - name: Setup Development Environment
   hosts: all
   become: yes
+
+  pre_tasks:
+    # Fail fast rather than half-installing. The Darwin code paths in this repo
+    # are incomplete: roles/zsh has no OS guards at all, several tasks set
+    # `group` to the username (macOS uses `staff`), roles/laravel hardcodes
+    # /usr/bin/php, and vars/Darwin.yml omits PHP, ripgrep and fd entirely.
+    # The result on macOS is not an error, it is a silent half-install.
+    # See AUDIT.md section 2. Remove this guard only once section 8 item 2 is done.
+    - name: Assert the target platform is supported
+      ansible.builtin.assert:
+        that:
+          - ansible_os_family == "Debian"
+        fail_msg: >-
+          Unsupported platform: ansible_os_family={{ ansible_os_family }}
+          ({{ ansible_distribution | default('unknown') }}
+          {{ ansible_distribution_version | default('') }}).
+          This playbook supports Debian/Ubuntu only, including under WSL2.
+          macOS support is incomplete and would silently half-install.
+        success_msg: >-
+          Platform supported: {{ ansible_distribution }}
+          {{ ansible_distribution_version }}{{ ' (WSL2)' if 'microsoft' in ansible_kernel | lower else '' }}
+      become: false
+      tags: always
+
   roles:
     - { role: common-software, tags: ["common", "software", "python", "playwright"] }
     - { role: zsh, tags: ["zsh", "shell"] }
