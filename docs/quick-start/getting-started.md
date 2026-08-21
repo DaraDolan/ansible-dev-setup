@@ -70,7 +70,7 @@ dev-start  # Starts Laravel + Vite servers
 - ✅ **Tailwind CSS** configured
 - ✅ **Neovim** with 30+ plugins
 - ✅ **Claude Code** integration
-- ✅ **Zsh + Oh-My-Zsh** with themes
+- ✅ **Zsh + Zinit + Starship** prompt and plugins
 
 ## ⚡ Next Steps
 

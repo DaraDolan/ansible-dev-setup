@@ -190,7 +190,7 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
 - **Neovim** with 30+ productivity plugins and full LSP support
 - **Tailwind CSS** for rapid UI development
 - **Claude Code** seamless integration
-- **Zsh + Oh-My-Zsh** with productivity plugins
+- **Zsh + Zinit + Starship** with productivity plugins
 
 ### 🎯 Optimized For
 - **Laravel Development**: Controllers, models, migrations, API development

@@ -126,10 +126,10 @@ else
     print_fail "Zsh configuration file missing"
 fi
 
-if [ -d "$HOME/.oh-my-zsh" ]; then
-    print_pass "Oh-My-Zsh is installed"
+if [ -x "$HOME/.local/bin/starship" ]; then
+    print_pass "Starship prompt is installed"
 else
-    print_fail "Oh-My-Zsh is missing"
+    print_fail "Starship prompt is missing"
 fi
 
 if [ -d "$HOME/.local/share/zinit" ]; then

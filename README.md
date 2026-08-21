@@ -7,9 +7,9 @@ An Ansible playbook for automating the setup of a consistent development environ
 This project uses Ansible to automate the installation and configuration of:
 
 - Common development software (git, curl, wget, Python, Node.js, etc.)
-- Zsh as the default shell with Oh-My-Zsh
-- Zinit plugin manager for Zsh plugins
-- Powerlevel10k theme with a pre-configured setup
+- Zsh as the default shell
+- Zinit plugin manager for Zsh plugins (sole plugin manager; no Oh-My-Zsh)
+- Starship prompt (pinned static binary, one TOML config)
 - Zoxide for fast directory navigation
 - Various Zsh plugins for enhanced productivity
 
@@ -207,25 +207,21 @@ The playbook installs common development tools based on your operating system:
 ### Zsh Configuration
 
 - Sets Zsh as the default shell
-- Installs Oh-My-Zsh for base configuration
-- Sets up Zinit plugin manager with useful plugins:
+- Sets up Zinit as the sole plugin manager (Oh-My-Zsh is not installed;
+  the useful bits load as Zinit snippets) with:
   - fast-syntax-highlighting
   - zsh-autosuggestions
   - zsh-completions
   - zsh-history-substring-search
   - zsh-artisan (Laravel helper)
-  - tipz
-  - powerlevel10k (theme)
+  - zsh-you-should-use (alias reminders)
+  - oh-my-zsh git/laravel/sudo snippets
 
-### Powerlevel10k Theme
+### Starship Prompt
 
-A sophisticated shell prompt with:
-- Git status information
-- Directory navigation
-- Command execution time
-- Error status
-- Various version managers (Python, Node.js, etc.)
-- Environment indicators (virtualenv, AWS, kubernetes, etc.)
+A fast, minimal prompt (single pinned binary + `starship.toml`) showing
+git status, directory, command duration and language versions when
+relevant. Works in bash too.
 
 ### Additional Tools
 
@@ -292,15 +288,13 @@ To add more software packages:
 
 To add more Zsh plugins:
 
-1. Edit `roles/zsh/files/zinit.zsh` and add your desired plugins using the Zinit syntax.
-2. Edit `roles/zsh/files/zshrc` to modify Oh-My-Zsh plugins in the `plugins=()` array.
+1. Edit `roles/zsh/files/zinit.zsh` and add your desired plugins using the Zinit syntax
+   (`zinit light author/repo`, or `zinit snippet OMZP::name` for oh-my-zsh plugins).
 
-### Customizing Powerlevel10k
+### Customizing the Starship Prompt
 
-If you want to customize the Powerlevel10k theme:
-
-1. After installation, run `p10k configure` in your terminal to create a new configuration.
-2. Or edit `roles/zsh/files/p10k.zsh` directly to modify the existing configuration.
+Edit `roles/zsh/files/starship.toml` (see https://starship.rs/config/) and re-run
+the playbook with `--tags zsh`.
 
 ## Structure
 
@@ -319,7 +313,7 @@ If you want to customize the Powerlevel10k theme:
     │       └── Debian.yml  # Debian/Ubuntu specific packages
     └── zsh                 # Role for Zsh configuration
         ├── files
-        │   ├── p10k.zsh    # Powerlevel10k configuration
+        │   ├── starship.toml # Starship prompt configuration
         │   ├── zinit.zsh   # Zinit plugins configuration
         │   └── zshrc       # Main Zsh configuration
         └── tasks
@@ -338,7 +332,7 @@ If you want to customize the Powerlevel10k theme:
 #### General Issues
 - **Shell not changing to Zsh**: Log out and log back in after the playbook completes
 - **Plugins not loading**: Run `source ~/.zshrc` or restart your terminal
-- **Font issues with Powerlevel10k**: Install a [Nerd Font](https://www.nerdfonts.com/) and configure your terminal to use it
+- **Font/glyph issues in the prompt**: Install a [Nerd Font](https://www.nerdfonts.com/) and configure your terminal to use it
 
 #### Alternative Approaches
 If the quick setup script fails:

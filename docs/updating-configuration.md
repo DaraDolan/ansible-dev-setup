@@ -173,11 +173,11 @@ ansible-playbook -i inventory/hosts.yml playbook.yml --check --ask-become-pass
    ansible-playbook -i inventory/hosts.yml playbook.yml --tags zsh --ask-become-pass
    ```
 
-### Customizing Powerlevel10k
+### Customizing the Starship Prompt
 
-1. **Edit p10k configuration:**
+1. **Edit starship configuration:**
    ```bash
-   vim roles/zsh/files/p10k.zsh
+   vim roles/zsh/files/starship.toml
    ```
 
 2. **Apply changes:**
@@ -295,7 +295,7 @@ git commit -m "Add new vim plugin: plugin-name"
 ### Creating Backup
 ```bash
 # Backup current configs before major changes
-tar -czf ~/config-backup-$(date +%Y%m%d).tar.gz ~/.config/nvim ~/.zshrc ~/.p10k.zsh
+tar -czf ~/config-backup-$(date +%Y%m%d).tar.gz ~/.config/nvim ~/.zshrc ~/.config/starship.toml
 ```
 
 This documentation should cover most scenarios for updating your development environment. Remember to always test changes in a safe environment before applying them system-wide.
