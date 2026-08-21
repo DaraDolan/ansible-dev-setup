@@ -34,8 +34,8 @@ keymap("n", "<Leader><Leader>h", "<cmd>Telescope help_tags<CR>", { desc = "Help 
 keymap("n", "<Leader><Leader>t", "<cmd>Telescope<CR>", { desc = "Telescope" })
 
 -- Git mappings
-keymap("n", "<Leader>G", "<cmd>Git<CR>", { desc = "Git Status" })
-keymap("n", "<Leader><Leader>go", "<cmd>GBrowse<CR>", { desc = "Open in GitHub" })
+-- (fugitive's <Leader>G :Git and <Leader><Leader>go :GBrowse were removed
+-- with the plugin; <leader>gg opens lazygit, <leader>gd opens diffview.)
 
 -- Quickly append semicolon or comma
 keymap("i", ";;", "<Esc>A;<Esc>")

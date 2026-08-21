@@ -124,7 +124,8 @@ Master your Neovim workflow with these carefully crafted keybindings for PHP/Lar
 
 | Shortcut | Action | Description |
 |----------|--------|-------------|
-| `<leader>G` | Git Status | Fugitive git status |
+| `<leader>gg` | LazyGit | Full git UI in a floating terminal |
+| `<leader>gd` | DiffView | Review diffs side by side |
 | `<leader>hs` | Stage Hunk | Stage git hunk |
 | `<leader>hr` | Reset Hunk | Reset git hunk |
 | `<leader>hp` | Preview Hunk | Preview changes |

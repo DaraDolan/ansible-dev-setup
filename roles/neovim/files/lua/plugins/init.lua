@@ -122,12 +122,8 @@ return {
   },
 
   -- Git integrations
-  {
-    "tpope/vim-fugitive", -- Git commands
-    dependencies = {
-      "tpope/vim-rhubarb", -- GitHub extension
-    },
-  },
+  -- (vim-fugitive/vim-rhubarb removed: gitsigns handles hunks, diffview
+  -- handles diffs, and lazygit via <leader>gg covers the rest.)
   {
     "lewis6991/gitsigns.nvim", -- Modern replacement for vim-signify
     config = function()
@@ -277,7 +273,6 @@ return {
     end,
   },
   { "tpope/vim-unimpaired" },      -- Pairs of handy bracket mappings
-  { "tpope/vim-projectionist" },   -- Project configuration
   -- Commenting plugin
   {
     "numToStr/Comment.nvim",       -- Modern commenting plugin
@@ -285,11 +280,15 @@ return {
       require("Comment").setup()
     end,
   },
-  -- Testing support (preserving your vim-test config)
+  -- Testing support
   {
     "vim-test/vim-test",
     config = function()
-      vim.g['test#php#phpunit#executable'] = 'phpunit'
+      -- Pest, not phpunit: the shell (ptest), docs and project templates all
+      -- standardise on Pest, and the old global `phpunit` binary was never
+      -- installed. Override per-project with g:test#php#runner if needed.
+      vim.g['test#php#runner'] = 'pest'
+      vim.g['test#php#pest#executable'] = './vendor/bin/pest'
       if vim.fn.has('nvim') == 1 then
         vim.g['test#strategy'] = 'neovim'
       else
@@ -316,7 +315,7 @@ return {
       luasnip.config.setup({})
     end,
   },
-  { "saadparwaiz1/cmp_luasnip" }, -- LuaSnip completion source for nvim-cmp
+  -- (cmp_luasnip is declared once, as an nvim-cmp dependency below)
   -- Markdown preview
   {
     "iamcco/markdown-preview.nvim",
@@ -617,15 +616,8 @@ return {
     end,
   },
 
-  -- Tailwind CSS Tools
-  {
-    "roobert/tailwindcss-colorizer-cmp.nvim",
-    config = function()
-      require("tailwindcss-colorizer-cmp").setup({
-        color_square_width = 2,
-      })
-    end,
-  },
+  -- (tailwindcss-colorizer-cmp removed: it was never wired into nvim-cmp's
+  -- formatting.format, so it had zero visible effect.)
 
   -- Auto pairs
   {
@@ -852,7 +844,6 @@ return {
         dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
         dashboard.button("f", "󰍉  Find file", ":Telescope find_files<CR>"),
         dashboard.button("r", "  Recent files", ":Telescope oldfiles<CR>"),
-        dashboard.button("p", "  Find project", ":Telescope projects<CR>"),
         dashboard.button("w", "  Find word", ":Telescope live_grep<CR>"),
         dashboard.button("c", "  Config", ":e $MYVIMRC<CR>"),
         dashboard.button("s", "  Restore session", ":SessionRestore<CR>"),
@@ -877,72 +868,7 @@ return {
     end,
   },
 
-  -- Advanced file management with Oil.nvim
-  {
-    "stevearc/oil.nvim",
-    opts = {},
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("oil").setup({
-        default_file_explorer = false, -- Don't override netrw completely
-        columns = {
-          "icon",
-        },
-        buf_options = {
-          buflisted = false,
-          bufhidden = "hide",
-        },
-        win_options = {
-          wrap = false,
-          signcolumn = "no",
-          cursorcolumn = false,
-          foldcolumn = "0",
-          spell = false,
-          list = false,
-          conceallevel = 3,
-          concealcursor = "nvic",
-        },
-        delete_to_trash = false,
-        skip_confirm_for_simple_edits = false,
-        prompt_save_on_select_new_entry = true,
-        cleanup_delay_ms = 2000,
-        keymaps = {
-          ["g?"] = "actions.show_help",
-          ["<CR>"] = "actions.select",
-          ["<C-s>"] = "actions.select_vsplit",
-          ["<C-h>"] = "actions.select_split",
-          ["<C-t>"] = "actions.select_tab",
-          ["<C-p>"] = "actions.preview",
-          ["<C-c>"] = "actions.close",
-          ["<C-l>"] = "actions.refresh",
-          ["-"] = "actions.parent",
-          ["_"] = "actions.open_cwd",
-          ["`"] = "actions.cd",
-          ["~"] = "actions.tcd",
-          ["gs"] = "actions.change_sort",
-          ["gx"] = "actions.open_external",
-          ["g."] = "actions.toggle_hidden",
-          ["g\\"] = "actions.toggle_trash",
-        },
-        use_default_keymaps = true,
-        view_options = {
-          show_hidden = false,
-          is_hidden_file = function(name, bufnr)
-            return vim.startswith(name, ".")
-          end,
-          is_always_hidden = function(name, bufnr)
-            return false
-          end,
-          sort = {
-            { "type", "asc" },
-            { "name", "asc" },
-          },
-        },
-      })
-      -- Keymap to open oil (alternative file manager)
-      vim.keymap.set("n", "<leader>o", "<CMD>Oil<CR>", { desc = "Open Oil file manager" })
-    end,
-  },
+  -- (oil.nvim removed: neo-tree on <leader>e is the single file explorer.)
 
   -- File navigation with Harpoon
   {
@@ -1206,35 +1132,6 @@ return {
     keys = { { "<leader>z", "<cmd>ZenMode<cr>", desc = "Zen Mode" } },
   },
 
-  -- AI Assistant (codecompanion + Ollama)
-  {
-    "olimorris/codecompanion.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    opts = {
-      adapters = {
-        ollama = function()
-          return require("codecompanion.adapters").extend("ollama", {
-            schema = {
-              model = {
-                default = "qwen2.5-coder:7b",
-              },
-            },
-          })
-        end,
-      },
-      strategies = {
-        chat = { adapter = "ollama" },
-        inline = { adapter = "ollama" },
-        agent = { adapter = "ollama" },
-      },
-    },
-    keys = {
-      { "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle AI Chat" },
-      { "<leader>aa", "<cmd>CodeCompanionActions<cr>", desc = "AI Actions", mode = { "n", "v" } },
-      { "<leader>an", "<cmd>CodeCompanion<cr>", desc = "AI Inline", mode = { "n", "v" } },
-    },
-  },
+  -- (codecompanion.nvim removed: it was hardwired to an Ollama install that
+  -- never existed. Copilot handles inline AI, <leader>ai opens Claude Code.)
 }

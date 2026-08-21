@@ -159,7 +159,7 @@ git pull origin main
 ### Neovim Git Integration
 | Shortcut | Action |
 |----------|---------|
-| `<leader>G` | Git status |
+| `<leader>gg` | LazyGit (full git UI) |
 | `<leader>hs` | Stage hunk |
 | `<leader>hr` | Reset hunk |
 | `<leader>hp` | Preview hunk |
