@@ -17,6 +17,20 @@ alias pat='php artisan test'
 alias dev='cd ~/development'
 alias projects='cd ~/development/projects'
 
+# Bootstrap a fresh Sail project. Sail itself lives in vendor/, so the FIRST
+# composer install must come from outside it — this uses Laravel's official
+# helper image (same PHP as the Sail runtime, so lockfile platform checks
+# pass). Defaults to PHP 8.4; pass another version like: sail-init 83
+sail-init() {
+    local php="${1:-84}"
+    docker run --rm \
+        -u "$(id -u):$(id -g)" \
+        -v "$(pwd):/var/www/html" \
+        -w /var/www/html \
+        "laravelsail/php${php}-composer:latest" \
+        composer install --ignore-platform-reqs --no-interaction
+}
+
 # Laravel project shortcuts
 laravel-new() {
     if [ -z "$1" ]; then
