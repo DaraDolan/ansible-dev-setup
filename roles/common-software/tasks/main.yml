@@ -459,33 +459,9 @@
     - neovim
     - treesitter
 
-# nvim-lint is configured to lint js/ts/jsx/tsx with eslint_d but the binary
-# was never installed, so linting silently no-opped. See AUDIT.md section 5.3.
-# nvim-lint prefers ./node_modules/.bin/eslint_d and falls back to this one.
-- name: Install eslint_d globally for nvim-lint
-  shell: |
-    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-    eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
-    npm install -g eslint_d
-  args:
-    executable: /bin/bash
-  become: false
-  when: npm_check.rc == 0
-  register: eslint_d_install
-  changed_when: false
-  failed_when: false
-  tags:
-    - neovim
-    - linting
-    - user
-
-- name: Warn if eslint_d install failed
-  debug:
-    msg: "eslint_d install failed (rc={{ eslint_d_install.rc }}): {{ eslint_d_install.stderr }}"
-  when: npm_check.rc == 0 and eslint_d_install.rc != 0
-  tags:
-    - neovim
-    - linting
+# The eslint_d install was removed here: the eslint language server (mason)
+# already provides JS/TS diagnostics in Neovim, and running eslint_d through
+# nvim-lint on top of it duplicated every warning.
 
 # Install Playwright for web automation and MCP server support
 - name: Install Playwright and its browser/system dependencies

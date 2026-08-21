@@ -355,6 +355,7 @@ return {
           "json-lsp",
           "python-lsp-server",
           "eslint-lsp",
+          "ruff", -- python lint (nvim-lint) + format (conform)
         },
         auto_update = false,
         run_on_start = true,
@@ -563,12 +564,12 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     config = function()
       local lint = require("lint")
+      -- JS/TS deliberately absent: the eslint language server (enabled in
+      -- the LSP block above) already provides those diagnostics, and the old
+      -- eslint_d entries here just duplicated every warning.
       lint.linters_by_ft = {
-        javascript = { "eslint_d" },
-        javascriptreact = { "eslint_d" },
-        typescript = { "eslint_d" },
-        typescriptreact = { "eslint_d" },
         php = { "phpstan" },
+        python = { "ruff" },
       }
       -- Run linter on save and when entering a buffer
       vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
@@ -667,6 +668,9 @@ return {
         html = { "prettier" },
         json = { "prettier" },
         yaml = { "prettier" },
+
+        -- Python (ruff via mason; matches the uv/ruff toolchain used in projects)
+        python = { "ruff_format" },
       },
       -- Format on save
       format_on_save = {
