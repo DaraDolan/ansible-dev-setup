@@ -2,15 +2,16 @@
 # Automatically loaded in .zshrc for Laravel workflow optimization
 
 # Development aliases for seamless workflow
+# (`cce='claude edit'` removed — not a Claude Code subcommand.)
 alias cl='claude'
-alias cce='claude edit'
 alias nv='nvim'
 alias art='php artisan'
 alias serve='php artisan serve'
 alias tinker='php artisan tinker'
 alias migrate='php artisan migrate'
 alias fresh='php artisan migrate:fresh --seed'
-alias test='php artisan test'
+# `pat`, not `test`: aliasing `test` shadows the POSIX shell builtin.
+alias pat='php artisan test'
 
 # Quick project navigation
 alias dev='cd ~/development'

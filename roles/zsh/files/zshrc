@@ -76,17 +76,20 @@ export OTEL_EXPORTER_DISABLED=1
 alias ccode='claude code'
 # General productivity aliases
 alias c="clear"
-alias o="open ."
 alias sizes='du -sh -c *'
-alias cwd="pwd && pwd | pbcopy && echo 'Copied to clipboard 📁'"
 alias os='cd ~/code/php/open-source'
 
-# Ollama - use Windows binary when running in WSL2
+# `o` (open file manager here) and `cwd` (copy pwd to clipboard) were
+# macOS-only (`open`, `pbcopy`); pick the right tool per platform.
 if grep -qi microsoft /proc/version 2>/dev/null; then
-  OLLAMA_WIN=$(ls /mnt/c/Users/*/AppData/Local/Programs/Ollama/ollama.exe 2>/dev/null | head -1)
-  if [[ -n "$OLLAMA_WIN" ]]; then
-    alias ollama="$OLLAMA_WIN"
-  fi
+  alias o="explorer.exe ."
+  alias cwd="pwd && pwd | tr -d '\n' | clip.exe && echo 'Copied to clipboard 📁'"
+elif [[ "$OSTYPE" == darwin* ]]; then
+  alias o="open ."
+  alias cwd="pwd && pwd | tr -d '\n' | pbcopy && echo 'Copied to clipboard 📁'"
+else
+  alias o="xdg-open ."
+  command -v xclip &> /dev/null && alias cwd="pwd && pwd | tr -d '\n' | xclip -selection clipboard && echo 'Copied to clipboard 📁'"
 fi
 
 # Laravel development aliases and functions (deployed by roles/laravel)
