@@ -189,43 +189,11 @@
     - neovim
     - user
 
-- name: Install luarocks (for Hererocks support)
-  apt:
-    name: luarocks
-    state: present
-  become: true
-  when: ansible_os_family == "Debian"
-
-- name: Install Perl provider dependencies
-  apt:
-    name:
-      - perl
-      - cpanminus
-    state: present
-  become: true
-  when: ansible_os_family == "Debian"
-
-- name: Install Perl Neovim provider
-  command: cpanm -n Neovim::Ext
-  become: true
-  when: ansible_os_family == "Debian"
-
-- name: Install Ruby and gem
-  apt:
-    name:
-      - ruby
-      - ruby-dev
-    state: present
-  become: true
-  when: ansible_os_family == "Debian"
-
-
-- name: Install FZF for Telescope
-  apt:
-    name: fzf
-    state: present
-  become: true
-  when: ansible_os_family == "Debian"
+# The Perl/Ruby provider installs (perl, cpanminus, Neovim::Ext, ruby,
+# ruby-dev) were removed here: lua/core/options.lua disables both providers,
+# so they were minutes of install/build time for nothing (AUDIT.md §5.2).
+# luarocks and the apt fzf package went with them — telescope-fzf-native
+# compiles its own matcher and never used the fzf binary.
 
 # Create config directories
 - name: Create base config directory
