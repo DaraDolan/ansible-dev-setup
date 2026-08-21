@@ -138,6 +138,11 @@ uv add --dev pytest black ruff
 ```
 
 ### Playwright Commands (Web Automation & Testing)
+
+Playwright is **not installed by default** (`install_playwright: false` in
+`roles/common-software/defaults/main.yml`). Set `install_playwright: true` in
+`personal-config.yml` and re-run the playbook to get it, then:
+
 ```bash
 # Initialize Playwright in a new project
 npx playwright init
@@ -398,10 +403,11 @@ python-project/
    - Use Claude Code for complex refactoring
    - Switch to Neovim for rapid editing
    - `<leader>ai` opens Claude Code in a floating terminal inside Neovim
-   - Playwright is installed as a CLI for test authoring. There is **no MCP
-     server configured** in this repo — `~/.claude/settings.json` enables the
-     context7, github and frontend-design plugins only. Web automation through
-     Claude Code would need an MCP server to be added first.
+   - Playwright is available as an opt-in CLI for test authoring
+     (`install_playwright: true`). There is **no MCP server configured** in
+     this repo — `~/.claude/settings.json` enables the context7, github and
+     frontend-design plugins only. Web automation through Claude Code would
+     need an MCP server to be added first.
 
 ## GitHub SSH Setup
 

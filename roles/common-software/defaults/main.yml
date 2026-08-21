@@ -17,8 +17,10 @@ git_pull_rebase: false
 git_config_scope: "global"
 
 # Playwright configuration
-# Set to false to skip Playwright installation
-install_playwright: true
+# Off by default: browser automation is not part of the current (Bgate) stack
+# and it is the slowest part of the playbook (browsers + system deps).
+# Re-enable with `install_playwright: true` in personal-config.yml.
+install_playwright: false
 
 # lazygit - bound to <leader>gg in the Neovim config (toggleterm), which was
 # a runtime error until this was installed. Fetched as a static tarball into
