@@ -6,7 +6,7 @@ This project provides a comprehensive development environment optimized for PHP/
 - **Backend**: PHP 8+, Laravel 11+, Python 3+
 - **Frontend**: Tailwind CSS, React/TypeScript
 - **Development**: Neovim with LSP, Claude Code integration, mise for Node.js, UV for Python
-- **AI Tools**: Google Gemini CLI, Claude Code
+- **AI Tools**: Claude Code, GitHub Copilot (in Neovim)
 - **Version Management**: mise (Node.js), UV (Python packages)
 
 ## Development Commands
@@ -109,30 +109,6 @@ prettier --write "src/**/*.{js,jsx,ts,tsx,css}"  # Format specific files
 
 # Tailwind CSS build
 npm run build-css
-```
-
-### Google Gemini CLI Commands
-```bash
-# Set up Gemini CLI with your API key
-gemini config set apiKey YOUR_API_KEY
-
-# Chat with Gemini
-gemini chat "Explain how Laravel middleware works"
-
-# Generate code
-gemini generate "Create a Laravel controller for user management"
-
-# Use Gemini with files
-gemini chat -f code.php "Review this code for security issues"
-
-# List available models
-gemini models
-
-# Set default model
-gemini config set model gemini-pro
-
-# Get help
-gemini --help
 ```
 
 ### Python Commands

@@ -49,11 +49,6 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
 - **[⌨️  Neovim Python Integration](NEOVIM_PYTHON.md)** - Python in your editor
   - LSP features, code snippets, debugging, key bindings, advanced workflows
 
-### 🤖 AI Development Tools
-- **[🤖 Google Gemini CLI](development/gemini-cli.md)** - AI-assisted development
-  - Chat with AI from terminal, code generation, file analysis
-  - Debugging assistance, best practices, workflow integration
-
 ---
 
 ## ⚡ Quick Reference Cards
@@ -66,7 +61,7 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
 | **Start Servers** | `dev-start` (Laravel), `uv run python main.py` (Python) |
 | **Run Tests** | `pest` (Laravel), `uv run pytest` (Python) |
 | **Node Version** | `mise use node@lts` (set version), `mise list` (show installed) |
-| **AI Assistance** | `gemini chat "your question"` (Gemini), `cc` (Claude Code) |
+| **AI Assistance** | `claude` / `ccode` (Claude Code), Copilot in Neovim (`Alt+l` accept) |
 | **Open Neovim** | `nv .` |
 
 ### ⌨️  Top Shortcuts
