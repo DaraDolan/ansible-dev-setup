@@ -10,11 +10,14 @@
     shell: /usr/bin/zsh
   become: true
 
-- name: Install Oh-My-Zsh
-  git:
-    repo: 'https://github.com/ohmyzsh/ohmyzsh.git'
-    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh"
-    depth: 1
+# oh-my-zsh is no longer installed: zinit is the sole plugin manager and
+# loads the OMZ snippets we use (git, laravel, sudo) individually. This
+# removes a previously-provisioned clone; ~/.oh-my-zsh/custom was verified
+# to contain only the stock example templates before automating this.
+- name: Remove Oh-My-Zsh (superseded by zinit-only setup)
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.oh-my-zsh"
+    state: absent
   become: false
   tags:
     - zsh
@@ -64,10 +67,103 @@
     - zsh
     - user
 
-- name: Copy Powerlevel10k config file
+# --- Starship prompt (replaces powerlevel10k) ------------------------------
+# p10k has been maintenance-only since May 2024; starship is one pinned
+# static binary plus one TOML file, and works in bash too.
+- name: Fail clearly if starship has no build for this architecture
+  fail:
+    msg: >-
+      No pinned starship tarball for architecture '{{ ansible_architecture }}'.
+      Add it to starship_arch_map and starship_checksums in
+      roles/zsh/defaults/main.yml.
+  when: ansible_architecture not in starship_arch_map
+  tags:
+    - zsh
+    - user
+
+- name: Ensure ~/.local/bin exists for starship
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.local/bin"
+    state: directory
+    mode: '0755'
+  become: false
+  tags:
+    - zsh
+    - user
+
+- name: Download pinned starship tarball
+  get_url:
+    url: >-
+      https://github.com/starship/starship/releases/download/v{{ starship_version }}/starship-{{ starship_arch_map[ansible_architecture] }}-unknown-linux-musl.tar.gz
+    dest: "/tmp/starship_{{ starship_version }}.tar.gz"
+    checksum: "{{ starship_checksums[ansible_architecture] }}"
+    mode: '0644'
+  become: false
+  when: ansible_architecture in starship_arch_map
+  tags:
+    - zsh
+    - user
+
+- name: Extract starship into ~/.local/bin
+  unarchive:
+    src: "/tmp/starship_{{ starship_version }}.tar.gz"
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
+    remote_src: yes
+    include:
+      - starship
+    mode: '0755'
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/starship"
+  become: false
+  when: ansible_architecture in starship_arch_map
+  tags:
+    - zsh
+    - user
+
+- name: Remove the downloaded starship tarball
+  file:
+    path: "/tmp/starship_{{ starship_version }}.tar.gz"
+    state: absent
+  become: false
+  tags:
+    - zsh
+    - user
+
+- name: Ensure ~/.config exists for starship
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.config"
+    state: directory
+    mode: '0755'
+  become: false
+  tags:
+    - zsh
+    - user
+
+- name: Copy starship configuration
   copy:
-    src: "{{ role_path }}/files/p10k.zsh"
-    dest: "{{ lookup('env', 'HOME') }}/.p10k.zsh"
+    src: "{{ role_path }}/files/starship.toml"
+    dest: "{{ lookup('env', 'HOME') }}/.config/starship.toml"
+  become: false
+  tags:
+    - zsh
+    - user
+
+# Starship works in bash as well; ~/.bashrc has no owning role, so
+# appending is safe (see the ownership note above).
+- name: Initialise starship in bashrc
+  lineinfile:
+    path: "{{ lookup('env', 'HOME') }}/.bashrc"
+    line: 'command -v starship &> /dev/null && eval "$(starship init bash)"'
+    state: present
+    create: yes
+  become: false
+  tags:
+    - zsh
+    - user
+
+- name: Remove Powerlevel10k config (superseded by starship)
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.p10k.zsh"
+    state: absent
   become: false
   tags:
     - zsh

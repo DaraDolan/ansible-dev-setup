@@ -1,0 +1,12 @@
+---
+# Starship prompt — replaces powerlevel10k (maintenance-only since May 2024).
+# Fetched as a static musl tarball into ~/.local/bin so it needs no sudo and
+# works under `--tags user`. Checksums are upstream's own .sha256 files from
+# the release assets.
+starship_version: "1.26.0"
+starship_arch_map:
+  x86_64: "x86_64"
+  aarch64: "aarch64"
+starship_checksums:
+  x86_64: "sha256:b7c232b0e8249d8e55a40beb79c5c43a7d370f3f9408bd215deb0170daeaadf3"
+  aarch64: "sha256:dc30189378d2f2e287384e8a692d3f95ad1df64cf0e8c36aa9201516028aed6b"
