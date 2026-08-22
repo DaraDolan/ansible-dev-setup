@@ -67,8 +67,15 @@ fi
 # fzf keybindings: Ctrl-R history, Ctrl-T files, Alt-C cd into subdirectory.
 # `--zsh` needs fzf >= 0.48, so probe before sourcing (an older system fzf
 # may still be lying around; the playbook installs a pinned current one).
+# See docs/cli-tools-guide.md for the workflow guide.
 if command -v fzf &> /dev/null && fzf --zsh &> /dev/null; then
     source <(fzf --zsh)
+    # Find files with fd: respects .gitignore, so Ctrl-T never drowns you
+    # in node_modules/ or vendor/; --hidden still shows dotfiles.
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    # Preview the highlighted file with bat in the Ctrl-T picker
+    export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:200 {}'"
 fi
 
 # Explicitly disable Claude Code telemetry - remove any existing telemetry variables

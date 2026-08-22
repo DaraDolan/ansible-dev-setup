@@ -11,7 +11,7 @@ This project uses Ansible to automate the installation and configuration of:
 - Zinit plugin manager for Zsh plugins (sole plugin manager; no Oh-My-Zsh)
 - Starship prompt (pinned static binary, one TOML config)
 - Zoxide for fast directory navigation
-- Modern CLI basics: ripgrep, fd, bat, jq, fzf (Ctrl-R/Ctrl-T/Alt-C), git-delta (git pager), lazygit, tmux (see `docs/tmux-guide.md`)
+- Modern CLI basics: ripgrep, fd, bat, jq, fzf (Ctrl-R/Ctrl-T/Alt-C), git-delta (git pager), lazygit, tmux (guides: `docs/tmux-guide.md`, `docs/cli-tools-guide.md`)
 - Cloud CLIs for the current job stack: gcloud (+ bq) and azure-cli
 - Various Zsh plugins for enhanced productivity
 
