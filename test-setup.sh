@@ -35,7 +35,7 @@ echo
 # Test 1: Check essential commands
 print_test "Checking essential commands..."
 
-commands=("git" "curl" "wget" "php" "composer" "node" "npm" "nvim" "zsh")
+commands=("git" "curl" "wget" "php" "composer" "node" "npm" "nvim" "zsh" "rg" "fd" "bat" "jq" "tmux" "fzf" "delta" "lazygit" "gcloud" "az")
 for cmd in "${commands[@]}"; do
     if command -v "$cmd" &> /dev/null; then
         version=$(eval "$cmd --version 2>/dev/null | head -n1" || echo "unknown")

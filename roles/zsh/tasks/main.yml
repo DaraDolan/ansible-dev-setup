@@ -67,6 +67,16 @@
     - zsh
     - user
 
+- name: Copy tmux configuration
+  copy:
+    src: "{{ role_path }}/files/tmux.conf"
+    dest: "{{ lookup('env', 'HOME') }}/.tmux.conf"
+  become: false
+  tags:
+    - zsh
+    - tmux
+    - user
+
 # --- Starship prompt (replaces powerlevel10k) ------------------------------
 # p10k has been maintenance-only since May 2024; starship is one pinned
 # static binary plus one TOML file, and works in bash too.
