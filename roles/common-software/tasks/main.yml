@@ -851,6 +851,80 @@
     - git
     - user
 
+# --- Google Cloud CLI (gcloud + bq + gsutil) via Google's apt repo ---------
+# Bgate runs data engineering on GCP/BigQuery. Run `gcloud init` once to
+# authenticate.
+- name: Download and dearmor Google Cloud GPG key
+  shell: curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg
+  args:
+    creates: /etc/apt/keyrings/cloud.google.gpg
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - gcloud
+    - cloud
+
+- name: Add Google Cloud apt repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main"
+    filename: google-cloud-sdk
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - gcloud
+    - cloud
+
+- name: Install Google Cloud CLI
+  apt:
+    name: google-cloud-cli
+    state: present
+    update_cache: yes
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - gcloud
+    - cloud
+
+# --- Azure CLI via Microsoft's apt repo ------------------------------------
+# Bgate hosts its applications on Azure Web Apps. Run `az login` once to
+# authenticate.
+- name: Download and dearmor Microsoft GPG key
+  shell: curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg
+  args:
+    creates: /etc/apt/keyrings/microsoft.gpg
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - azure
+    - cloud
+
+- name: Add Azure CLI apt repository
+  apt_repository:
+    repo: "deb [arch={{ dpkg_arch.stdout | default('amd64') }} signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
+    filename: azure-cli
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - azure
+    - cloud
+
+- name: Install Azure CLI
+  apt:
+    name: azure-cli
+    state: present
+    update_cache: yes
+  become: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - azure
+    - cloud
+
+# sqlcmd (mssql-tools18) and clasp (Apps Script CLI) were deliberately
+# deferred on 21 Aug 2026 - add them here if the Bgate work turns out to
+# need them from this machine.
+
 # Install win32yank for WSL2 system clipboard support (used by Neovim's unnamedplus clipboard)
 - name: Check if running under WSL2
   set_fact:
