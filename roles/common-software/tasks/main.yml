@@ -25,6 +25,14 @@
     force: yes
   when: ansible_os_family == "Debian"
 
+- name: Symlink batcat to bat (Ubuntu's bat package installs as batcat)
+  file:
+    src: /usr/bin/batcat
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin/bat"
+    state: link
+    force: yes
+  when: ansible_os_family == "Debian"
+
 - name: Install PHP CLI (for Composer, Artisan, Pint)
   apt:
     name:
@@ -708,6 +716,138 @@
   become: false
   tags:
     - lazygit
+    - git
+    - user
+
+# --- fzf (pinned tarball; see defaults/main.yml for why not apt) ----------
+- name: Fail clearly if fzf has no build for this architecture
+  fail:
+    msg: >-
+      No pinned fzf tarball for architecture '{{ ansible_architecture }}'.
+      Add it to fzf_arch_map and fzf_checksums in
+      roles/common-software/defaults/main.yml.
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture not in fzf_arch_map
+  tags:
+    - fzf
+    - user
+
+- name: Download pinned fzf tarball
+  get_url:
+    url: >-
+      https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_{{ fzf_arch_map[ansible_architecture] }}.tar.gz
+    dest: "/tmp/fzf_{{ fzf_version }}.tar.gz"
+    checksum: "{{ fzf_checksums[ansible_architecture] }}"
+    mode: '0644'
+  become: false
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture in fzf_arch_map
+  tags:
+    - fzf
+    - user
+
+- name: Extract fzf into ~/.local/bin
+  unarchive:
+    src: "/tmp/fzf_{{ fzf_version }}.tar.gz"
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
+    remote_src: yes
+    include:
+      - fzf
+    mode: '0755'
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/fzf"
+  become: false
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture in fzf_arch_map
+  tags:
+    - fzf
+    - user
+
+- name: Remove the downloaded fzf tarball
+  file:
+    path: "/tmp/fzf_{{ fzf_version }}.tar.gz"
+    state: absent
+  become: false
+  tags:
+    - fzf
+    - user
+
+# --- git-delta (pinned tarball; wired in as git's pager below) -------------
+- name: Fail clearly if delta has no build for this architecture
+  fail:
+    msg: >-
+      No pinned delta tarball for architecture '{{ ansible_architecture }}'.
+      Add it to delta_arch_map and delta_checksums in
+      roles/common-software/defaults/main.yml.
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture not in delta_arch_map
+  tags:
+    - delta
+    - git
+    - user
+
+- name: Download pinned delta tarball
+  get_url:
+    url: >-
+      https://github.com/dandavison/delta/releases/download/{{ delta_version }}/delta-{{ delta_version }}-{{ delta_arch_map[ansible_architecture] }}-unknown-linux-gnu.tar.gz
+    dest: "/tmp/delta_{{ delta_version }}.tar.gz"
+    checksum: "{{ delta_checksums[ansible_architecture] }}"
+    mode: '0644'
+  become: false
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture in delta_arch_map
+  tags:
+    - delta
+    - git
+    - user
+
+- name: Extract delta into ~/.local/bin
+  unarchive:
+    src: "/tmp/delta_{{ delta_version }}.tar.gz"
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
+    remote_src: yes
+    extra_opts:
+      - "--strip-components=1"
+    include:
+      - "delta-{{ delta_version }}-{{ delta_arch_map[ansible_architecture] }}-unknown-linux-gnu/delta"
+    mode: '0755'
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/delta"
+  become: false
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture in delta_arch_map
+  tags:
+    - delta
+    - git
+    - user
+
+- name: Remove the downloaded delta tarball
+  file:
+    path: "/tmp/delta_{{ delta_version }}.tar.gz"
+    state: absent
+  become: false
+  tags:
+    - delta
+    - git
+    - user
+
+- name: Configure git to page diffs through delta
+  git_config:
+    name: "{{ item.name }}"
+    scope: global
+    value: "{{ item.value }}"
+  loop:
+    - { name: core.pager, value: "delta" }
+    - { name: interactive.diffFilter, value: "delta --color-only" }
+    - { name: delta.navigate, value: "true" }   # n/N jump between files in a diff
+  become: false
+  when: configure_git | default(true)
+  tags:
+    - delta
     - git
     - user
 

@@ -33,3 +33,26 @@ lazygit_arch_map:
 lazygit_checksums:
   x86_64: "sha256:f8ea237c41f194cd799b48505518bfdaae4edf5a2ad6bd3d898e939785ee4532"
   aarch64: "sha256:8b7ca3b344e60340ad1f89f29b9868ee39bcaba5bb92ee818bbe65476bb8b6e7"
+
+# fzf - fuzzy finder. Pinned tarball rather than apt: the zshrc keybindings
+# (Ctrl-R history, Ctrl-T files, Alt-C cd) use `fzf --zsh`, which needs
+# >= 0.48; Ubuntu's apt package is far older. Checksums are upstream's own
+# fzf_<version>_checksums.txt.
+fzf_version: "0.74.3"
+fzf_arch_map:
+  x86_64: "amd64"
+  aarch64: "arm64"
+fzf_checksums:
+  x86_64: "sha256:3501a595e4b5c40a6b047340a0e8f805c46fd4e61ef95ef8a136ba8c61cf6f22"
+  aarch64: "sha256:4a17a17b46bd0c4873e995533de508995c11572c0be0664a5dbcf13f60463046"
+
+# git-delta - syntax-highlighting git pager, wired in as core.pager below.
+# Upstream publishes no checksum files; these were computed from the
+# downloaded release artifacts when the version was pinned.
+delta_version: "0.19.2"
+delta_arch_map:
+  x86_64: "x86_64"
+  aarch64: "aarch64"
+delta_checksums:
+  x86_64: "sha256:8e695c5f586a8c53d6c3b01be0b4a422ed218bfed2a56191caebe373a1c18ab2"
+  aarch64: "sha256:0bfce159a5cddd5feb3d6db4a616d883ff51253ce08ac7ec11cb1d208cfaab9e"

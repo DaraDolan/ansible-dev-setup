@@ -27,3 +27,6 @@ software_packages:
   - php-tokenizer
   - ripgrep
   - fd-find
+  - bat        # better cat; Ubuntu installs the binary as batcat, symlinked below
+  - jq
+  - tmux
