@@ -83,10 +83,14 @@ alias os='cd ~/code/php/open-source'
 
 # Ollama - use Windows binary when running in WSL2
 if grep -qi microsoft /proc/version 2>/dev/null; then
-  OLLAMA_WIN=$(ls /mnt/c/Users/*/AppData/Local/Programs/Ollama/ollama.exe 2>/dev/null | head -1)
-  if [[ -n "$OLLAMA_WIN" ]]; then
-    alias ollama="$OLLAMA_WIN"
+  # (N) is zsh's null-glob qualifier. Without it an unmatched pattern is a
+  # hard "no matches found" error rather than an empty expansion, and zsh
+  # raises it before `ls` ever runs, so redirecting stderr does not help.
+  ollama_win=(/mnt/c/Users/*/AppData/Local/Programs/Ollama/ollama.exe(N))
+  if (( ${#ollama_win} )); then
+    alias ollama="${ollama_win[1]}"
   fi
+  unset ollama_win
 fi
 
 # Laravel development aliases and functions (deployed by roles/laravel)
