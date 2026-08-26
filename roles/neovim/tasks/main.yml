@@ -444,11 +444,11 @@
   environment:
     CC: gcc
   timeout: 300
-
-  # Fix nvim-lspconfig ts_ls bug (double-wrapped table issue)
   tags:
     - neovim
     - user
+
+# Fix nvim-lspconfig ts_ls bug (double-wrapped table issue)
 - name: Fix ts_ls.lua root_dir bug in nvim-lspconfig
   replace:
     path: "{{ lookup('env', 'HOME') }}/.local/share/nvim/lazy/nvim-lspconfig/lsp/ts_ls.lua"
@@ -456,13 +456,13 @@
     replace: 'local project_root = vim.fs.root(bufnr, project_root_markers)'
   become: false
   ignore_errors: yes
-
-  # Verification
-  # become: false matters — without it this inherits the play-level `become: yes`
-  # and reports root's Neovim health against root's config, not yours.
   tags:
     - neovim
     - user
+
+# Verification
+# become: false matters — without it this inherits the play-level `become: yes`
+# and reports root's Neovim health against root's config, not yours.
 - name: Verify Neovim setup with healthcheck
   shell: |
     export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
