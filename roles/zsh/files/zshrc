@@ -97,6 +97,14 @@ alias os='cd ~/code/php/open-source'
 if grep -qi microsoft /proc/version 2>/dev/null; then
   alias o="explorer.exe ."
   alias cwd="pwd && pwd | tr -d '\n' | clip.exe && echo 'Copied to clipboard 📁'"
+  # (N) is zsh's null-glob qualifier. Without it an unmatched pattern is a
+  # hard "no matches found" error rather than an empty expansion, and zsh
+  # raises it before `ls` ever runs, so redirecting stderr does not help.
+  ollama_win=(/mnt/c/Users/*/AppData/Local/Programs/Ollama/ollama.exe(N))
+  if (( ${#ollama_win} )); then
+    alias ollama="${ollama_win[1]}"
+  fi
+  unset ollama_win
 elif [[ "$OSTYPE" == darwin* ]]; then
   alias o="open ."
   alias cwd="pwd && pwd | tr -d '\n' | pbcopy && echo 'Copied to clipboard 📁'"

@@ -483,11 +483,23 @@
         executable: /bin/bash
       changed_when: false
 
+    # The only task in the block that runs as root, which breaks every
+    # user-scoped way of reaching Node. Three separate traps, in the order we
+    # hit them:
+    #   1. bare `$HOME` expands to /root under become, so the shims path
+    #      pointed at /root/.local/share/mise/shims -> "command not found: npx"
+    #   2. `mise activate` under root's HOME drops the shims back off PATH and
+    #      npx then resolves to /mnt/c/Program Files/nodejs/npx over WSL
+    #      interop (npm/npx/corepack ship as extensionless scripts, so unlike
+    #      bare `node` they ARE reachable from Linux)
+    #   3. the shims themselves re-resolve through the invoking user's mise
+    #      state, so as root they abort with "npx is not a valid shim"
+    # So: no $HOME, no mise, no npx. Call the real binary directly off the
+    # versioned install dir. See mise_node_bin in defaults/main.yml.
     - name: Install Playwright system dependencies
       shell: |
-        export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-        eval "$({{ lookup('env', 'HOME') }}/.local/bin/mise activate bash)"
-        npx playwright install-deps
+        export PATH="{{ mise_node_bin }}:$PATH"
+        playwright install-deps
       args:
         executable: /bin/bash
       become: true
