@@ -1,4 +1,25 @@
 -- Plugin definitions for lazy.nvim
+
+-- Detect a Laravel Sail project so PHP tooling (Pint, PHPStan) runs the
+-- container's PHP instead of silently falling back to the host's
+-- apt-installed PHP. Both tools live at vendor/bin/<tool>, a Composer bin
+-- proxy script starting `#!/usr/bin/env php` — invoked directly from the
+-- host, `env` resolves that shebang against the host PATH, not the PHP
+-- inside the Sail container, so results (and version warnings) reflect the
+-- wrong PHP entirely.
+local function find_sail(dirname)
+  local composer = vim.fs.find("composer.json", { path = dirname or vim.fn.getcwd(), upward = true })[1]
+  if not composer then
+    return nil
+  end
+  local root = vim.fs.dirname(composer)
+  local sail = root .. "/vendor/bin/sail"
+  if vim.fn.executable(sail) == 1 then
+    return sail, root
+  end
+  return nil
+end
+
 return {
   -- Colorscheme
   {
@@ -571,6 +592,23 @@ return {
         php = { "phpstan" },
         python = { "ruff" },
       }
+      -- Route PHPStan through Sail when present (see find_sail above), so
+      -- it analyses with the container's PHP/extensions instead of the
+      -- host's.
+      lint.linters.phpstan.cmd = function()
+        local sail = find_sail(vim.fn.expand("%:p:h"))
+        if sail then
+          return sail
+        end
+        local local_bin = vim.fn.fnamemodify("vendor/bin/phpstan", ":p")
+        return vim.loop.fs_stat(local_bin) and local_bin or "phpstan"
+      end
+      lint.linters.phpstan.args = function()
+        if find_sail(vim.fn.expand("%:p:h")) then
+          return { "php", "vendor/bin/phpstan", "analyze", "--error-format=json", "--no-progress" }
+        end
+        return { "analyze", "--error-format=json", "--no-progress" }
+      end
       -- Run linter on save and when entering a buffer
       vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
         callback = function()
@@ -598,7 +636,20 @@ return {
     },
     event = { "VeryLazy" },
     config = function()
-      require("laravel").setup({})
+      -- laravel.nvim shells out to `php`/`composer` itself (model/route
+      -- completion, tinker, artisan) via its own "environment" concept,
+      -- entirely separate from the Pint/PHPStan routing above. It defaults
+      -- to `environments.default = "local"` (plain host php) until told
+      -- otherwise, which is exactly the same host-vs-Sail-PHP mismatch as
+      -- Pint/PHPStan, just in a different codepath. Prompt once per project
+      -- instead of hardcoding "sail" globally, since not every Laravel
+      -- project here necessarily uses Sail; the answer is remembered in
+      -- ~/.local/share/nvim/laravel/config.json.
+      require("laravel").setup({
+        environments = {
+          ask_on_boot = true,
+        },
+      })
     end,
   },
 
@@ -651,6 +702,31 @@ return {
       },
     },
     opts = {
+      -- Route Pint through Sail when present (see find_sail above), so it
+      -- runs with the container's PHP/extensions instead of the host's.
+      -- $RELATIVE_FILEPATH (not $FILENAME) because the container only sees
+      -- the project mounted at /var/www/html, not the host's absolute path.
+      formatters = {
+        pint = {
+          command = function(self, ctx)
+            local sail = find_sail(ctx.dirname)
+            if sail then
+              return sail
+            end
+            return require("conform.util").find_executable({ "vendor/bin/pint" }, "pint")(self, ctx)
+          end,
+          args = function(self, ctx)
+            if find_sail(ctx.dirname) then
+              return { "php", "vendor/bin/pint", "$RELATIVE_FILEPATH" }
+            end
+            return { "$FILENAME" }
+          end,
+          cwd = function(self, ctx)
+            local _, root = find_sail(ctx.dirname)
+            return root
+          end,
+        },
+      },
       formatters_by_ft = {
         -- PHP - Laravel Pint (install globally: composer global require laravel/pint)
         php = { "pint" },
