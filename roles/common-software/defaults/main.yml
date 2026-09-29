@@ -6,8 +6,8 @@
 configure_git: true
 
 # Git user settings - override these for your personal preferences
-git_user_name: "{{ ansible_user_id | title }}"
-git_user_email: "{{ ansible_user_id }}@example.com"
+git_user_name: "{{ ansible_facts.user_id | title }}"
+git_user_email: "{{ ansible_facts.user_id }}@example.com"
 
 # Git global settings
 git_default_branch: "main"

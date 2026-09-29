@@ -1,20 +1,20 @@
 ---
 - name: Include platform-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  include_vars: "{{ ansible_facts.os_family }}.yml"
 
 # Install Neovim repository and dependencies
 - name: Install software-properties-common (for add-apt-repository)
   apt:
     name: software-properties-common
     state: present
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   become: true
 
 - name: Remove Neovim unstable PPA (if present)
   apt_repository:
     repo: ppa:neovim-ppa/unstable
     state: absent
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   become: true
   ignore_errors: true
 
@@ -22,7 +22,7 @@
   apt_repository:
     repo: ppa:neovim-ppa/stable
     state: absent
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   become: true
   ignore_errors: true
 
@@ -30,7 +30,7 @@
   apt:
     name: neovim
     state: absent
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   become: true
 
 # Install Neovim from the official static tarball into $HOME.
@@ -42,11 +42,11 @@
 # under `--tags user` on a machine where you have no admin rights.
 - name: Select the Neovim release asset for this architecture
   set_fact:
-    neovim_asset: "nvim-linux-{{ neovim_arch_map[ansible_architecture] }}.tar.gz"
-    neovim_checksum: "{{ neovim_tarball_checksums[ansible_architecture] }}"
+    neovim_asset: "nvim-linux-{{ neovim_arch_map[ansible_facts.architecture] }}.tar.gz"
+    neovim_checksum: "{{ neovim_tarball_checksums[ansible_facts.architecture] }}"
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture in neovim_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture in neovim_arch_map
   tags:
     - neovim
     - user
@@ -54,12 +54,12 @@
 - name: Fail clearly on an unsupported CPU architecture
   fail:
     msg: >-
-      No pinned Neovim tarball for architecture '{{ ansible_architecture }}'.
+      No pinned Neovim tarball for architecture '{{ ansible_facts.architecture }}'.
       Add it to neovim_arch_map and neovim_tarball_checksums in
       roles/neovim/defaults/main.yml.
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture not in neovim_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture not in neovim_arch_map
   tags:
     - neovim
     - user
@@ -94,8 +94,8 @@
     pinned_tarball_extra_opts:
       - "--strip-components=1"
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture in neovim_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture in neovim_arch_map
   tags:
     - neovim
     - user
@@ -108,7 +108,7 @@
     name: nvim
     state: absent
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   failed_when: false
   tags:
     - neovim
@@ -118,7 +118,7 @@
     name: "{{ item }}"
     state: present
   with_items: "{{ neovim_packages }}"
-  when: ansible_os_family == "Darwin"
+  when: ansible_facts.os_family == "Darwin"
 
 - name: Create Python virtual environment for Neovim (using uv)
   shell: '{{ lookup("env", "HOME") }}/.local/bin/uv venv --python 3 "{{ lookup("env", "HOME") }}/.config/nvim/env"'
@@ -326,12 +326,12 @@
     name: font-hack-nerd-font
     state: present
     cask: yes
-  when: ansible_os_family == "Darwin"
+  when: ansible_facts.os_family == "Darwin"
 
 - name: Inform about manual font installation (Linux)
   debug:
     msg: "For the best experience, please install a Nerd Font manually: https://www.nerdfonts.com/font-downloads"
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 # Install plugins and compile treesitter parsers (handlers/main.yml) now, not
 # at the end of the play: the fzf-native build, the ts_ls patch and the
@@ -350,7 +350,7 @@
   register: fzf_build
   failed_when: false
   become: false
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - neovim
     - user

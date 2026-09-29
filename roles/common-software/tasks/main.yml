@@ -1,12 +1,12 @@
 ---
 - name: Include platform-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  include_vars: "{{ ansible_facts.os_family }}.yml"
 
 - name: Update apt cache
   apt:
     update_cache: yes
     cache_valid_time: 3600
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   become: true
 
 - name: Install packages (Ubuntu)
@@ -14,7 +14,7 @@
     name: "{{ software_packages }}"
     state: present
     force_apt_get: yes
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   become: true
 
 - name: Symlink fdfind to fd (Ubuntu's fd-find package installs as fdfind)
@@ -24,7 +24,7 @@
     state: link
     force: yes
   become: false
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 - name: Symlink batcat to bat (Ubuntu's bat package installs as batcat)
   file:
@@ -33,7 +33,7 @@
     state: link
     force: yes
   become: false
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 - name: Install PHP CLI (for Composer, Artisan, Pint)
   apt:
@@ -41,14 +41,14 @@
       - php-cli
       - unzip
     state: present
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   become: true
 
 - name: Remove snap Node.js installation (migrating to mise)
   snap:
     name: node
     state: absent
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   become: true
   ignore_errors: true
 
@@ -57,7 +57,7 @@
     name: "{{ software_packages }}"
     state: present
     update_homebrew: yes
-  when: ansible_os_family == "Darwin"
+  when: ansible_facts.os_family == "Darwin"
 
 - name: Install apt-utils
   apt:
@@ -65,14 +65,14 @@
     state: present
     update_cache: yes
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 - name: Install libc-bin
   apt:
     name: libc-bin
     state: present
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   ignore_errors: true
 
 - name: Install locales
@@ -80,7 +80,7 @@
     name: locales
     state: present
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   ignore_errors: true
 
 - name: Ensure en_US.UTF-8 locale is available
@@ -90,14 +90,14 @@
     line: "en_US.UTF-8 UTF-8"
     state: present
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   register: locale_gen_file
   ignore_errors: true
 
 - name: Generate locales
   command: locale-gen
   become: true
-  when: ansible_os_family == "Debian" and locale_gen_file is success and locale_gen_file.changed
+  when: ansible_facts.os_family == "Debian" and locale_gen_file is success and locale_gen_file.changed
   ignore_errors: true
 
 - name: Set environment variables for UTF-8 support
@@ -109,7 +109,7 @@
       export LANGUAGE=en_US:en
       export LC_ALL=en_US.UTF-8
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   ignore_errors: true
 
 # Install Claude Code via native installer (enables auto-update)
@@ -537,7 +537,7 @@
   command: dpkg --print-architecture
   register: dpkg_arch
   changed_when: false
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - github
 
@@ -547,7 +547,7 @@
     state: directory
     mode: '0755'
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - github
 
@@ -557,7 +557,7 @@
     dest: /etc/apt/keyrings/githubcli-archive-keyring.gpg
     mode: '0644'
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - github
 
@@ -567,7 +567,7 @@
     filename: github-cli
     state: present
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - github
 
@@ -577,7 +577,7 @@
     state: present
     update_cache: yes
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - github
 
@@ -594,7 +594,7 @@
     state: directory
     mode: '0755'
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - glow
     - markdown
@@ -604,7 +604,7 @@
   args:
     creates: /etc/apt/keyrings/charm.gpg
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - glow
     - markdown
@@ -615,7 +615,7 @@
     filename: charm
     state: present
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - glow
     - markdown
@@ -626,7 +626,7 @@
     state: present
     update_cache: yes
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - glow
     - markdown
@@ -659,12 +659,12 @@
 - name: Fail clearly if lazygit has no build for this architecture
   fail:
     msg: >-
-      No pinned lazygit tarball for architecture '{{ ansible_architecture }}'.
+      No pinned lazygit tarball for architecture '{{ ansible_facts.architecture }}'.
       Add it to lazygit_arch_map and lazygit_checksums in
       roles/common-software/defaults/main.yml.
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture not in lazygit_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture not in lazygit_arch_map
   tags:
     - lazygit
     - git
@@ -683,15 +683,15 @@
     pinned_tarball_name: lazygit
     pinned_tarball_version: "{{ lazygit_version }}"
     pinned_tarball_url: >-
-      https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_linux_{{ lazygit_arch_map[ansible_architecture] }}.tar.gz
-    pinned_tarball_checksum: "{{ lazygit_checksums[ansible_architecture] }}"
+      https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_linux_{{ lazygit_arch_map[ansible_facts.architecture] }}.tar.gz
+    pinned_tarball_checksum: "{{ lazygit_checksums[ansible_facts.architecture] }}"
     pinned_tarball_bin: lazygit
     pinned_tarball_include:
       - lazygit
     pinned_tarball_mode: '0755'
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture in lazygit_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture in lazygit_arch_map
   tags:
     - lazygit
     - git
@@ -701,12 +701,12 @@
 - name: Fail clearly if fzf has no build for this architecture
   fail:
     msg: >-
-      No pinned fzf tarball for architecture '{{ ansible_architecture }}'.
+      No pinned fzf tarball for architecture '{{ ansible_facts.architecture }}'.
       Add it to fzf_arch_map and fzf_checksums in
       roles/common-software/defaults/main.yml.
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture not in fzf_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture not in fzf_arch_map
   tags:
     - fzf
     - user
@@ -723,15 +723,15 @@
     pinned_tarball_name: fzf
     pinned_tarball_version: "{{ fzf_version }}"
     pinned_tarball_url: >-
-      https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_{{ fzf_arch_map[ansible_architecture] }}.tar.gz
-    pinned_tarball_checksum: "{{ fzf_checksums[ansible_architecture] }}"
+      https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_{{ fzf_arch_map[ansible_facts.architecture] }}.tar.gz
+    pinned_tarball_checksum: "{{ fzf_checksums[ansible_facts.architecture] }}"
     pinned_tarball_bin: fzf
     pinned_tarball_include:
       - fzf
     pinned_tarball_mode: '0755'
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture in fzf_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture in fzf_arch_map
   tags:
     - fzf
     - user
@@ -740,12 +740,12 @@
 - name: Fail clearly if delta has no build for this architecture
   fail:
     msg: >-
-      No pinned delta tarball for architecture '{{ ansible_architecture }}'.
+      No pinned delta tarball for architecture '{{ ansible_facts.architecture }}'.
       Add it to delta_arch_map and delta_checksums in
       roles/common-software/defaults/main.yml.
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture not in delta_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture not in delta_arch_map
   tags:
     - delta
     - git
@@ -764,17 +764,17 @@
     pinned_tarball_name: delta
     pinned_tarball_version: "{{ delta_version }}"
     pinned_tarball_url: >-
-      https://github.com/dandavison/delta/releases/download/{{ delta_version }}/delta-{{ delta_version }}-{{ delta_arch_map[ansible_architecture] }}-unknown-linux-gnu.tar.gz
-    pinned_tarball_checksum: "{{ delta_checksums[ansible_architecture] }}"
+      https://github.com/dandavison/delta/releases/download/{{ delta_version }}/delta-{{ delta_version }}-{{ delta_arch_map[ansible_facts.architecture] }}-unknown-linux-gnu.tar.gz
+    pinned_tarball_checksum: "{{ delta_checksums[ansible_facts.architecture] }}"
     pinned_tarball_bin: delta
     pinned_tarball_extra_opts:
       - "--strip-components=1"
     pinned_tarball_include:
-      - "delta-{{ delta_version }}-{{ delta_arch_map[ansible_architecture] }}-unknown-linux-gnu/delta"
+      - "delta-{{ delta_version }}-{{ delta_arch_map[ansible_facts.architecture] }}-unknown-linux-gnu/delta"
     pinned_tarball_mode: '0755'
   when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture in delta_arch_map
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture in delta_arch_map
   tags:
     - delta
     - git
@@ -804,7 +804,7 @@
   args:
     creates: /etc/apt/keyrings/cloud.google.gpg
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - gcloud
     - cloud
@@ -815,7 +815,7 @@
     filename: google-cloud-sdk
     state: present
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - gcloud
     - cloud
@@ -826,7 +826,7 @@
     state: present
     update_cache: yes
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - gcloud
     - cloud
@@ -839,18 +839,18 @@
   args:
     creates: /etc/apt/keyrings/microsoft.gpg
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - azure
     - cloud
 
 - name: Add Azure CLI apt repository
   apt_repository:
-    repo: "deb [arch={{ dpkg_arch.stdout | default('amd64') }} signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
+    repo: "deb [arch={{ dpkg_arch.stdout | default('amd64') }} signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_facts.distribution_release }} main"
     filename: azure-cli
     state: present
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - azure
     - cloud
@@ -861,7 +861,7 @@
     state: present
     update_cache: yes
   become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
   tags:
     - azure
     - cloud
@@ -873,7 +873,7 @@
 # Install win32yank for WSL2 system clipboard support (used by Neovim's unnamedplus clipboard)
 - name: Check if running under WSL2
   set_fact:
-    is_wsl2: "{{ 'microsoft' in ansible_kernel | lower }}"
+    is_wsl2: "{{ 'microsoft' in ansible_facts.kernel | lower }}"
   tags:
     - clipboard
     - neovim

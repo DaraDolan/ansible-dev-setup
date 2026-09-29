@@ -13,16 +13,16 @@
     - name: Assert the target platform is supported
       ansible.builtin.assert:
         that:
-          - ansible_os_family == "Debian"
+          - ansible_facts.os_family == "Debian"
         fail_msg: >-
-          Unsupported platform: ansible_os_family={{ ansible_os_family }}
-          ({{ ansible_distribution | default('unknown') }}
-          {{ ansible_distribution_version | default('') }}).
+          Unsupported platform: ansible_facts.os_family={{ ansible_facts.os_family }}
+          ({{ ansible_facts.distribution | default('unknown') }}
+          {{ ansible_facts.distribution_version | default('') }}).
           This playbook supports Debian/Ubuntu only, including under WSL2.
           macOS support is incomplete and would silently half-install.
         success_msg: >-
-          Platform supported: {{ ansible_distribution }}
-          {{ ansible_distribution_version }}{{ ' (WSL2)' if 'microsoft' in ansible_kernel | lower else '' }}
+          Platform supported: {{ ansible_facts.distribution }}
+          {{ ansible_facts.distribution_version }}{{ ' (WSL2)' if 'microsoft' in ansible_facts.kernel | lower else '' }}
       become: false
       tags: always
 

@@ -16,7 +16,7 @@ neovim_tarball_checksums:
   x86_64: "sha256:012bf3fcac5ade43914df3f174668bf64d05e049a4f032a388c027b1ebd78628"
   aarch64: "sha256:ceb7e88c6b681f0515d135dcdfad54f5eb4373b25ce6172197cd9a69c758063f"
 
-# ansible_architecture -> the arch string used in the release asset filename
+# ansible_facts.architecture -> the arch string used in the release asset filename
 neovim_arch_map:
   x86_64: "x86_64"
   aarch64: "arm64"

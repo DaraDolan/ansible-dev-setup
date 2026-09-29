@@ -237,8 +237,8 @@ The following variables can be customized in `personal-config.yml`:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `git_user_name` | `{{ ansible_user_id \| title }}` | Git user name for commits |
-| `git_user_email` | `{{ ansible_user_id }}@example.com` | Git user email for commits |
+| `git_user_name` | `{{ ansible_facts.user_id \| title }}` | Git user name for commits |
+| `git_user_email` | `{{ ansible_facts.user_id }}@example.com` | Git user email for commits |
 | `git_default_branch` | `main` | Default branch name for new repositories |
 | `git_pull_rebase` | `false` | Whether to rebase or merge on git pull |
 | `git_config_scope` | `global` | Git config scope (global or local) |
