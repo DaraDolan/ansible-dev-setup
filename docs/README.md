@@ -127,6 +127,10 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
 - **Neovim Config**: `~/.config/nvim/`
 - **Zsh Config**: `~/.zshrc` 
 
+### Keeping Tools Up to Date
+- **[⬆️ Updating Pinned Tools](updating-pinned-tools.md)** - Neovim, lazygit, fzf, delta, eza, starship, win32yank
+  - `scripts/update-pinned.py check` shows what's outdated; or ask Claude Code to "update my tools"
+
 ### Directory Structure
 ```
 ~/development/

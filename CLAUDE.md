@@ -216,6 +216,21 @@ ansible-playbook update-config.yml
 # Without reinstalling packages or dependencies
 ```
 
+### Updating Pinned Tools
+Neovim, lazygit, fzf, delta, eza, starship and win32yank are pinned GitHub
+releases (version + sha256 in role defaults, installed via
+`roles/pinned-tarball`). Never edit those pins by hand — use the script,
+which takes checksums from the real release assets. The `update-pinned`
+skill wraps the full workflow (release-note review, approval, one commit per
+tool). Full guide: `docs/updating-pinned-tools.md`.
+```bash
+scripts/update-pinned.py check          # pinned vs latest
+scripts/update-pinned.py notes <tool>   # release notes since the pin
+scripts/update-pinned.py bump <tool>    # write new version + checksums
+scripts/update-pinned.py verify         # pinned checksums still match
+# then apply: ansible-playbook playbook.yml -e @personal-config.yml --tags <tag> -K
+```
+
 ### Ansible Project Structure
 ```
 roles/
