@@ -68,6 +68,12 @@ eza_checksums:
   x86_64: "sha256:35c70c5c43c29108075e58b893234c67ef585f0b53a7eaf8e9e7d4eec9f339b4"
   aarch64: "sha256:40b87ae8628aa2ff0f0d2dc24ab52f689631366385c3da630bae745671fd71ec"
 
+# win32yank - Windows clipboard bridge for Neovim under WSL2 (x64 only).
+# Neither upstream nor GitHub publishes a checksum for this asset; the sha256
+# was computed from the download (two independent downloads matched).
+win32yank_version: "0.1.1"
+win32yank_checksum: "sha256:247c9a05b94387a884b49d3db13f806b1677dfc38020f955f719be6902260cd6"
+
 # The real (non-shim) Node bin directory mise installs into. "lts" matches the
 # `node = "lts"` pin written to ~/.config/mise/config.toml by this role.
 #
