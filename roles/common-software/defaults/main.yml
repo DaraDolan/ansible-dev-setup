@@ -38,13 +38,13 @@ lazygit_checksums:
 # (Ctrl-R history, Ctrl-T files, Alt-C cd) use `fzf --zsh`, which needs
 # >= 0.48; Ubuntu's apt package is far older. Checksums are upstream's own
 # fzf_<version>_checksums.txt.
-fzf_version: "0.74.3"
+fzf_version: "0.74.4"
 fzf_arch_map:
   x86_64: "amd64"
   aarch64: "arm64"
 fzf_checksums:
-  x86_64: "sha256:3501a595e4b5c40a6b047340a0e8f805c46fd4e61ef95ef8a136ba8c61cf6f22"
-  aarch64: "sha256:4a17a17b46bd0c4873e995533de508995c11572c0be0664a5dbcf13f60463046"
+  x86_64: "sha256:05e6813a337cc722c3ed07e54a764b75cc5d671e2e60459db0ba696ee5fa7504"
+  aarch64: "sha256:5d673b849f494f0d64ec471d8640b153ca8849e3846a31da17abdcfce8df6b46"
 
 # git-delta - syntax-highlighting git pager, wired in as core.pager below.
 # Upstream publishes no checksum files; these were computed from the
