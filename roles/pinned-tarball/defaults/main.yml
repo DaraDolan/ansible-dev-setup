@@ -1,0 +1,25 @@
+---
+# Shared installer for pinned release tarballs (Neovim, lazygit, fzf, delta,
+# starship). Callers pass name/version/url/checksum/bin; everything else has
+# a default. Versions and checksums stay in the calling role's defaults.
+#
+# Required:
+#   pinned_tarball_name      e.g. "lazygit"
+#   pinned_tarball_version   e.g. "0.64.1"
+#   pinned_tarball_url       full release asset URL
+#   pinned_tarball_checksum  "sha256:..."
+#   pinned_tarball_bin       binary path relative to the install dir,
+#                            e.g. "lazygit" or "bin/nvim"
+
+# Versioned install directory. Its binary's existence is the "already
+# installed" check, so bumping the version in defaults installs afresh and
+# the old version stays on disk for rollback.
+pinned_tarball_install_dir: "{{ lookup('env', 'HOME') }}/.local/share/{{ pinned_tarball_name }}-releases/{{ pinned_tarball_version }}"
+
+# Where the binary is exposed on PATH (symlink into the install dir).
+pinned_tarball_link: "{{ lookup('env', 'HOME') }}/.local/bin/{{ pinned_tarball_bin | basename }}"
+
+# Passed straight through to unarchive.
+pinned_tarball_extra_opts: []
+pinned_tarball_include: []
+pinned_tarball_mode: null

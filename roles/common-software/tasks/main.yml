@@ -676,56 +676,28 @@
     - git
     - user
 
-- name: Ensure ~/.local/bin exists for lazygit
-  file:
-    path: "{{ lookup('env', 'HOME') }}/.local/bin"
-    state: directory
-    mode: '0755'
-  become: false
-  tags:
-    - lazygit
-    - git
-    - user
-
-- name: Download pinned lazygit tarball
-  get_url:
-    url: >-
+- name: Install pinned lazygit tarball
+  include_role:
+    name: pinned-tarball
+    apply:
+      become: false
+      tags:
+        - lazygit
+        - git
+        - user
+  vars:
+    pinned_tarball_name: lazygit
+    pinned_tarball_version: "{{ lazygit_version }}"
+    pinned_tarball_url: >-
       https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_linux_{{ lazygit_arch_map[ansible_architecture] }}.tar.gz
-    dest: "/tmp/lazygit_{{ lazygit_version }}.tar.gz"
-    checksum: "{{ lazygit_checksums[ansible_architecture] }}"
-    mode: '0644'
-  become: false
-  when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture in lazygit_arch_map
-  tags:
-    - lazygit
-    - git
-    - user
-
-- name: Extract lazygit into ~/.local/bin
-  unarchive:
-    src: "/tmp/lazygit_{{ lazygit_version }}.tar.gz"
-    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
-    remote_src: yes
-    include:
+    pinned_tarball_checksum: "{{ lazygit_checksums[ansible_architecture] }}"
+    pinned_tarball_bin: lazygit
+    pinned_tarball_include:
       - lazygit
-    mode: '0755'
-    creates: "{{ lookup('env', 'HOME') }}/.local/bin/lazygit"
-  become: false
+    pinned_tarball_mode: '0755'
   when:
     - ansible_os_family == "Debian"
     - ansible_architecture in lazygit_arch_map
-  tags:
-    - lazygit
-    - git
-    - user
-
-- name: Remove the downloaded lazygit tarball
-  file:
-    path: "/tmp/lazygit_{{ lazygit_version }}.tar.gz"
-    state: absent
-  become: false
   tags:
     - lazygit
     - git
@@ -745,43 +717,27 @@
     - fzf
     - user
 
-- name: Download pinned fzf tarball
-  get_url:
-    url: >-
+- name: Install pinned fzf tarball
+  include_role:
+    name: pinned-tarball
+    apply:
+      become: false
+      tags:
+        - fzf
+        - user
+  vars:
+    pinned_tarball_name: fzf
+    pinned_tarball_version: "{{ fzf_version }}"
+    pinned_tarball_url: >-
       https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_{{ fzf_arch_map[ansible_architecture] }}.tar.gz
-    dest: "/tmp/fzf_{{ fzf_version }}.tar.gz"
-    checksum: "{{ fzf_checksums[ansible_architecture] }}"
-    mode: '0644'
-  become: false
-  when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture in fzf_arch_map
-  tags:
-    - fzf
-    - user
-
-- name: Extract fzf into ~/.local/bin
-  unarchive:
-    src: "/tmp/fzf_{{ fzf_version }}.tar.gz"
-    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
-    remote_src: yes
-    include:
+    pinned_tarball_checksum: "{{ fzf_checksums[ansible_architecture] }}"
+    pinned_tarball_bin: fzf
+    pinned_tarball_include:
       - fzf
-    mode: '0755'
-    creates: "{{ lookup('env', 'HOME') }}/.local/bin/fzf"
-  become: false
+    pinned_tarball_mode: '0755'
   when:
     - ansible_os_family == "Debian"
     - ansible_architecture in fzf_arch_map
-  tags:
-    - fzf
-    - user
-
-- name: Remove the downloaded fzf tarball
-  file:
-    path: "/tmp/fzf_{{ fzf_version }}.tar.gz"
-    state: absent
-  become: false
   tags:
     - fzf
     - user
@@ -801,47 +757,30 @@
     - git
     - user
 
-- name: Download pinned delta tarball
-  get_url:
-    url: >-
+- name: Install pinned delta tarball
+  include_role:
+    name: pinned-tarball
+    apply:
+      become: false
+      tags:
+        - delta
+        - git
+        - user
+  vars:
+    pinned_tarball_name: delta
+    pinned_tarball_version: "{{ delta_version }}"
+    pinned_tarball_url: >-
       https://github.com/dandavison/delta/releases/download/{{ delta_version }}/delta-{{ delta_version }}-{{ delta_arch_map[ansible_architecture] }}-unknown-linux-gnu.tar.gz
-    dest: "/tmp/delta_{{ delta_version }}.tar.gz"
-    checksum: "{{ delta_checksums[ansible_architecture] }}"
-    mode: '0644'
-  become: false
-  when:
-    - ansible_os_family == "Debian"
-    - ansible_architecture in delta_arch_map
-  tags:
-    - delta
-    - git
-    - user
-
-- name: Extract delta into ~/.local/bin
-  unarchive:
-    src: "/tmp/delta_{{ delta_version }}.tar.gz"
-    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
-    remote_src: yes
-    extra_opts:
+    pinned_tarball_checksum: "{{ delta_checksums[ansible_architecture] }}"
+    pinned_tarball_bin: delta
+    pinned_tarball_extra_opts:
       - "--strip-components=1"
-    include:
+    pinned_tarball_include:
       - "delta-{{ delta_version }}-{{ delta_arch_map[ansible_architecture] }}-unknown-linux-gnu/delta"
-    mode: '0755'
-    creates: "{{ lookup('env', 'HOME') }}/.local/bin/delta"
-  become: false
+    pinned_tarball_mode: '0755'
   when:
     - ansible_os_family == "Debian"
     - ansible_architecture in delta_arch_map
-  tags:
-    - delta
-    - git
-    - user
-
-- name: Remove the downloaded delta tarball
-  file:
-    path: "/tmp/delta_{{ delta_version }}.tar.gz"
-    state: absent
-  become: false
   tags:
     - delta
     - git

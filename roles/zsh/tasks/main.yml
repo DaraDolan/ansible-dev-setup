@@ -91,49 +91,25 @@
     - zsh
     - user
 
-- name: Ensure ~/.local/bin exists for starship
-  file:
-    path: "{{ lookup('env', 'HOME') }}/.local/bin"
-    state: directory
-    mode: '0755'
-  become: false
-  tags:
-    - zsh
-    - user
-
-- name: Download pinned starship tarball
-  get_url:
-    url: >-
+- name: Install pinned starship tarball
+  include_role:
+    name: pinned-tarball
+    apply:
+      become: false
+      tags:
+        - zsh
+        - user
+  vars:
+    pinned_tarball_name: starship
+    pinned_tarball_version: "{{ starship_version }}"
+    pinned_tarball_url: >-
       https://github.com/starship/starship/releases/download/v{{ starship_version }}/starship-{{ starship_arch_map[ansible_architecture] }}-unknown-linux-musl.tar.gz
-    dest: "/tmp/starship_{{ starship_version }}.tar.gz"
-    checksum: "{{ starship_checksums[ansible_architecture] }}"
-    mode: '0644'
-  become: false
-  when: ansible_architecture in starship_arch_map
-  tags:
-    - zsh
-    - user
-
-- name: Extract starship into ~/.local/bin
-  unarchive:
-    src: "/tmp/starship_{{ starship_version }}.tar.gz"
-    dest: "{{ lookup('env', 'HOME') }}/.local/bin"
-    remote_src: yes
-    include:
+    pinned_tarball_checksum: "{{ starship_checksums[ansible_architecture] }}"
+    pinned_tarball_bin: starship
+    pinned_tarball_include:
       - starship
-    mode: '0755'
-    creates: "{{ lookup('env', 'HOME') }}/.local/bin/starship"
-  become: false
+    pinned_tarball_mode: '0755'
   when: ansible_architecture in starship_arch_map
-  tags:
-    - zsh
-    - user
-
-- name: Remove the downloaded starship tarball
-  file:
-    path: "/tmp/starship_{{ starship_version }}.tar.gz"
-    state: absent
-  become: false
   tags:
     - zsh
     - user

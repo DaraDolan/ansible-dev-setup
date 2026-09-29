@@ -1,0 +1,61 @@
+---
+# Download, verify and extract a pinned tarball into a versioned directory,
+# then symlink its binary into ~/.local/bin. No sudo needed, so callers can
+# run it under `--tags user`.
+#
+# The download/extract/remove steps only run when the versioned binary is
+# missing. Previously the tarball was deleted after extraction, so get_url
+# re-downloaded it and the remove task re-deleted it on every run.
+- name: "Check whether {{ pinned_tarball_name }} {{ pinned_tarball_version }} is installed"
+  stat:
+    path: "{{ pinned_tarball_install_dir }}/{{ pinned_tarball_bin }}"
+  register: pinned_tarball_installed
+  become: false
+
+- name: "Install {{ pinned_tarball_name }} {{ pinned_tarball_version }}"
+  when: not pinned_tarball_installed.stat.exists
+  become: false
+  block:
+    - name: "Create versioned {{ pinned_tarball_name }} install directory"
+      file:
+        path: "{{ pinned_tarball_install_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: "Download pinned {{ pinned_tarball_name }} tarball"
+      get_url:
+        url: "{{ pinned_tarball_url }}"
+        dest: "/tmp/{{ pinned_tarball_name }}_{{ pinned_tarball_version }}.tar.gz"
+        checksum: "{{ pinned_tarball_checksum }}"
+        mode: '0644'
+
+    - name: "Extract {{ pinned_tarball_name }} tarball"
+      unarchive:
+        src: "/tmp/{{ pinned_tarball_name }}_{{ pinned_tarball_version }}.tar.gz"
+        dest: "{{ pinned_tarball_install_dir }}"
+        remote_src: yes
+        extra_opts: "{{ pinned_tarball_extra_opts }}"
+        include: "{{ pinned_tarball_include }}"
+        mode: "{{ pinned_tarball_mode | default(omit, true) }}"
+
+    - name: "Remove the downloaded {{ pinned_tarball_name }} tarball"
+      file:
+        path: "/tmp/{{ pinned_tarball_name }}_{{ pinned_tarball_version }}.tar.gz"
+        state: absent
+
+- name: "Ensure {{ pinned_tarball_link | dirname }} exists"
+  file:
+    path: "{{ pinned_tarball_link | dirname }}"
+    state: directory
+    mode: '0755'
+  become: false
+
+# force: replaces the regular file left by the old direct-to-~/.local/bin
+# installs, and repoints the link when the version changes.
+- name: "Link {{ pinned_tarball_name }} into {{ pinned_tarball_link | dirname }}"
+  file:
+    src: "{{ pinned_tarball_install_dir }}/{{ pinned_tarball_bin }}"
+    dest: "{{ pinned_tarball_link }}"
+    state: link
+    force: yes
+  become: false

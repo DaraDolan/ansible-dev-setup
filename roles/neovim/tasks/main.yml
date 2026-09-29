@@ -74,63 +74,28 @@
     - neovim
     - user
 
-- name: Create versioned Neovim install directory
-  file:
-    path: "{{ neovim_install_root }}/{{ neovim_version }}"
-    state: directory
-    mode: '0755'
-  become: false
-  when: ansible_os_family == "Debian"
-  tags:
-    - neovim
-    - user
-
-- name: Download pinned Neovim tarball
-  get_url:
-    url: "https://github.com/neovim/neovim/releases/download/{{ neovim_version }}/{{ neovim_asset }}"
-    dest: "/tmp/{{ neovim_asset }}"
-    checksum: "{{ neovim_checksum }}"
-    mode: '0644'
-  become: false
-  when: ansible_os_family == "Debian"
-  tags:
-    - neovim
-    - user
-
-- name: Extract Neovim tarball
-  unarchive:
-    src: "/tmp/{{ neovim_asset }}"
-    dest: "{{ neovim_install_root }}/{{ neovim_version }}"
-    remote_src: yes
-    extra_opts:
-      - "--strip-components=1"
-    creates: "{{ neovim_install_root }}/{{ neovim_version }}/bin/nvim"
-  become: false
-  when: ansible_os_family == "Debian"
-  tags:
-    - neovim
-    - user
-
 # nvim resolves its runtime directory from the realpath of the executable,
 # so symlinking bin/nvim keeps ../share/nvim discoverable.
-- name: Link the pinned Neovim into ~/.local/bin
-  file:
-    src: "{{ neovim_install_root }}/{{ neovim_version }}/bin/nvim"
-    dest: "{{ lookup('env', 'HOME') }}/.local/bin/nvim"
-    state: link
-    force: yes
-  become: false
-  when: ansible_os_family == "Debian"
-  tags:
-    - neovim
-    - user
-
-- name: Remove the downloaded Neovim tarball
-  file:
-    path: "/tmp/{{ neovim_asset }}"
-    state: absent
-  become: false
-  when: ansible_os_family == "Debian"
+- name: Install pinned Neovim tarball
+  include_role:
+    name: pinned-tarball
+    apply:
+      become: false
+      tags:
+        - neovim
+        - user
+  vars:
+    pinned_tarball_name: nvim
+    pinned_tarball_version: "{{ neovim_version }}"
+    pinned_tarball_url: "https://github.com/neovim/neovim/releases/download/{{ neovim_version }}/{{ neovim_asset }}"
+    pinned_tarball_checksum: "{{ neovim_checksum }}"
+    pinned_tarball_install_dir: "{{ neovim_install_root }}/{{ neovim_version }}"
+    pinned_tarball_bin: bin/nvim
+    pinned_tarball_extra_opts:
+      - "--strip-components=1"
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_architecture in neovim_arch_map
   tags:
     - neovim
     - user
