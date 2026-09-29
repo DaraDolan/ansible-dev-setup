@@ -226,6 +226,8 @@
     dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/"
     force: yes
   become: false
+  # lua/core/treesitter_parsers.lua holds the parser list.
+  notify: Compile treesitter parsers
   tags:
     - neovim
     - user

@@ -252,13 +252,7 @@ return {
     build = ":TSUpdate",
     config = function()
       local ts = require("nvim-treesitter")
-      local parsers = {
-        "lua", "vim", "vimdoc", "query", -- Neovim
-        "php", "html", "css", "javascript", "typescript", "tsx", -- Web
-        "json", "yaml", "markdown", "markdown_inline", -- Data & Docs
-        "bash", "python", -- Scripts
-        "blade", "vue", -- Laravel specific
-      }
+      local parsers = require("core.treesitter_parsers")
 
       for _, parser in ipairs(parsers) do
         ts.install(parser)

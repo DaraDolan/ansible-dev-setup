@@ -22,10 +22,34 @@
     CC: gcc
   timeout: 600
 
+# Blocks until every parser in lua/core/treesitter_parsers.lua is installed
+# and existing ones are updated, instead of the old `TSUpdate` + `sleep 30`
+# guess. nvim-treesitter's main branch makes install()/update() async tasks;
+# :wait() blocks on them.
+#
+# Success is judged by checking which compiled parsers exist afterwards, not
+# by install()'s return value: the plugin config starts its own installs of
+# the same parsers at startup, and install() reports success for a parser it
+# merely waited on even when that other install failed. Any missing parser,
+# error or timeout exits non-zero via cquit.
 - name: Compile treesitter parsers
   shell: |
     export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-    nvim --headless -c "TSUpdate" -c "sleep 30" -c "qa"
+    nvim --headless -c "lua \
+      local ts = require('nvim-treesitter'); \
+      local want = require('core.treesitter_parsers'); \
+      local ok, err = pcall(function() \
+        ts.install(want):wait(240000); \
+        ts.update():wait(240000); \
+      end); \
+      local have = {}; \
+      for _, lang in ipairs(ts.get_installed('parsers')) do have[lang] = true end; \
+      local missing = vim.tbl_filter(function(lang) return not have[lang] end, want); \
+      if not ok or #missing > 0 then \
+        io.stderr:write('treesitter: ' .. (ok and '' or tostring(err) .. '; ') \
+          .. 'missing parsers: ' .. table.concat(missing, ', ') .. '\n'); \
+        vim.cmd('cquit 1') \
+      end" -c "qa"
   args:
     executable: /bin/bash
   become: false
