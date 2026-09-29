@@ -30,6 +30,7 @@ and then verified by a real `ansible-playbook --tags user` run (74 ok,
 | §5.3 | pint / phpstan / eslint_d / lazygit missing | ✅ Fixed — all four installed and verified resolvable from inside Neovim |
 | §5.4 | Keymap collisions | ✅ Fixed — 4 resolved (3 audited + `<C-k>` found during the work); detector reports 0/134 remaining |
 | §8 item 3 | No-sudo path for locked-down machines | ◐ Partial — `user` tag added across 71 tasks; `bootstrap.sh` not yet written |
+| §3.1, §3.4 | Second full run reported changed=18 (fresh WSL2 Ubuntu 24.04) | ◐ Fixed on `fix/idempotency`, **awaiting a two-run verification**. pynvim blockinfile and `init.lua` touch removed (`options.lua` already sets `python3_host_prog`); lazy.nvim clone is bootstrap-only so `lazy-lock.json` owns its version; the five pinned tarballs go through `roles/pinned-tarball`, which skips download when the versioned binary exists (sandbox-tested: run 2 changed=0, version bump reinstalls); `Lazy! restore`/`TSUpdate` are handlers flushed before the tasks that need plugins; apt refresh uses `cache_valid_time`; obsolete jammy PPA `rm` dropped; `ignore_errors` removed from apt-utils. No `changed_when: false` added. |
 
 **Not yet touched:** §3.1/§3.2 idempotency, §3.4 brittle patching, §3.5
 `update-config.yml` drift, §5.1/§5.2/§5.5/§5.6 dead weight, and the entire
