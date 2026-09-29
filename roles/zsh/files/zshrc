@@ -34,7 +34,18 @@ setopt auto_cd                # type a directory name to cd into it
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias l='ls -lah'
+
+# eza (installed by the playbook) for the listing shortcuts. `ls` itself is
+# deliberately NOT aliased: eza's flags differ (`ls -lt` is an error in eza,
+# where -t takes a timestamp name), so plain ls keeps working as expected.
+if command -v eza &> /dev/null; then
+    # long list, hidden files, column headers, git status per file, dirs first
+    alias l='eza -la --header --git --group-directories-first --icons=auto'
+    # tree view, two levels, skipping anything .gitignore'd
+    alias lt='eza --tree --level=2 --git-ignore --group-directories-first --icons=auto'
+else
+    alias l='ls -lah'
+fi
 
 # `take <dir>`: mkdir -p then cd into it in one shot
 take() {
@@ -82,7 +93,19 @@ if command -v fzf &> /dev/null && fzf --zsh &> /dev/null; then
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     # Preview the highlighted file with bat in the Ctrl-T picker
     export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:200 {}'"
+    # Nord colours for every fzf picker (Ctrl-R/Ctrl-T/Alt-C, zi). bg:-1 keeps
+    # the terminal's own background.
+    export FZF_DEFAULT_OPTS="--color=fg:#d8dee9,bg:-1,hl:#88c0d0,fg+:#eceff4,bg+:#3b4252,hl+:#8fbcbb \
+--color=info:#ebcb8b,prompt:#81a1c1,pointer:#88c0d0,marker:#a3be8c,spinner:#b48ead,header:#5e81ac,border:#4c566a"
 fi
+
+# --- Nord colours for the remaining tools ----------------------------------
+# Matches the starship prompt, tmux, Neovim and the Windows Terminal scheme.
+# Autosuggestion ghost text: Nord's comment colour (as nord-vim uses). The
+# default (ANSI 8 = #4c566a under Nord) is barely visible on #2e3440.
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#616e88'
+# bat (and the fzf preview above, which runs bat) uses its built-in Nord theme
+export BAT_THEME="Nord"
 
 # Explicitly disable Claude Code telemetry - remove any existing telemetry variables
 unset CLAUDE_CODE_ENABLE_TELEMETRY
