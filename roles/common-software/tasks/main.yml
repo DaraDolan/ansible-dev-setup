@@ -64,7 +64,6 @@
     update_cache: yes
   become: true
   when: ansible_os_family == "Debian"
-  ignore_errors: true
 
 - name: Install libc-bin
   apt:
