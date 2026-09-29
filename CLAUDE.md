@@ -207,14 +207,12 @@ ansible-playbook playbook.yml --tags zsh -K
 
 ### Configuration Updates
 ```bash
-# Update only Neovim configuration files (after changes)
-ansible-playbook update-config.yml -K
+# Update only Neovim configuration files (after changes) - no sudo needed
+ansible-playbook update-config.yml
 
-# This updates:
-# - Plugin configurations
-# - Key mappings  
-# - Core settings
-# - Snippets
+# Runs roles/neovim/tasks/config.yml (same tasks as a full run):
+# - init.lua, core settings, key mappings, plugin configs, snippets
+# - lazy-lock.json, then Lazy! restore / treesitter parsers if anything changed
 # Without reinstalling packages or dependencies
 ```
 

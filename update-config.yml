@@ -1,39 +1,18 @@
 ---
-- name: Update Neovim Configuration Only  
+# Push Neovim config changes without reinstalling packages. No sudo needed:
+#
+#   ansible-playbook update-config.yml
+#
+# Runs roles/neovim/tasks/config.yml, the same tasks a full playbook run
+# uses, so the two can't drift apart. Plugins and treesitter parsers are
+# (re)installed by the role's handlers only when a copied file changed.
+- name: Update Neovim configuration only
   hosts: localhost
   connection: local
   become: false
+
   tasks:
-    - name: Get current username
-      command: whoami
-      register: username_result
-      changed_when: false
-
-    - name: Get user's home directory
-      shell: 'echo $HOME'
-      register: user_home
-      changed_when: false
-
-    - name: Copy Neovim plugin configuration files
-      copy:
-        src: "roles/neovim/files/lua/plugins/"
-        dest: "{{ user_home.stdout }}/.config/nvim/lua/plugins/"
-        force: yes
-
-    - name: Copy Neovim core configuration files
-      copy:
-        src: "roles/neovim/files/lua/core/"
-        dest: "{{ user_home.stdout }}/.config/nvim/lua/core/"
-        force: yes
-
-    - name: Copy Neovim snippet files
-      copy:
-        src: "roles/neovim/files/snippets/{{ item }}"
-        dest: "{{ user_home.stdout }}/.config/nvim/snippets/{{ item }}"
-        force: yes
-      with_items:
-        - "php.json"
-        - "markdown.json"
-        - "javascript.json"
-        - "typescript.json"
-        - "typescriptreact.json"
+    - name: Deploy Neovim configuration
+      include_role:
+        name: neovim
+        tasks_from: config.yml

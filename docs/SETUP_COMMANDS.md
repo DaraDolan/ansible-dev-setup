@@ -25,8 +25,8 @@ ansible-playbook playbook.yml --tags zsh -K
 
 ### Update Configuration Only (Fast)
 ```bash
-# Update config files without reinstalling packages
-ansible-playbook update-config.yml -K
+# Update config files without reinstalling packages (no sudo needed)
+ansible-playbook update-config.yml
 ```
 
 ## Alternative: Use the Setup Script

@@ -166,11 +166,9 @@ For updating just configuration files (after making changes to roles):
 # Update Neovim configuration only (fast, no package reinstalls)
 ansible-playbook update-config.yml
 
-# This updates:
-# - Plugin configurations  
-# - Key mappings
-# - Core settings
-# - Code snippets
+# Runs roles/neovim/tasks/config.yml (same tasks as a full run):
+# - init.lua, core settings, key mappings, plugin configs, snippets
+# - lazy-lock.json, then Lazy! restore / treesitter parsers if anything changed
 ```
 
 This is much faster than running the full playbook when you only need to update config files.
