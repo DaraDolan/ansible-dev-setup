@@ -847,6 +847,42 @@
     - git
     - user
 
+# --- eza (pinned tarball; modern ls, aliased in the zshrc) ------------------
+- name: Fail clearly if eza has no build for this architecture
+  fail:
+    msg: >-
+      No pinned eza tarball for architecture '{{ ansible_facts.architecture }}'.
+      Add it to eza_arch_map and eza_checksums in
+      roles/common-software/defaults/main.yml.
+  when:
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture not in eza_arch_map
+  tags:
+    - eza
+    - user
+
+- name: Install pinned eza tarball
+  include_role:
+    name: pinned-tarball
+    apply:
+      become: false
+      tags:
+        - eza
+        - user
+  vars:
+    pinned_tarball_name: eza
+    pinned_tarball_version: "{{ eza_version }}"
+    pinned_tarball_url: >-
+      https://github.com/eza-community/eza/releases/download/v{{ eza_version }}/eza_{{ eza_arch_map[ansible_facts.architecture] }}-unknown-linux-gnu.tar.gz
+    pinned_tarball_checksum: "{{ eza_checksums[ansible_facts.architecture] }}"
+    pinned_tarball_bin: eza
+  when:
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture in eza_arch_map
+  tags:
+    - eza
+    - user
+
 # --- Google Cloud CLI (gcloud + bq + gsutil) via Google's apt repo ---------
 # Bgate runs data engineering on GCP/BigQuery. Run `gcloud init` once to
 # authenticate.

@@ -57,6 +57,17 @@ delta_checksums:
   x86_64: "sha256:8e695c5f586a8c53d6c3b01be0b4a422ed218bfed2a56191caebe373a1c18ab2"
   aarch64: "sha256:0bfce159a5cddd5feb3d6db4a616d883ff51253ce08ac7ec11cb1d208cfaab9e"
 
+# eza - modern ls (icons, git status column, tree view); the zshrc aliases
+# ls/l/lt to it when present. Checksums are the sha256 digests GitHub
+# publishes for the release assets (x86_64 re-verified by download).
+eza_version: "0.23.5"
+eza_arch_map:
+  x86_64: "x86_64"
+  aarch64: "aarch64"
+eza_checksums:
+  x86_64: "sha256:35c70c5c43c29108075e58b893234c67ef585f0b53a7eaf8e9e7d4eec9f339b4"
+  aarch64: "sha256:40b87ae8628aa2ff0f0d2dc24ab52f689631366385c3da630bae745671fd71ec"
+
 # The real (non-shim) Node bin directory mise installs into. "lts" matches the
 # `node = "lts"` pin written to ~/.config/mise/config.toml by this role.
 #
