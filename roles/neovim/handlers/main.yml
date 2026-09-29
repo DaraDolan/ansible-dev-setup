@@ -1,0 +1,34 @@
+---
+# Handlers run in definition order, so plugins are restored before
+# treesitter tries to compile parsers with them. Notified by the lazy.nvim
+# bootstrap clone, the plugin config copy and the lockfile copy; flushed in
+# tasks/main.yml before the tasks that need plugins on disk.
+
+# `Lazy! restore` installs anything missing and then checks out exactly the
+# commits in lazy-lock.json. `Lazy sync` was doing the opposite: updating every
+# plugin to its latest commit and rewriting the lockfile on every run.
+#
+# The mise shims on PATH matter here: plugins with npm build steps
+# (markdown-preview.nvim runs `cd app && npm install`) silently fail to build
+# without them, because Ansible's default PATH has no node.
+- name: Install and pin plugins via lazy.nvim
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    nvim --headless "+Lazy! restore" +qa
+  args:
+    executable: /bin/bash
+  become: false
+  environment:
+    CC: gcc
+  timeout: 600
+
+- name: Compile treesitter parsers
+  shell: |
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+    nvim --headless -c "TSUpdate" -c "sleep 30" -c "qa"
+  args:
+    executable: /bin/bash
+  become: false
+  environment:
+    CC: gcc
+  timeout: 300

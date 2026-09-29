@@ -202,6 +202,9 @@
     clone: yes
     update: no
   become: false
+  notify:
+    - Install and pin plugins via lazy.nvim
+    - Compile treesitter parsers
   tags:
     - neovim
     - user
@@ -269,6 +272,9 @@
     dest: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/plugins/"
     force: yes
   become: false
+  notify:
+    - Install and pin plugins via lazy.nvim
+    - Compile treesitter parsers
   tags:
     - neovim
     - user
@@ -291,7 +297,7 @@
     - user
 
 # Pins every plugin to a known commit so two machines provisioned weeks apart
-# get an identical editor. Must land before `Lazy! restore` below.
+# get an identical editor. Must land before the `Lazy! restore` handler runs.
 #
 # The repo is the source of truth: this is copied with force. After running
 # `:Lazy update` locally and confirming the result, copy the lockfile back:
@@ -303,6 +309,9 @@
     force: yes
     mode: 0644
   become: false
+  notify:
+    - Install and pin plugins via lazy.nvim
+    - Compile treesitter parsers
   tags:
     - neovim
     - user
@@ -336,24 +345,12 @@
     msg: "For the best experience, please install a Nerd Font manually: https://www.nerdfonts.com/font-downloads"
   when: ansible_os_family == "Debian"
 
-# Install plugins and compile treesitter parsers
-# `Lazy! restore` installs anything missing and then checks out exactly the
-# commits in lazy-lock.json. `Lazy sync` was doing the opposite: updating every
-# plugin to its latest commit and rewriting the lockfile on every run.
-#
-# The mise shims on PATH matter here: plugins with npm build steps
-# (markdown-preview.nvim runs `cd app && npm install`) silently fail to build
-# without them, because Ansible's default PATH has no node.
-- name: Install and pin plugins via lazy.nvim
-  shell: |
-    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-    nvim --headless "+Lazy! restore" +qa
-  args:
-    executable: /bin/bash
-  become: false
-  environment:
-    CC: gcc
-  timeout: 600
+# Install plugins and compile treesitter parsers (handlers/main.yml) now, not
+# at the end of the play: the fzf-native build, the ts_ls patch and the
+# healthcheck below all need the plugins on disk. On a fresh machine the
+# lazy.nvim clone and the config/lockfile copies above have all notified.
+- name: Run pending plugin install and treesitter handlers
+  meta: flush_handlers
   tags:
     - neovim
     - user
@@ -366,20 +363,6 @@
   failed_when: false
   become: false
   when: ansible_os_family == "Debian"
-  tags:
-    - neovim
-    - user
-
-- name: Compile treesitter parsers
-  shell: |
-    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-    nvim --headless -c "TSUpdate" -c "sleep 30" -c "qa"
-  args:
-    executable: /bin/bash
-  become: false
-  environment:
-    CC: gcc
-  timeout: 300
   tags:
     - neovim
     - user
