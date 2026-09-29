@@ -448,17 +448,3 @@
 - name: Display healthcheck results location
   debug:
     msg: "Neovim health check log available at /tmp/nvim_health_check.log"
-
-- name: Configure Neovim to use pynvim from virtual environment
-  blockinfile:
-    path: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/init.lua"
-    block: |
-      -- Set Python provider path
-      vim.g.python3_host_prog = "{{ lookup('env', 'HOME') }}/.config/nvim/env/bin/python"
-    insertafter: "-- Core configuration loader"
-    marker: "-- {mark} ANSIBLE MANAGED BLOCK"
-  become: false
-  ignore_errors: true
-  tags:
-    - neovim
-    - user
