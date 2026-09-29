@@ -25,7 +25,7 @@ and then verified by a real `ansible-playbook --tags user` run (74 ok,
 | §2.3 | Neovim via snap (needs systemd, absent on hardened images) | ✅ Fixed — pinned static tarball into `$HOME` |
 | §2.6 | Three roles fight over `~/.zshrc` | ✅ Fixed — `roles/zsh` is sole owner, verified by parsing all role tasks |
 | §3.3 | Nothing version-pinned | ◐ Partial — `lazy-lock.json` committed (59 plugins), Neovim + lazygit pinned with sha256. Node/npm globals still unpinned. |
-| §4.1 | Intelephense licence key in git history | ❌ **Still open.** Needs vendor rotation. |
+| §4.1 | Intelephense licence key in git history | ◐ Key removed from the repo — now `intelephense_licence_key` in gitignored `personal-config.yml`, written with `no_log`. **Rotation still needed:** the repo is public and the old value remains in history. |
 | §4.5 | Invalid `settings.json` keys | ✅ Fixed — verified against docs first; `statusLine`/`enabledPlugins` confirmed valid and kept |
 | §5.3 | pint / phpstan / eslint_d / lazygit missing | ✅ Fixed — all four installed and verified resolvable from inside Neovim |
 | §5.4 | Keymap collisions | ✅ Fixed — 4 resolved (3 audited + `<C-k>` found during the work); detector reports 0/134 remaining |
@@ -262,7 +262,7 @@ Two copies of the same logic, already out of sync. `update-config.yml` also regi
 
 ### 4.1 Committed secret — act on this first
 
-**`roles/neovim/tasks/main.yml:158-165` writes a hardcoded Intelephense Premium licence key (`00QWFAL4F6OR8QP`) into the repo.**
+**`roles/neovim/tasks/main.yml:158-165` writes a hardcoded Intelephense Premium licence key (value redacted here; still in history) into the repo.**
 
 It's a paid per-user licence, in plaintext, in git history, on a repo whose remote is `origin/main`. Removing the line does not remediate it — the value is in every historical commit.
 

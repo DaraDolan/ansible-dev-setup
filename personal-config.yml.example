@@ -14,3 +14,5 @@ git_pull_rebase: false
 
 # To use local git config instead of global, uncomment:
 # git_config_scope: "local"
+# Intelephense Premium licence key (optional). Keep it here, not in the repo.
+# intelephense_licence_key: "YOUR-KEY"

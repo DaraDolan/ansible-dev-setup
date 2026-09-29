@@ -20,3 +20,7 @@ neovim_tarball_checksums:
 neovim_arch_map:
   x86_64: "x86_64"
   aarch64: "arm64"
+
+# Intelephense Premium licence key. Secret: set it in personal-config.yml
+# (gitignored), never here. Empty = skip writing ~/.config/intelephense/licence.txt.
+intelephense_licence_key: ""

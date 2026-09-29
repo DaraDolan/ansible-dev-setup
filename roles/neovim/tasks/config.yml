@@ -67,14 +67,19 @@
     - neovim
     - user
 
+# The key comes from intelephense_licence_key in personal-config.yml
+# (gitignored), never from the repo. Skipped when unset, which leaves any
+# existing licence.txt alone. no_log keeps it out of --diff output and logs.
 - name: Install Intelephense Premium license key
   copy:
-    content: "00QWFAL4F6OR8QP"
+    content: "{{ intelephense_licence_key }}"
     dest: "{{ lookup('env', 'HOME') }}/.config/intelephense/licence.txt"
     mode: 0600
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
   become: false
+  when: intelephense_licence_key | length > 0
+  no_log: true
   tags:
     - neovim
     - user
