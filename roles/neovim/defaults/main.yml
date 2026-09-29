@@ -3,7 +3,7 @@
 # from snap. Snap needs systemd (opt-in under WSL2 via /etc/wsl.conf) and is
 # stripped from many hardened/corporate Ubuntu images; the tarball needs
 # neither systemd nor sudo, which also makes it usable via `--tags user`.
-neovim_version: "v0.12.4"
+neovim_version: "v0.12.5"
 
 # Where versioned Neovim trees live. ~/.local/bin/nvim symlinks into the
 # active one, so rolling back is a matter of changing neovim_version.
@@ -13,8 +13,8 @@ neovim_install_root: "{{ lookup('env', 'HOME') }}/.local/share/nvim-releases"
 # sums were computed from the downloaded artefacts on 2026-08-13.
 # Recompute with `sha256sum` when bumping neovim_version.
 neovim_tarball_checksums:
-  x86_64: "sha256:012bf3fcac5ade43914df3f174668bf64d05e049a4f032a388c027b1ebd78628"
-  aarch64: "sha256:ceb7e88c6b681f0515d135dcdfad54f5eb4373b25ce6172197cd9a69c758063f"
+  x86_64: "sha256:bce0f56eda1f1b1db6eee8f4133d7a38813ea07933837dd1777411ca384c6875"
+  aarch64: "sha256:1aa5ca085249580ae0f91eb14f27ec0919773ff2d99a163d03f3d6c21ac29725"
 
 # ansible_facts.architecture -> the arch string used in the release asset filename
 neovim_arch_map:
