@@ -57,13 +57,6 @@
     update_homebrew: yes
   when: ansible_os_family == "Darwin"
 
-- name: Fix duplicate repository entries
-  shell: |
-    rm -f /etc/apt/sources.list.d/ppa_neovim_ppa_unstable_jammy.list
-  become: true
-  when: ansible_os_family == "Debian"
-  ignore_errors: true
-
 - name: Install apt-utils
   apt:
     name: apt-utils
