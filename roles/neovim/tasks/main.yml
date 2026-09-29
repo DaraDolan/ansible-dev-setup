@@ -2,30 +2,6 @@
 - name: Include platform-specific variables
   include_vars: "{{ ansible_facts.os_family }}.yml"
 
-# Install Neovim repository and dependencies
-- name: Install software-properties-common (for add-apt-repository)
-  apt:
-    name: software-properties-common
-    state: present
-  when: ansible_facts.os_family == "Debian"
-  become: true
-
-- name: Remove Neovim unstable PPA (if present)
-  apt_repository:
-    repo: ppa:neovim-ppa/unstable
-    state: absent
-  when: ansible_facts.os_family == "Debian"
-  become: true
-  ignore_errors: true
-
-- name: Remove Neovim stable PPA (if present)
-  apt_repository:
-    repo: ppa:neovim-ppa/stable
-    state: absent
-  when: ansible_facts.os_family == "Debian"
-  become: true
-  ignore_errors: true
-
 - name: Remove apt-installed Neovim (superseded by the pinned tarball)
   apt:
     name: neovim
