@@ -226,13 +226,16 @@
     - neovim
     - user
 
+# Bootstrap only. lazy-lock.json owns lazy.nvim's commit and `Lazy! restore`
+# checks it out; with update: yes this task moved it back to `stable` and the
+# two swapped the checkout on every run.
 - name: Ensure lazy.nvim plugin manager is installed
   git:
     repo: 'https://github.com/folke/lazy.nvim.git'
     dest: "{{ lookup('env', 'HOME') }}/.local/share/nvim/lazy/lazy.nvim"
     version: stable
     clone: yes
-    update: yes
+    update: no
   become: false
   tags:
     - neovim
