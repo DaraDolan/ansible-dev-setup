@@ -234,18 +234,6 @@
     - user
 
 # Copy configuration files
-- name: Ensure init.lua file exists
-  file:
-    path: "{{ lookup('env', 'HOME') }}/.config/nvim/lua/core/init.lua"
-    state: touch
-    mode: 0644
-    owner: "{{ lookup('env', 'USER') }}"
-    group: "{{ lookup('env', 'USER') }}"
-  become: false
-  tags:
-    - neovim
-    - user
-
 - name: Copy Neovim main configuration
   copy:
     src: "init.lua"
