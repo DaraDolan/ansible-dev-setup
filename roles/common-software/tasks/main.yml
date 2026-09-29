@@ -532,11 +532,30 @@
     - web-automation
     - testing
 
+# deb822_repository (below) needs python-debian on the target. Tagged with
+# every repo that uses it so e.g. `--tags github` alone works on a fresh box.
+- name: Install python3-debian (required by deb822_repository)
+  apt:
+    name: python3-debian
+    state: present
+  become: true
+  when: ansible_facts.os_family == "Debian"
+  tags:
+    - github
+    - glow
+    - markdown
+    - gcloud
+    - azure
+    - cloud
+
 # Install GitHub CLI (gh) via first-party apt repository
 - name: Get dpkg architecture for GitHub CLI repo
   command: dpkg --print-architecture
   register: dpkg_arch
+  # Read-only query: never changes anything, and must also run under
+  # --check or the repo tasks below render an empty Architectures field.
   changed_when: false
+  check_mode: false
   when: ansible_facts.os_family == "Debian"
   tags:
     - github
@@ -562,10 +581,26 @@
     - github
 
 - name: Add GitHub CLI apt repository
-  apt_repository:
-    repo: "deb [arch={{ dpkg_arch.stdout }} signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
-    filename: github-cli
+  deb822_repository:
+    name: github-cli
+    types: deb
+    uris: https://cli.github.com/packages
+    suites: stable
+    components: main
+    architectures: "{{ dpkg_arch.stdout }}"
+    signed_by: /etc/apt/keyrings/githubcli-archive-keyring.gpg
     state: present
+  become: true
+  when: ansible_facts.os_family == "Debian"
+  tags:
+    - github
+
+# apt_repository wrote one-line .list files; deb822_repository writes
+# github-cli.sources. Keeping both makes apt warn about duplicate sources.
+- name: Remove legacy github-cli.list (superseded by github-cli.sources)
+  file:
+    path: /etc/apt/sources.list.d/github-cli.list
+    state: absent
   become: true
   when: ansible_facts.os_family == "Debian"
   tags:
@@ -610,10 +645,26 @@
     - markdown
 
 - name: Add Charm apt repository
-  apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *"
-    filename: charm
+  deb822_repository:
+    name: charm
+    types: deb
+    uris: https://repo.charm.sh/apt/
+    suites: "*"
+    components: "*"
+    signed_by: /etc/apt/keyrings/charm.gpg
     state: present
+  become: true
+  when: ansible_facts.os_family == "Debian"
+  tags:
+    - glow
+    - markdown
+
+# apt_repository wrote one-line .list files; deb822_repository writes
+# charm.sources. Keeping both makes apt warn about duplicate sources.
+- name: Remove legacy charm.list (superseded by charm.sources)
+  file:
+    path: /etc/apt/sources.list.d/charm.list
+    state: absent
   become: true
   when: ansible_facts.os_family == "Debian"
   tags:
@@ -810,10 +861,26 @@
     - cloud
 
 - name: Add Google Cloud apt repository
-  apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main"
-    filename: google-cloud-sdk
+  deb822_repository:
+    name: google-cloud-sdk
+    types: deb
+    uris: https://packages.cloud.google.com/apt
+    suites: cloud-sdk
+    components: main
+    signed_by: /etc/apt/keyrings/cloud.google.gpg
     state: present
+  become: true
+  when: ansible_facts.os_family == "Debian"
+  tags:
+    - gcloud
+    - cloud
+
+# apt_repository wrote one-line .list files; deb822_repository writes
+# google-cloud-sdk.sources. Keeping both makes apt warn about duplicate sources.
+- name: Remove legacy google-cloud-sdk.list (superseded by google-cloud-sdk.sources)
+  file:
+    path: /etc/apt/sources.list.d/google-cloud-sdk.list
+    state: absent
   become: true
   when: ansible_facts.os_family == "Debian"
   tags:
@@ -845,10 +912,27 @@
     - cloud
 
 - name: Add Azure CLI apt repository
-  apt_repository:
-    repo: "deb [arch={{ dpkg_arch.stdout | default('amd64') }} signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_facts.distribution_release }} main"
-    filename: azure-cli
+  deb822_repository:
+    name: azure-cli
+    types: deb
+    uris: https://packages.microsoft.com/repos/azure-cli/
+    suites: "{{ ansible_facts.distribution_release }}"
+    components: main
+    architectures: "{{ dpkg_arch.stdout | default('amd64') }}"
+    signed_by: /etc/apt/keyrings/microsoft.gpg
     state: present
+  become: true
+  when: ansible_facts.os_family == "Debian"
+  tags:
+    - azure
+    - cloud
+
+# apt_repository wrote one-line .list files; deb822_repository writes
+# azure-cli.sources. Keeping both makes apt warn about duplicate sources.
+- name: Remove legacy azure-cli.list (superseded by azure-cli.sources)
+  file:
+    path: /etc/apt/sources.list.d/azure-cli.list
+    state: absent
   become: true
   when: ansible_facts.os_family == "Debian"
   tags:
