@@ -27,6 +27,10 @@ Your complete guide to productive PHP/Laravel/React/Python development with Pest
   - File navigation, LSP functions, Laravel shortcuts
   - Git integration, testing, and Claude Code integration
 
+### 🤖 Claude Code
+- **[🤖 Claude Code Guide](claude-code-guide.md)** - Drive Claude Code from the keyboard
+  - Transcript navigation (`Ctrl+O`, `{`/`}`, `j`/`k`), vim prompt mode, cheat card
+
 ### 🧪 Testing Excellence
 - **[🧪 Pest Testing Guide](testing/pest-guide.md)** - Complete testing mastery
   - Feature & unit tests, advanced expectations, mocking
