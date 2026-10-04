@@ -83,3 +83,23 @@ win32yank_checksum: "sha256:247c9a05b94387a884b49d3db13f806b1677dfc38020f955f719
 # "npx is not a valid shim". The binaries in this directory are ordinary
 # executables and work regardless of HOME.
 mise_node_bin: "{{ lookup('env', 'HOME') }}/.local/share/mise/installs/node/lts/bin"
+
+# Claude Code user settings, merged into ~/.claude/settings.json with
+# combine(recursive=True). Keys already in that file (added by hand, or written
+# by Claude Code itself, e.g. /plugin) are kept; on a conflict the value here
+# wins. Removing a key from this dict does not remove it from the file.
+# (~/.claude.json is Claude Code's own state file and is deliberately untouched.)
+claude_code_settings:
+  enabledPlugins:
+    context7@claude-plugins-official: true
+    github@claude-plugins-official: true
+    frontend-design@claude-plugins-official: true
+  env:
+    CLAUDE_CODE_ENABLE_TELEMETRY: "0"
+    DISABLE_TELEMETRY: "1"
+  statusLine:
+    type: command
+    command: bash "$HOME/.claude/statusline-command.sh"
+  editorMode: vim
+  vimInsertModeRemaps:
+    jj: "<Esc>"

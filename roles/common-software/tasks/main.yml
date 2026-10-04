@@ -150,14 +150,54 @@
     - claude
     - user
 
+# Merge claude_code_settings into the existing file rather than overwriting it,
+# so settings added by hand or by Claude Code survive re-runs. A missing or
+# empty file counts as {}; a file that isn't valid JSON fails the run instead
+# of being clobbered.
+- name: Check for existing Claude settings
+  stat:
+    path: "{{ lookup('env', 'HOME') }}/.claude/settings.json"
+  register: claude_settings_stat
+  become: false
+  tags:
+    - claude
+    - user
+
+- name: Read existing Claude settings
+  slurp:
+    src: "{{ lookup('env', 'HOME') }}/.claude/settings.json"
+  register: claude_settings_existing
+  when: claude_settings_stat.stat.exists
+  become: false
+  tags:
+    - claude
+    - user
+
+- name: Merge managed keys into Claude settings
+  set_fact:
+    claude_settings_current: "{{ _claude_settings_parsed }}"
+    claude_settings_merged: "{{ _claude_settings_parsed | combine(claude_code_settings, recursive=True) }}"
+  vars:
+    _claude_settings_parsed: >-
+      {{ ((claude_settings_existing.content | b64decode | trim)
+          if claude_settings_stat.stat.exists else '')
+         | default('{}', true)
+         | from_json }}
+  become: false
+  tags:
+    - claude
+    - user
+
+# Compared as data, not text, so a file Claude Code re-saved in its own key
+# order or formatting isn't rewritten (and reported changed) on every run.
 - name: Install Claude settings
   copy:
-    src: "claude-settings.json"
+    content: "{{ claude_settings_merged | to_nice_json(indent=2, sort_keys=False) }}\n"
     dest: "{{ lookup('env', 'HOME') }}/.claude/settings.json"
-    force: yes
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
     mode: 0644
+  when: claude_settings_merged != claude_settings_current
   become: false
   tags:
     - claude

@@ -263,7 +263,9 @@ ansible-playbook -i inventory/hosts.yml playbook.yml --ask-become-pass
 
 The ansible setup automatically:
 - Sets `CLAUDE_CODE_ENABLE_TELEMETRY=0` in your shell
-- Creates `~/.claude/settings.json` with `"enableTelemetry": false`
+- Merges `claude_code_settings` (`roles/common-software/defaults/main.yml`) into
+  `~/.claude/settings.json`, including the telemetry-disabling `env` keys;
+  other keys already in the file are left alone
 - Unsets any existing telemetry environment variables
 
 ## Development Workflow
