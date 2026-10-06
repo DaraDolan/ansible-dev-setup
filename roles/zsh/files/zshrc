@@ -114,6 +114,24 @@ unset OTEL_EXPORTER_DISABLED
 export CLAUDE_CODE_ENABLE_TELEMETRY=0
 export OTEL_EXPORTER_DISABLED=1
 
+# Token for the Claude Code GitHub plugin (sent as the MCP server's Bearer
+# header). A dedicated token in ~/.config/claude/github-token wins; otherwise
+# reuse the gh CLI login. Re-read in every shell so a rotated token, or a
+# tmux server started before login, never leaves a stale value behind.
+() {
+  local token_file="$HOME/.config/claude/github-token" token
+  if [[ -r "$token_file" ]]; then
+    token="$(<"$token_file")"
+  elif (( $+commands[gh] )); then
+    token="$(gh auth token 2>/dev/null)"
+  fi
+  if [[ -n "$token" ]]; then
+    export GITHUB_PERSONAL_ACCESS_TOKEN="$token"
+  else
+    unset GITHUB_PERSONAL_ACCESS_TOKEN
+  fi
+}
+
 # Claude Code alias
 alias ccode='claude code'
 # General productivity aliases

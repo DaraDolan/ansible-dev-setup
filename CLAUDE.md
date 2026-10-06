@@ -458,6 +458,30 @@ cat ~/.ssh/id_ed25519.pub
 3. Test connection: `ssh -T git@github.com`
 4. Switch repo to SSH: `git remote set-url origin git@github.com:username/repo.git`
 
+### Claude Code GitHub Plugin Auth
+The `github` plugin (enabled in `~/.claude/settings.json`) sends
+`GITHUB_PERSONAL_ACCESS_TOKEN` as a Bearer token. `~/.zshrc` sets it in every
+shell, from the first of:
+
+1. `~/.config/claude/github-token` — a dedicated fine-grained token (preferred;
+   lets you scope what Claude can touch)
+2. `gh auth token` — the gh CLI login (broad: all repos, orgs, gists)
+
+If neither exists the variable is unset and `/mcp` shows "Authorization header
+is badly formatted". The token never lives in this repo or `personal-config.yml`.
+
+```bash
+# Option A: reuse the gh login
+gh auth login
+
+# Option B: dedicated token (create at GitHub → Settings → Developer settings
+# → Fine-grained tokens), then:
+mkdir -p ~/.config/claude && chmod 700 ~/.config/claude
+(umask 077; read -rs "t?Token: " && printf "%s" "$t" > ~/.config/claude/github-token; unset t)
+
+# Either way: open a new shell, restart Claude Code, check /mcp
+```
+
 ## Troubleshooting
 
 ### Common Issues

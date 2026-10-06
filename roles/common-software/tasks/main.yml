@@ -658,7 +658,11 @@
 
 - name: Remind user to authenticate with GitHub CLI
   debug:
-    msg: "GitHub CLI installed. Run 'gh auth login' to authenticate with your GitHub account."
+    msg: >-
+      GitHub CLI installed. Run 'gh auth login' to authenticate with your GitHub
+      account. The Claude Code GitHub plugin reuses that login via ~/.zshrc
+      (or a dedicated token in ~/.config/claude/github-token); open a new
+      shell and restart Claude Code afterwards.
   tags:
     - github
 
