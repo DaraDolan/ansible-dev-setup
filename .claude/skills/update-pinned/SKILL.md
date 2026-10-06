@@ -63,9 +63,7 @@ git diff                                       # must be ONLY the version + chec
 
 If a release needs a config change (e.g. a renamed starship module), make it
 in the same commit as the bump. Commit as `chore: bump <tool> to <version>`
-with a short body summarising what changed upstream that matters here. Follow
-the repo's commit conventions — no Co-Authored-By or other attribution
-trailer.
+with a short body summarising what changed upstream that matters here.
 
 Then run `ansible-playbook playbook.yml --syntax-check`.
 
