@@ -100,6 +100,12 @@ claude_code_settings:
   statusLine:
     type: command
     command: bash "$HOME/.claude/statusline-command.sh"
+  # No Co-authored-by trailer on commits and no "Generated with Claude Code"
+  # line in PR descriptions. Values are the attribution text; "" disables
+  # (booleans fail Claude Code's settings validation).
+  attribution:
+    commit: ""
+    pr: ""
   editorMode: vim
   vimInsertModeRemaps:
     jj: "<Esc>"
