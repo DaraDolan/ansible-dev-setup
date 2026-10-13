@@ -30,3 +30,4 @@ software_packages:
   - bat        # better cat; Ubuntu installs the binary as batcat, symlinked below
   - jq
   - tmux
+  - lftp       # FTP/SFTP client; `mirror` pulls whole trees, `mput` uploads file lists

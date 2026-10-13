@@ -7,3 +7,4 @@ software_packages:
   - python
   - node
   - glow
+  - lftp
