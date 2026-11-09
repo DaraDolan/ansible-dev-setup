@@ -108,3 +108,30 @@ autocmd("BufWritePre", {
   pattern = "*",
   command = [[%s/\s\+$//e]],
 })
+
+-- Open files a repo marks `view-only` in its .gitattributes as read-only, e.g.
+--   site/** -text view-only
+-- For mirrors of a server's files, which must stay byte-for-byte identical:
+-- format-on-save, the whitespace trim above and fixendofline would rewrite
+-- them on any :w. The repo decides; repos without the attribute are unaffected.
+-- To edit one anyway: :setlocal modifiable noreadonly
+autocmd("BufReadPost", {
+  group = general,
+  callback = function(args)
+    local file = vim.api.nvim_buf_get_name(args.buf)
+    if file == "" or vim.bo[args.buf].buftype ~= "" then
+      return
+    end
+    local ok, res = pcall(function()
+      return vim.system(
+        { "git", "check-attr", "view-only", "--", file },
+        { cwd = vim.fs.dirname(file), text = true }
+      ):wait(2000)
+    end)
+    -- Not in a git repo, or git missing: git fails and nothing changes.
+    if ok and res.code == 0 and res.stdout:match(": set\n?$") then
+      vim.bo[args.buf].readonly = true
+      vim.bo[args.buf].modifiable = false
+    end
+  end,
+})
