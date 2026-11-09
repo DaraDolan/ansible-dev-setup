@@ -69,6 +69,11 @@ git_pull_rebase: false
 
 ## Installation
 
+> **New to WSL, the shell or git?** Start with the
+> [WSL2 Starter Checklist](docs/quick-start/wsl-starter-checklist.md) and the
+> minimal `starter.yml` profile. It installs core tools and configures git, and
+> leaves your shell and editor alone.
+
 ### Option 1: Quick Setup Script (Recommended)
 
 For convenience with enhanced error handling and auto-installation of Ansible:

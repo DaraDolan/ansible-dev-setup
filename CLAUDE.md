@@ -191,6 +191,10 @@ ansible-playbook playbook.yml -e @personal-config.yml -K
 
 ### Initial Setup (First Time)
 ```bash
+# Starter profile for newcomers to WSL/git: packages + git config only,
+# no shell/editor changes. Guide: docs/quick-start/wsl-starter-checklist.md
+ansible-playbook starter.yml -e @personal-config.yml -K
+
 # Full development environment setup (with defaults)
 ansible-playbook playbook.yml -K
 

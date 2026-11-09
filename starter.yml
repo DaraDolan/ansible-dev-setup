@@ -1,0 +1,93 @@
+---
+# Starter profile: the minimum for someone new to WSL2, the shell and git.
+#
+# Deliberately small. It does NOT change the login shell (stays bash), install
+# an editor (use VS Code + the WSL extension from Windows), or touch the prompt.
+# Everything here is also something the learner should be able to do by hand;
+# see docs/quick-start/wsl-starter-checklist.md for the manual walk-through.
+#
+# Safe to run before, or instead of, the full playbook.yml - nothing here
+# conflicts with it, and playbook.yml can be run later to get the full setup.
+#
+# Usage:
+#   cp personal-config.yml.example personal-config.yml   # set name + email
+#   ansible-playbook starter.yml -e @personal-config.yml -K
+
+- name: Starter development environment (WSL2 / Ubuntu)
+  hosts: all
+  become: false
+
+  vars:
+    starter_packages:
+      - git
+      - curl
+      - wget
+      - unzip
+      - ca-certificates
+      - openssh-client   # ssh-keygen, ssh-agent for GitHub SSH keys
+      - tree             # see a folder's structure at a glance
+      - ripgrep          # rg: fast search across a codebase
+      - jq               # read/format JSON in the terminal
+      - lftp             # FTP/SFTP client; `mirror` pulls a whole site
+
+  pre_tasks:
+    - name: Assert the target platform is supported
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.os_family == "Debian"
+        fail_msg: >-
+          Unsupported platform: {{ ansible_facts.distribution | default('unknown') }}.
+          The starter profile supports Debian/Ubuntu only, including under WSL2.
+
+    - name: Assert git name and email have been set
+      ansible.builtin.assert:
+        that:
+          - git_user_name is defined
+          - git_user_email is defined
+          - git_user_name not in ["", "Your Name"]
+          - git_user_email not in ["", "your.email@example.com"]
+        fail_msg: >-
+          Set git_user_name and git_user_email in personal-config.yml
+          (copy personal-config.yml.example) and pass it with -e @personal-config.yml.
+
+  tasks:
+    - name: Install starter packages
+      ansible.builtin.apt:
+        name: "{{ starter_packages }}"
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+      become: true
+
+    - name: Configure git
+      community.general.git_config:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        scope: global
+      loop:
+        - { name: user.name, value: "{{ git_user_name }}" }
+        - { name: user.email, value: "{{ git_user_email }}" }
+        - { name: init.defaultBranch, value: "{{ git_default_branch | default('main') }}" }
+        # Explicit choice silences git's "you have divergent branches" hint
+        # and keeps `git pull` as a plain merge, which is what courses teach.
+        - { name: pull.rebase, value: "false" }
+        # Convert any CRLF that sneaks in from Windows tools to LF on commit;
+        # never convert on checkout. Stops whole-file "every line changed" diffs.
+        - { name: core.autocrlf, value: "input" }
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Create ~/code for projects (inside Linux, not /mnt/c)
+      ansible.builtin.file:
+        path: "{{ ansible_facts.env.HOME }}/code"
+        state: directory
+        mode: "0755"
+
+  post_tasks:
+    - name: Next steps
+      ansible.builtin.debug:
+        msg:
+          - "Starter setup done. Next:"
+          - "1. Create an SSH key: ssh-keygen -t ed25519 -C \"{{ git_user_email }}\""
+          - "2. Add ~/.ssh/id_ed25519.pub to GitHub (Settings > SSH and GPG keys), then: ssh -T git@github.com"
+          - "3. Keep projects in ~/code and open them with: code ."
