@@ -4,6 +4,10 @@
 # /etc/wsl.conf must enable ([boot] systemd=true, the default for new
 # Ubuntu installs).
 #
+# Off by default: anyone already using Docker Desktop must not also get
+# Docker Engine. Enable with `install_docker: true` in personal-config.yml.
+install_docker: false
+
 # Versions are not pinned: like the other apt packages in this repo, they
 # follow the signed upstream repo and update with `apt upgrade`. Pinned
 # GitHub tarballs (roles/pinned-tarball) are for tools with no apt repo.

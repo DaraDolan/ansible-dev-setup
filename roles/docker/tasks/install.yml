@@ -1,0 +1,150 @@
+---
+# Docker Engine on WSL2 / Ubuntu, from download.docker.com.
+# Follows https://docs.docker.com/engine/install/ubuntu/ using a deb822
+# source with a signed-by keyring (the same pattern as the GitHub CLI repo
+# in roles/common-software), not apt-key.
+
+- name: Check whether systemd is running (dockerd needs it)
+  command: systemctl is-system-running
+  register: docker_systemd_state
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Fail clearly if systemd is not running
+  fail:
+    msg: >-
+      systemd is not running (state: '{{ docker_systemd_state.stdout | default('unknown') }}').
+      Under WSL2, add "[boot]" / "systemd=true" to /etc/wsl.conf, run
+      `wsl --shutdown` in PowerShell, reopen Ubuntu and re-run this tag.
+  # "degraded" means systemd is up but some unit failed, which is fine for dockerd.
+  when: docker_systemd_state.stdout not in ["running", "degraded"]
+
+# Docker Desktop's WSL integration mounts its engine at /mnt/wsl/docker-desktop
+# and links its own `docker` CLI into the distro. Installing docker-ce as well
+# gives two engines fighting over the same socket and CLI.
+- name: Check for Docker Desktop WSL integration
+  stat:
+    path: /mnt/wsl/docker-desktop
+    get_checksum: false
+  register: docker_desktop_mount
+
+- name: Check where any existing docker CLI points
+  command: readlink -f /usr/bin/docker
+  register: docker_cli_target
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Fail if Docker Desktop is in use
+  fail:
+    msg: >-
+      Docker Desktop's WSL integration is active here ({{ '/mnt/wsl/docker-desktop exists'
+      if docker_desktop_mount.stat.exists else '/usr/bin/docker -> ' ~ docker_cli_target.stdout }}).
+      Keep using Docker Desktop and set install_docker: false, or turn off
+      its WSL integration for this distro (Docker Desktop > Settings >
+      Resources > WSL integration) before installing Docker Engine.
+  when: >-
+    docker_desktop_mount.stat.exists
+    or 'docker-desktop' in (docker_cli_target.stdout | default(''))
+
+- name: Gather installed package facts
+  package_facts:
+    manager: apt
+
+- name: Fail if packages that conflict with docker-ce are installed
+  fail:
+    msg: >-
+      These installed packages conflict with Docker's own packages:
+      {{ docker_conflicting_packages | select('in', ansible_facts.packages) | join(', ') }}.
+      Remove them first (sudo apt remove <names>) after checking nothing
+      depends on them, then re-run with --tags docker.
+  when: docker_conflicting_packages | select('in', ansible_facts.packages) | list | length > 0
+
+- name: Install python3-debian (required by deb822_repository)
+  apt:
+    name: python3-debian
+    state: present
+
+- name: Get dpkg architecture for the Docker repo
+  command: dpkg --print-architecture
+  register: docker_dpkg_arch
+  changed_when: false
+  check_mode: false
+
+- name: Ensure /etc/apt/keyrings directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Docker's apt signing key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Add Docker apt repository
+  deb822_repository:
+    name: docker
+    types: deb
+    uris: https://download.docker.com/linux/ubuntu
+    suites: "{{ ansible_facts.distribution_release }}"
+    components: stable
+    architectures: "{{ docker_dpkg_arch.stdout }}"
+    signed_by: /etc/apt/keyrings/docker.asc
+    state: present
+
+- name: Install Docker Engine, CLI, containerd, Buildx and Compose
+  apt:
+    name: "{{ docker_packages }}"
+    state: present
+    update_cache: true
+
+- name: Enable and start Docker and containerd
+  systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - containerd
+    - docker
+
+# WARNING: the docker group is root-equivalent. Members can run
+# `docker run -v /:/host ...` and read or change any file as root, with no
+# sudo prompt. That is the usual trade-off on a single-user dev machine;
+# set docker_add_user_to_group: false to keep using `sudo docker`.
+# Group membership only applies to new logins: run `newgrp docker`, or
+# `wsl --shutdown` in PowerShell and reopen Ubuntu.
+- name: Add the current user to the docker group (root-equivalent)
+  user:
+    name: "{{ lookup('env', 'USER') }}"
+    groups: docker
+    append: true
+  when: docker_add_user_to_group | bool
+  register: docker_group_change
+
+# Read-only checks, run as root, so they work before the new group applies.
+# The real test as your own user (`docker run --rm hello-world`) is a manual
+# step: it needs the new group, which this playbook run cannot pick up.
+- name: Check the Docker daemon responds
+  command: docker version --format '{{ "{{" }}.Server.Version{{ "}}" }}'
+  register: docker_server_version
+  changed_when: false
+  # Docker isn't installed yet in a --check run on a fresh machine.
+  when: not ansible_check_mode
+
+- name: Check the Compose plugin is installed
+  command: docker compose version --short
+  register: docker_compose_version
+  changed_when: false
+  # Docker isn't installed yet in a --check run on a fresh machine.
+  when: not ansible_check_mode
+
+- name: Docker next steps
+  debug:
+    msg:
+      - "Docker Engine {{ docker_server_version.stdout }}, Compose {{ docker_compose_version.stdout }}."
+      - "{{ 'You were just added to the docker group: run `newgrp docker` (this shell) or `wsl --shutdown` and reopen Ubuntu.' if docker_group_change is changed else 'docker group membership unchanged.' }}"
+      - "Then test as yourself, without sudo: docker run --rm hello-world"
+  when: not ansible_check_mode

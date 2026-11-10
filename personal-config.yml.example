@@ -14,5 +14,10 @@ git_pull_rebase: false
 
 # To use local git config instead of global, uncomment:
 # git_config_scope: "local"
+
+# Docker Engine inside WSL (off by default). Leave false if you use Docker
+# Desktop: the two conflict. Enabling adds you to the docker group, which
+# is root-equivalent.
+# install_docker: true
 # Intelephense Premium licence key (optional). Keep it here, not in the repo.
 # intelephense_licence_key: "YOUR-KEY"

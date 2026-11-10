@@ -200,8 +200,10 @@ still over FTP, git becomes the record of what changed, when, and why.
   - **Docker Desktop** with its WSL2 backend: easiest, but needs a paid
     licence for larger companies (over 250 staff or $10M revenue).
   - **Docker Engine installed inside Ubuntu**: free, and you manage it
-    yourself. `ansible-playbook playbook.yml -e @personal-config.yml --tags docker -K`
-    installs it from Docker's own repo. It adds you to the `docker` group,
+    yourself. Set `install_docker: true` in `personal-config.yml`, then
+    `ansible-playbook playbook.yml -e @personal-config.yml --tags docker -K`
+    installs it from Docker's own repo. It's off by default and refuses to
+    install if Docker Desktop's WSL integration is active. It adds you to the `docker` group,
     which is effectively root access, so run `newgrp docker` (or reopen
     Ubuntu) and then test with `docker run --rm hello-world`. Don't install
     Docker Desktop as well: the two conflict.

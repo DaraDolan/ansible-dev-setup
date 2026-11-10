@@ -207,7 +207,7 @@ ansible-playbook playbook.yml --tags laravel -K
 ansible-playbook playbook.yml --tags python -K
 ansible-playbook playbook.yml --tags playwright -K
 ansible-playbook playbook.yml --tags zsh -K
-ansible-playbook playbook.yml --tags docker -K   # Docker Engine (not Desktop); then `newgrp docker`
+ansible-playbook playbook.yml -e @personal-config.yml --tags docker -K   # needs install_docker: true; not with Docker Desktop
 ```
 
 ### Configuration Updates
