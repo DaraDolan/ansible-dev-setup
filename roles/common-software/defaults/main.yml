@@ -34,6 +34,18 @@ lazygit_checksums:
   x86_64: "sha256:02beacbcda0fa342e50ae3480ba8147307353af3fb28e1d5f790e02329c201a6"
   aarch64: "sha256:49abecdf6adf4f2dfdb11bf7b9bfada267ea523612ed809d1c6d87f6c04000a7"
 
+# gitleaks - secret scanner (`gitleaks dir`, `gitleaks git`, and the
+# pre-commit hook `gitleaks git --pre-commit --staged`). Static tarball into
+# ~/.local/bin like lazygit. Checksums match upstream's
+# gitleaks_<version>_checksums.txt.
+gitleaks_version: "8.30.1"
+gitleaks_arch_map:
+  x86_64: "x64"
+  aarch64: "arm64"
+gitleaks_checksums:
+  x86_64: "sha256:551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+  aarch64: "sha256:e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080"
+
 # fzf - fuzzy finder. Pinned tarball rather than apt: the zshrc keybindings
 # (Ctrl-R history, Ctrl-T files, Alt-C cd) use `fzf --zsh`, which needs
 # >= 0.48; Ubuntu's apt package is far older. Checksums are upstream's own

@@ -814,6 +814,48 @@
     - git
     - user
 
+# --- gitleaks (pinned tarball; secret scanner for commits and folders) ------
+- name: Fail clearly if gitleaks has no build for this architecture
+  fail:
+    msg: >-
+      No pinned gitleaks tarball for architecture '{{ ansible_facts.architecture }}'.
+      Add it to gitleaks_arch_map and gitleaks_checksums in
+      roles/common-software/defaults/main.yml.
+  when:
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture not in gitleaks_arch_map
+  tags:
+    - gitleaks
+    - git
+    - user
+
+- name: Install pinned gitleaks tarball
+  include_role:
+    name: pinned-tarball
+    apply:
+      become: false
+      tags:
+        - gitleaks
+        - git
+        - user
+  vars:
+    pinned_tarball_name: gitleaks
+    pinned_tarball_version: "{{ gitleaks_version }}"
+    pinned_tarball_url: >-
+      https://github.com/gitleaks/gitleaks/releases/download/v{{ gitleaks_version }}/gitleaks_{{ gitleaks_version }}_linux_{{ gitleaks_arch_map[ansible_facts.architecture] }}.tar.gz
+    pinned_tarball_checksum: "{{ gitleaks_checksums[ansible_facts.architecture] }}"
+    pinned_tarball_bin: gitleaks
+    pinned_tarball_include:
+      - gitleaks
+    pinned_tarball_mode: '0755'
+  when:
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture in gitleaks_arch_map
+  tags:
+    - gitleaks
+    - git
+    - user
+
 # --- fzf (pinned tarball; see defaults/main.yml for why not apt) ----------
 - name: Fail clearly if fzf has no build for this architecture
   fail:

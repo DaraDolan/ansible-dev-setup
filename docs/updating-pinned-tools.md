@@ -1,6 +1,6 @@
 # Updating Pinned Tools
 
-Seven command-line tools are installed from **pinned** GitHub releases: an
+Eight command-line tools are installed from **pinned** GitHub releases: an
 exact version plus a sha256 checksum, so every machine gets the identical,
 verified binary. Nothing updates itself; you decide when to move.
 
@@ -8,6 +8,7 @@ verified binary. Nothing updates itself; you decide when to move.
 |---|---|---|---|
 | neovim | the editor | `roles/neovim/defaults/main.yml` | `neovim` |
 | lazygit | git TUI (`<leader>gg`) | `roles/common-software/defaults/main.yml` | `lazygit` |
+| gitleaks | secret scanner (pre-commit hook) | `roles/common-software/defaults/main.yml` | `gitleaks` |
 | fzf | fuzzy finder (Ctrl-R/T, Alt-C) | `roles/common-software/defaults/main.yml` | `fzf` |
 | delta | git diff pager | `roles/common-software/defaults/main.yml` | `delta` |
 | eza | `l` / `lt` listings | `roles/common-software/defaults/main.yml` | `eza` |
@@ -31,7 +32,7 @@ In this repo, just say **"update my tools"** (or run `/update-pinned`). The
 All the mechanical work is in `scripts/update-pinned.py`:
 
 ```bash
-scripts/update-pinned.py check            # pinned vs latest, for all seven
+scripts/update-pinned.py check            # pinned vs latest, for all eight
 scripts/update-pinned.py notes neovim     # release notes since your pin
 scripts/update-pinned.py bump neovim      # pin the latest release
 scripts/update-pinned.py bump neovim v0.12.5   # ...or a specific one

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Check and bump the pinned release downloads (Neovim, lazygit, fzf, delta,
-eza, starship, win32yank).
+"""Check and bump the pinned release downloads (Neovim, lazygit, gitleaks,
+fzf, delta, eza, starship, win32yank).
 
 Each tool's version and sha256 checksums live in a role's defaults/main.yml.
 This script reads them, asks GitHub for the latest release, and rewrites the
@@ -69,6 +69,18 @@ TOOLS = {
             "aarch64": "lazygit_{version}_linux_arm64.tar.gz",
         },
         "playbook_tag": "lazygit",
+    },
+    "gitleaks": {
+        "repo": "gitleaks/gitleaks",
+        "file": "roles/common-software/defaults/main.yml",
+        "version_var": "gitleaks_version",
+        "checksum_var": "gitleaks_checksums",
+        "tag_prefix": "v",
+        "assets": {
+            "x86_64": "gitleaks_{version}_linux_x64.tar.gz",
+            "aarch64": "gitleaks_{version}_linux_arm64.tar.gz",
+        },
+        "playbook_tag": "gitleaks",
     },
     "fzf": {
         "repo": "junegunn/fzf",

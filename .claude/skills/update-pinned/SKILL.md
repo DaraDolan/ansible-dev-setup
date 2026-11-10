@@ -1,11 +1,11 @@
 ---
 name: update-pinned
-description: Check for and apply updates to the pinned release downloads in this repo (Neovim, lazygit, fzf, delta, eza, starship, win32yank). Use when the user asks to update tools, check for new versions, bump Neovim/lazygit/etc., or asks "what's out of date?".
+description: Check for and apply updates to the pinned release downloads in this repo (Neovim, lazygit, gitleaks, fzf, delta, eza, starship, win32yank). Use when the user asks to update tools, check for new versions, bump Neovim/lazygit/etc., or asks "what's out of date?".
 ---
 
 # Updating pinned tools
 
-Seven tools are installed from pinned GitHub release tarballs with sha256
+Eight tools are installed from pinned GitHub release tarballs with sha256
 checksums (roles/pinned-tarball). Their versions and checksums live in role
 defaults. `scripts/update-pinned.py` does the mechanical work; this skill adds
 the review and workflow around it. Human-facing docs:
@@ -38,6 +38,7 @@ and check them against how THIS repo uses the tool (grep before judging):
 |---|---|
 | neovim | `roles/neovim/files/**` — `vim.lsp.config` (0.11+ API), lazy.nvim, nvim-treesitter `main` branch (parser ABI), `options.lua` providers |
 | lazygit | bound to `<leader>gg` via toggleterm in `lua/plugins/init.lua` |
+| gitleaks | pre-commit hooks (`gitleaks git --pre-commit --redact --staged --verbose`) in personal repos; check for renamed subcommands/flags and config (`.gitleaks.toml`) changes |
 | fzf | `roles/zsh/files/zshrc` — `fzf --zsh` (needs >= 0.48), `FZF_DEFAULT_OPTS` colour names, Ctrl-T preview options |
 | delta | `git_config` in common-software tasks: `core.pager`, `interactive.diffFilter` (`delta --color-only`), `delta.navigate` |
 | eza | zshrc aliases `l` / `lt`: `-la --header --git --group-directories-first --icons=auto`, `--tree --level=2 --git-ignore` |
@@ -87,6 +88,7 @@ failure in "Download pinned <tool> tarball" means the pin is wrong — re-run
   errors appear, `:TSUpdate` — a new Neovim can need parsers rebuilt and the
   treesitter handler only fires on config changes, not Neovim bumps.
 - lazygit: `lazygit --version`, `<leader>gg` in Neovim.
+- gitleaks: `gitleaks version`; make a test commit in a repo with the hook.
 - fzf: `fzf --version`, Ctrl-R / Ctrl-T in a new shell.
 - delta: `git diff` / `git add -p` render through delta.
 - eza: `l` and `lt` in a repo.
