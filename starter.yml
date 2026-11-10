@@ -92,6 +92,26 @@
       loop_control:
         label: "{{ item.line }}"
 
+    # ~/.netrc (FTP logins) is created by hand; never created or read here.
+    # stat checks metadata only. Same check as roles/common-software.
+    - name: Check ~/.netrc permissions (metadata only, never contents)
+      ansible.builtin.stat:
+        path: "{{ ansible_facts.env.HOME }}/.netrc"
+        get_checksum: false
+        get_mime: false
+        get_attributes: false
+      register: netrc_stat
+
+    - name: Warn if ~/.netrc is readable by others or not owned by you
+      ansible.builtin.debug:
+        msg: >-
+          WARNING: ~/.netrc is mode {{ netrc_stat.stat.mode }}, owner
+          {{ netrc_stat.stat.pw_name }}. It holds passwords: fix with
+          `chmod 600 ~/.netrc` (and `chown $USER ~/.netrc` if needed).
+      when:
+        - netrc_stat.stat.exists
+        - netrc_stat.stat.mode != '0600' or netrc_stat.stat.uid != (ansible_facts.user_uid | int)
+
     - name: Create ~/code for projects (inside Linux, not /mnt/c)
       ansible.builtin.file:
         path: "{{ ansible_facts.env.HOME }}/code"

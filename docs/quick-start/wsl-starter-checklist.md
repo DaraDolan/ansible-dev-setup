@@ -166,6 +166,11 @@ still over FTP, git becomes the record of what changed, when, and why.
   mirror --verbose /site/wwwroot .              # server → local
   quit
   ```
+  **Later, to skip typing the password,** you can save the login in
+  `~/.netrc` (`chmod 600` it). lftp uses `.netrc` **only when you open
+  the bare host name** (`open <host>.ftp.azurewebsites.windows.net`).
+  With `ftp://` in front, it ignores `.netrc`, logs in as anonymous and
+  fails with `530`. The FTPS settings above still apply either way.
   **`mirror` downloads; `mirror -R` uploads.** Never run `mirror -R`
   (especially with `--delete`) until you've understood it and tried
   it with `--dry-run` first.

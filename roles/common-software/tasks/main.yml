@@ -57,6 +57,33 @@
     - user
     - lftp
 
+# ~/.netrc holds FTP logins for lftp and is created by hand. Ansible never
+# creates, templates or reads it: stat checks metadata only (no checksum).
+- name: Check ~/.netrc permissions (metadata only, never contents)
+  stat:
+    path: "{{ lookup('env', 'HOME') }}/.netrc"
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: netrc_stat
+  become: false
+  tags:
+    - user
+    - lftp
+
+- name: Warn if ~/.netrc is readable by others or not owned by you
+  debug:
+    msg: >-
+      WARNING: ~/.netrc is mode {{ netrc_stat.stat.mode }}, owner
+      {{ netrc_stat.stat.pw_name }}. It holds passwords: fix with
+      `chmod 600 ~/.netrc` (and `chown $USER ~/.netrc` if needed).
+  when:
+    - netrc_stat.stat.exists
+    - netrc_stat.stat.mode != '0600' or netrc_stat.stat.uid != (lookup('pipe', 'id -u') | int)
+  tags:
+    - user
+    - lftp
+
 - name: Install PHP CLI (for Composer, Artisan, Pint)
   apt:
     name:
