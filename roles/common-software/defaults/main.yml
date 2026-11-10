@@ -61,13 +61,13 @@ fzf_checksums:
 # git-delta - syntax-highlighting git pager, wired in as core.pager below.
 # Upstream publishes no checksum files; these were computed from the
 # downloaded release artifacts when the version was pinned.
-delta_version: "0.19.2"
+delta_version: "0.20.1"
 delta_arch_map:
   x86_64: "x86_64"
   aarch64: "aarch64"
 delta_checksums:
-  x86_64: "sha256:8e695c5f586a8c53d6c3b01be0b4a422ed218bfed2a56191caebe373a1c18ab2"
-  aarch64: "sha256:0bfce159a5cddd5feb3d6db4a616d883ff51253ce08ac7ec11cb1d208cfaab9e"
+  x86_64: "sha256:50f08c879f84c81ceb220e476491a7f492d2c9c671e79918cc44badf961a6240"
+  aarch64: "sha256:da7f4338f593572ff426ae153e0870e2fdc72729416eff551b40cdeb67940db8"
 
 # eza - modern ls (icons, git status column, tree view); the zshrc aliases
 # ls/l/lt to it when present. Checksums are the sha256 digests GitHub
