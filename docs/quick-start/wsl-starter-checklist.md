@@ -145,12 +145,25 @@ still over FTP, git becomes the record of what changed, when, and why.
 - [ ] **Agree the team rule:** *no edit goes to the server unless it's
   also committed.* Without it, the repo and the live site drift apart and
   the repo stops being trustworthy.
-- [ ] **Pull a copy of the live site (download only).**
+- [ ] **Make lftp refuse unencrypted FTP.** By default, if a server doesn't
+  offer encryption, lftp quietly falls back to plain FTP and sends your
+  password unencrypted. `starter.yml` adds these two lines to `~/.lftprc`
+  (or add them by hand):
+  ```
+  set ftp:ssl-force true           # refuse to log in without encryption (FTPS)
+  set ftp:ssl-protect-data true    # encrypt file transfers too, not just the login
+  ```
+  If a server then fails with a TLS error, it doesn't support FTPS. Ask
+  before making an exception for it.
+- [ ] **Pull a copy of the live site (download only).** Our Azure App
+  Service sites use FTPS (`ftp://` plus the settings above), not SFTP.
+  The host and login are in the Azure portal under the app →
+  **Deployment Center → FTPS credentials**.
   ```bash
   mkdir -p ~/code/sitename && cd ~/code/sitename
-  lftp -u USERNAME sftp://host.example.com     # prefer sftp:// over ftp:// if the host supports it
-  # inside lftp:
-  mirror --verbose /path/on/server .            # server → local
+  lftp -u 'USERNAME' ftp://<host>.ftp.azurewebsites.windows.net
+  # inside lftp (it asks for the password; it isn't typed on the command line):
+  mirror --verbose /site/wwwroot .              # server → local
   quit
   ```
   **`mirror` downloads; `mirror -R` uploads.** Never run `mirror -R`
@@ -194,7 +207,8 @@ still over FTP, git becomes the record of what changed, when, and why.
 ## Starter profile (`starter.yml`)
 
 Does stage 3's git config, installs the stage 1–4 tools (`git curl wget
-unzip openssh-client tree ripgrep jq lftp`), and creates `~/code`. It
+unzip openssh-client tree ripgrep jq lftp`), makes lftp require FTPS
+(stage 4), and creates `~/code`. It
 doesn't change the shell, editor, or prompt.
 
 ```bash

@@ -35,6 +35,28 @@
   become: false
   when: ansible_facts.os_family == "Debian"
 
+# lftp tries TLS by default but silently falls back to plain FTP (password in
+# cleartext) when a server doesn't offer it. Force FTPS for every host; a
+# legacy plain-FTP server needs a deliberate `set ftp:ssl-force/<host> false`.
+# lineinfile, not a template: per-host lines added by hand are preserved, and
+# the regexps match only the global settings (a per-host line has `/<host>`).
+- name: Require FTPS in lftp for every server
+  lineinfile:
+    path: "{{ lookup('env', 'HOME') }}/.lftprc"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    create: true
+    mode: "0644"
+  loop:
+    - { regexp: '^\s*set\s+ftp:ssl-force\s', line: "set ftp:ssl-force true" }
+    - { regexp: '^\s*set\s+ftp:ssl-protect-data\s', line: "set ftp:ssl-protect-data true" }
+  loop_control:
+    label: "{{ item.line }}"
+  become: false
+  tags:
+    - user
+    - lftp
+
 - name: Install PHP CLI (for Composer, Artisan, Pint)
   apt:
     name:

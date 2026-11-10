@@ -77,6 +77,21 @@
       loop_control:
         label: "{{ item.name }}"
 
+    # Without this, lftp falls back to plain FTP (password sent unencrypted)
+    # when a server doesn't offer TLS. Same task as roles/common-software.
+    - name: Require FTPS in lftp for every server
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_facts.env.HOME }}/.lftprc"
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        create: true
+        mode: "0644"
+      loop:
+        - { regexp: '^\s*set\s+ftp:ssl-force\s', line: "set ftp:ssl-force true" }
+        - { regexp: '^\s*set\s+ftp:ssl-protect-data\s', line: "set ftp:ssl-protect-data true" }
+      loop_control:
+        label: "{{ item.line }}"
+
     - name: Create ~/code for projects (inside Linux, not /mnt/c)
       ansible.builtin.file:
         path: "{{ ansible_facts.env.HOME }}/code"
