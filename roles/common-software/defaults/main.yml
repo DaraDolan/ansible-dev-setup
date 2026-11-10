@@ -26,13 +26,13 @@ install_playwright: false
 # a runtime error until this was installed. Fetched as a static tarball into
 # ~/.local/bin so it needs no sudo and works under `--tags user`.
 # Checksums are the upstream ones from the release's checksums.txt.
-lazygit_version: "0.65.1"
+lazygit_version: "0.66.3"
 lazygit_arch_map:
   x86_64: "x86_64"
   aarch64: "arm64"
 lazygit_checksums:
-  x86_64: "sha256:02beacbcda0fa342e50ae3480ba8147307353af3fb28e1d5f790e02329c201a6"
-  aarch64: "sha256:49abecdf6adf4f2dfdb11bf7b9bfada267ea523612ed809d1c6d87f6c04000a7"
+  x86_64: "sha256:0a23f429a95f0d09db298b3c291536d818de066aa5a85c255806f0490ff6656b"
+  aarch64: "sha256:ac0b48237f3d0283813e7154ec063237e519532feb0470c0881a1793ee78fd42"
 
 # gitleaks - secret scanner (`gitleaks dir`, `gitleaks git`, and the
 # pre-commit hook `gitleaks git --pre-commit --staged`). Static tarball into
