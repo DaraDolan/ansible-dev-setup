@@ -1,0 +1,34 @@
+---
+# Docker Engine from Docker's own apt repository (not Ubuntu's docker.io,
+# and not Docker Desktop). Runs inside WSL2 under systemd, which
+# /etc/wsl.conf must enable ([boot] systemd=true, the default for new
+# Ubuntu installs).
+#
+# Versions are not pinned: like the other apt packages in this repo, they
+# follow the signed upstream repo and update with `apt upgrade`. Pinned
+# GitHub tarballs (roles/pinned-tarball) are for tools with no apt repo.
+
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+# Ubuntu/Debian packages that conflict with docker-ce. The role stops if any
+# are installed, rather than removing them silently. See
+# https://docs.docker.com/engine/install/ubuntu/#uninstall-old-versions
+docker_conflicting_packages:
+  - docker.io
+  - docker-doc
+  - docker-compose
+  - docker-compose-v2
+  - podman-docker
+  - containerd
+  - runc
+
+# Add the user running the playbook to the docker group.
+# WARNING: membership of the docker group is root-equivalent. Anyone in it
+# can start a container that mounts / and edit any file as root. Set to
+# false to keep using `sudo docker` instead.
+docker_add_user_to_group: true
