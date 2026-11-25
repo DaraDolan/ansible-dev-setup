@@ -21,3 +21,9 @@ git_pull_rebase: false
 # install_docker: true
 # Intelephense Premium licence key (optional). Keep it here, not in the repo.
 # intelephense_licence_key: "YOUR-KEY"
+
+# Folders where Neovim must not reformat files on save (legacy code whose
+# formatting/line endings must survive edits). Creates a .no-autoformat marker
+# in each; applies to everything below it. Apply: ansible-playbook update-config.yml -e @personal-config.yml
+# nvim_no_autoformat_dirs:
+#   - "~/code/legacy-app"

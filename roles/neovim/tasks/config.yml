@@ -206,3 +206,72 @@
   tags:
     - neovim
     - user
+
+# `.no-autoformat` markers (lua/core/autoformat.lua) for the folders listed in
+# nvim_no_autoformat_dirs. force: no leaves an existing marker untouched, so
+# reruns report ok. Missing folders are skipped, not created.
+- name: Check folders that should not be formatted on save
+  stat:
+    path: "{{ item | expanduser }}"
+  loop: "{{ nvim_no_autoformat_dirs }}"
+  register: nvim_no_autoformat_stat
+  become: false
+  tags:
+    - neovim
+    - user
+
+- name: Create .no-autoformat markers
+  copy:
+    content: ""
+    dest: "{{ item.stat.path }}/.no-autoformat"
+    force: no
+    mode: 0644
+  loop: "{{ nvim_no_autoformat_stat.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.stat.exists and item.stat.isdir
+  become: false
+  tags:
+    - neovim
+    - user
+
+- name: Warn about missing .no-autoformat folders
+  debug:
+    msg: "nvim_no_autoformat_dirs: {{ item.item }} does not exist, no marker created"
+  loop: "{{ nvim_no_autoformat_stat.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: not (item.stat.exists and item.stat.isdir)
+  tags:
+    - neovim
+    - user
+
+# Keep the marker out of `git status` without touching a shared .gitignore.
+# Only for folders that are a repo root (have their own .git directory).
+- name: Check which .no-autoformat folders are git repo roots
+  stat:
+    path: "{{ item.stat.path }}/.git/info"
+  loop: "{{ nvim_no_autoformat_stat.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.stat.exists and item.stat.isdir
+  register: nvim_no_autoformat_git
+  become: false
+  tags:
+    - neovim
+    - user
+
+- name: Exclude .no-autoformat from git status locally
+  lineinfile:
+    path: "{{ item.stat.path }}/exclude"
+    line: ".no-autoformat"
+    create: yes
+    mode: 0644
+  loop: "{{ nvim_no_autoformat_git.results }}"
+  loop_control:
+    label: "{{ item.item.item }}"
+  when: item.stat is defined and item.stat.exists and item.stat.isdir
+  become: false
+  tags:
+    - neovim
+    - user

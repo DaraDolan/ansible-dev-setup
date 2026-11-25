@@ -24,3 +24,11 @@ neovim_arch_map:
 # Intelephense Premium licence key. Secret: set it in personal-config.yml
 # (gitignored), never here. Empty = skip writing ~/.config/intelephense/licence.txt.
 intelephense_licence_key: ""
+
+# Folders whose files Neovim must not rewrite on save (no format-on-save, no
+# trailing-whitespace trim, no added final newline). Each gets an empty
+# `.no-autoformat` marker; see roles/neovim/files/lua/core/autoformat.lua.
+# If the folder is a git repo's root, the marker also goes in its
+# .git/info/exclude (never its shared .gitignore). Paths are machine-specific:
+# set them in personal-config.yml, not here.
+nvim_no_autoformat_dirs: []
