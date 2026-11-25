@@ -742,11 +742,14 @@ return {
         -- Python (ruff via mason; matches the uv/ruff toolchain used in projects)
         python = { "ruff_format" },
       },
-      -- Format on save
-      format_on_save = {
-        timeout_ms = 500,
-        lsp_fallback = true,
-      },
+      -- Format on save, unless a `.no-autoformat` marker or :AutoFormatToggle
+      -- says not to (lua/core/autoformat.lua). <leader>fm still formats.
+      format_on_save = function(bufnr)
+        if require("core.autoformat").disabled(bufnr) then
+          return
+        end
+        return { timeout_ms = 500, lsp_fallback = true }
+      end,
     },
   },
 

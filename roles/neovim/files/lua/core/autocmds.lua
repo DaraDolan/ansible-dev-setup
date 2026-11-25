@@ -102,11 +102,30 @@ autocmd("FileType", {
   end,
 })
 
--- Automatically remove trailing whitespace
+-- Automatically remove trailing whitespace, except where a `.no-autoformat`
+-- marker or :AutoFormatToggle says not to (see lua/core/autoformat.lua).
 autocmd("BufWritePre", {
   group = general,
   pattern = "*",
-  command = [[%s/\s\+$//e]],
+  callback = function(args)
+    if require("core.autoformat").disabled(args.buf) then
+      return
+    end
+    local view = vim.fn.winsaveview()
+    vim.cmd([[keeppatterns %s/\s\+$//e]])
+    vim.fn.winrestview(view)
+  end,
+})
+
+-- Under a `.no-autoformat` marker, don't add a final newline the file didn't
+-- have: legacy files must come back byte-for-byte apart from the edit.
+autocmd("BufReadPost", {
+  group = general,
+  callback = function(args)
+    if vim.bo[args.buf].buftype == "" and require("core.autoformat").marked(args.buf) then
+      vim.bo[args.buf].fixendofline = false
+    end
+  end,
 })
 
 -- Open files a repo marks `view-only` in its .gitattributes as read-only, e.g.
